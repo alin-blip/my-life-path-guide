@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Sword, Flame, Sparkles, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 import { ImpactSummaryCard } from './ImpactSummaryCard';
 import { ChallengeMiniPreview } from './ChallengeMiniPreview';
 import { WarriorPowerUpsell } from './WarriorPowerUpsell';
@@ -22,18 +23,55 @@ interface WarriorPowerResultsPageProps {
   onContinueFree: () => void;
 }
 
-// Simple headline based on score
-function getPersonalizedHeadline(userName: string, percentage: number): string {
-  if (percentage <= 50) {
-    return `${userName}, ai potențial MARE de creștere`;
-  } else if (percentage <= 75) {
-    return `${userName}, ești la ${percentage}% din potențial`;
-  } else {
-    return `${userName}, ești aproape - un upgrade te face unstoppable`;
-  }
-}
+const COPY = {
+  ro: {
+    results: 'Rezultate',
+    focusPrimary: 'Focus principal',
+    shareResult: 'Share rezultatul',
+    shareText: (total: number, pct: number, level: string) =>
+      `Am obținut ${total}/96 (${pct}%) — ${level} — la Warrior Power Assessment. Testează-te și tu:`,
+    copySuccess: 'Link copiat — trimite-l unui prieten',
+    copyError: 'Nu am putut copia link-ul',
+    challengeLabel: 'Have It All Lifestyle',
+    challengeTitle: 'Challenge-ul de 7 Zile care îți transformă viața',
+    ctaScroll: '🚀 Începe Gratuit — Alege Trial-ul',
+    platformLabel: 'Descoperă Platforma',
+    finalCta: '🚀 Începe Transformarea ACUM',
+    trialNote: '7 zile gratuit • Anulezi oricând',
+    headline: (name: string, pct: number) =>
+      pct <= 50
+        ? `${name}, ai potențial MARE de creștere`
+        : pct <= 75
+        ? `${name}, ești la ${pct}% din potențial`
+        : `${name}, ești aproape - un upgrade te face unstoppable`,
+  },
+  en: {
+    results: 'Results',
+    focusPrimary: 'Primary focus',
+    shareResult: 'Share result',
+    shareText: (total: number, pct: number, level: string) =>
+      `I scored ${total}/96 (${pct}%) — ${level} — on the Warrior Power Assessment. Test yourself:`,
+    copySuccess: 'Link copied — send it to a friend',
+    copyError: 'Could not copy the link',
+    challengeLabel: 'Have It All Lifestyle',
+    challengeTitle: 'The 7-Day Challenge that transforms your life',
+    ctaScroll: '🚀 Start Free — Choose Your Trial',
+    platformLabel: 'Discover the Platform',
+    finalCta: '🚀 Start Your Transformation NOW',
+    trialNote: '7 days free • Cancel anytime',
+    headline: (name: string, pct: number) =>
+      pct <= 50
+        ? `${name}, you have MASSIVE growth potential`
+        : pct <= 75
+        ? `${name}, you're at ${pct}% of your potential`
+        : `${name}, you're close — one upgrade makes you unstoppable`,
+  },
+};
 
 export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: WarriorPowerResultsPageProps) {
+  const { language } = useLanguage();
+  const t = COPY[language];
+
   const totalScore = calculateTotalScore(scores);
   const percentage = getScorePercentage(scores);
   const overallLevel = getOverallLevel(scores);
@@ -45,33 +83,30 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
     business: calculateDimensionScore(scores, 'business')
   };
 
-  // Find weakest dimension
   const sortedDimensions = Object.entries(dimensionScores).sort(([, a], [, b]) => a - b);
   const weakestDimension = sortedDimensions[0][0];
-  const weakestDimName = DIMENSION_INFO[weakestDimension as keyof typeof DIMENSION_INFO]?.name || weakestDimension;
+  const dimInfo = DIMENSION_INFO[weakestDimension as keyof typeof DIMENSION_INFO];
+  const weakestDimName = language === 'en' ? (dimInfo?.nameEn || weakestDimension) : (dimInfo?.name || weakestDimension);
 
-  const headline = getPersonalizedHeadline(userName, percentage);
+  const levelLabel = language === 'en' ? overallLevel.nameEn : overallLevel.name;
+  const headline = t.headline(userName, percentage);
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-6 md:py-10 safe-area-bottom bg-white min-h-screen font-['Montserrat',sans-serif]">
-      {/* ============================================ */}
-      {/* SECTION 1: IMPACT (Score + Summary) */}
-      {/* ============================================ */}
+      {/* SECTION 1: IMPACT */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-6"
       >
-        {/* Badge */}
         <div className="inline-flex items-center gap-2 mb-3">
           <Sword className="h-4 w-4 text-primary" />
           <span className="text-xs uppercase tracking-widest text-primary font-bold">
-            Rezultate
+            {t.results}
           </span>
           <Sword className="h-4 w-4 text-primary transform scale-x-[-1]" />
         </div>
 
-        {/* Score Display */}
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -96,7 +131,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
               percentage <= 75 ? "text-blue-400" :
               "text-green-400"
             )}>
-              {overallLevel.name}
+              {levelLabel}
             </div>
             <Flame className={cn(
               "absolute -top-2 -right-2 h-6 w-6",
@@ -108,50 +143,41 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           </div>
         </motion.div>
 
-        {/* Headline */}
         <h1 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
           {headline}
         </h1>
         <p className="text-sm text-gray-600">
-          Focus principal: <span className="text-primary font-medium">{weakestDimName}</span>
+          {t.focusPrimary}: <span className="text-primary font-medium">{weakestDimName}</span>
         </p>
 
-        {/* Share button */}
         <div className="mt-4 flex justify-center">
           <button
             type="button"
             onClick={async () => {
               const shareUrl = 'https://ceomindos.com/warrior-power';
-              const shareText = `Am obținut ${totalScore}/96 (${percentage}%) — ${overallLevel.name} — la Warrior Power Assessment. Testează-te și tu:`;
+              const shareText = t.shareText(totalScore, percentage, levelLabel);
               try {
                 if (typeof navigator !== 'undefined' && (navigator as any).share) {
-                  await (navigator as any).share({
-                    title: 'Warrior Power Assessment',
-                    text: shareText,
-                    url: shareUrl,
-                  });
+                  await (navigator as any).share({ title: 'Warrior Power Assessment', text: shareText, url: shareUrl });
                   return;
                 }
               } catch {}
               try {
                 await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-                toast.success('Link copiat — trimite-l unui prieten');
+                toast.success(t.copySuccess);
               } catch {
-                toast.error('Nu am putut copia link-ul');
+                toast.error(t.copyError);
               }
             }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-semibold hover:bg-primary/10 transition"
           >
             <Share2 className="h-4 w-4" />
-            Share rezultatul
+            {t.shareResult}
           </button>
         </div>
       </motion.div>
 
-
-
-
-      {/* Impact Summary Card (Replaces 2 old components) */}
+      {/* Impact Summary Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -161,9 +187,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         <ImpactSummaryCard scores={dimensionScores} userName={userName} />
       </motion.div>
 
-      {/* ============================================ */}
-      {/* SECTION 2: SOLUTION (Video + Mini Preview) */}
-      {/* ============================================ */}
+      {/* SECTION 2: SOLUTION */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -174,15 +198,14 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           <div className="inline-flex items-center gap-2 mb-2">
             <Flame className="h-4 w-4 text-primary" />
             <span className="text-xs uppercase tracking-widest text-primary font-bold">
-              Have It All Lifestyle
+              {t.challengeLabel}
             </span>
           </div>
           <h2 className="text-lg md:text-xl font-bold text-gray-900">
-            Challenge-ul de 7 Zile care îți transformă viața
+            {t.challengeTitle}
           </h2>
         </div>
-        
-        {/* Video */}
+
         <div className="max-w-2xl mx-auto">
           <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-primary/20 shadow-lg">
             <iframe
@@ -195,8 +218,7 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
               className="absolute inset-0"
             />
           </div>
-          
-          {/* CTA Button */}
+
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -204,23 +226,18 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
             className="mt-4"
           >
             <button
-              onClick={() => {
-                document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onClick={() => { document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="w-full py-3 px-6 bg-gradient-to-r from-primary to-cyan-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              🚀 Începe Gratuit — Alege Trial-ul
+              {t.ctaScroll}
             </button>
           </motion.div>
-          
-          {/* Detailed Challenge Preview */}
+
           <ChallengeMiniPreview weakestDimension={weakestDimension} />
         </div>
       </motion.div>
 
-      {/* ============================================ */}
       {/* SECTION 3: URGENCY + PRICING */}
-      {/* ============================================ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -236,16 +253,10 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <WarriorPowerUpsell
-          scores={scores}
-          userName={userName}
-          onContinueFree={onContinueFree}
-        />
+        <WarriorPowerUpsell scores={scores} userName={userName} onContinueFree={onContinueFree} />
       </motion.div>
 
-      {/* ============================================ */}
       {/* SECTION 4: PLATFORM VIDEO + FEATURES */}
-      {/* ============================================ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -256,12 +267,11 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           <div className="inline-flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-xs uppercase tracking-widest text-primary font-bold">
-              Descoperă Platforma
+              {t.platformLabel}
             </span>
           </div>
         </div>
 
-        {/* Platform Demo Video */}
         <div className="max-w-2xl mx-auto mb-8">
           <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.4),0_0_30px_rgba(34,211,238,0.2)]">
             <iframe
@@ -274,10 +284,8 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           </div>
         </div>
 
-        {/* Interactive Feature Showcase */}
         <FeatureShowcase />
 
-        {/* Final CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -285,15 +293,13 @@ export function WarriorPowerResultsPage({ scores, userName, onContinueFree }: Wa
           className="mt-10 text-center"
         >
           <button
-            onClick={() => {
-              document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
-            }}
+            onClick={() => { document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' }); }}
             className="w-full max-w-md mx-auto py-4 px-8 bg-gradient-to-r from-primary via-cyan-500 to-primary text-white font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] transition-all hover:scale-[1.02] active:scale-[0.98] animate-pulse"
           >
-            🚀 Începe Transformarea ACUM
+            {t.finalCta}
           </button>
           <p className="mt-3 text-sm text-gray-600">
-            7 zile gratuit • Anulezi oricând
+            {t.trialNote}
           </p>
         </motion.div>
       </motion.div>

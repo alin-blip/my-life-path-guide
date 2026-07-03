@@ -4,6 +4,7 @@ import { ChevronLeft, Flame, Sword, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 import { 
   WARRIOR_POWER_QUESTIONS, 
   DIMENSION_INFO,
@@ -14,7 +15,6 @@ interface WarriorPowerQuizProps {
   onComplete: (scores: WarriorPowerScores) => void;
 }
 
-// Level configurations - Light theme
 const LEVEL_CONFIG = {
   ADORMIT: {
     icon: '💤',
@@ -50,14 +50,28 @@ const LEVEL_CONFIG = {
   }
 };
 
+const COPY = {
+  ro: {
+    selectLevel: '— selectează nivelul tău',
+    prevQuestion: 'Întrebarea anterioară',
+    seeResults: 'Vezi Rezultatele',
+  },
+  en: {
+    selectLevel: '— select your level',
+    prevQuestion: 'Previous question',
+    seeResults: 'See Results',
+  },
+};
+
 const AUTOSAVE_KEY = 'warrior_power_quiz_draft_v1';
 
 export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
+  const { language } = useLanguage();
+  const t = COPY[language];
   const hydrated = useRef(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<Partial<WarriorPowerScores>>({});
 
-  // Restore in-progress draft (autosave)
   useEffect(() => {
     try {
       const raw = localStorage.getItem(AUTOSAVE_KEY);
@@ -80,7 +94,6 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
     hydrated.current = true;
   }, []);
 
-  // Persist draft on every change
   useEffect(() => {
     if (!hydrated.current) return;
     try {
@@ -99,15 +112,9 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
     try { localStorage.removeItem(AUTOSAVE_KEY); } catch {}
   };
 
-  // Select score and auto-advance
   const handleScoreSelect = (score: number) => {
-    const newScores = {
-      ...scores,
-      [currentQuestion.id]: score
-    };
+    const newScores = { ...scores, [currentQuestion.id]: score };
     setScores(newScores);
-
-    // Visual feedback then advance
     setTimeout(() => {
       if (currentIndex < WARRIOR_POWER_QUESTIONS.length - 1) {
         setCurrentIndex(prev => prev + 1);
@@ -119,10 +126,12 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
   };
 
   const handleBack = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-    }
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
   };
+
+  const dimName = language === 'en' ? currentQuestion.dimensionNameEn : currentQuestion.dimensionName;
+  const sectionTitle = language === 'en' ? currentQuestion.sectionEn : currentQuestion.section;
+  const sectionDesc = language === 'en' ? currentQuestion.sectionDescription.en : currentQuestion.sectionDescription.ro;
 
   return (
     <div className="w-full min-h-screen bg-white text-foreground px-3 sm:px-4 py-4 sm:py-6 safe-area-bottom font-['Montserrat',sans-serif]">
@@ -136,7 +145,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
             </span>
           </div>
           <span className="text-xs sm:text-sm font-medium" style={{ color: dimensionInfo.color }}>
-            {dimensionInfo.icon} {currentQuestion.dimensionName}
+            {dimensionInfo.icon} {dimName}
           </span>
         </div>
         <Progress value={progress} className="h-1.5 sm:h-2 bg-gray-200" />
@@ -159,27 +168,30 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
               >
                 <span className="text-lg sm:text-xl">{dimensionInfo.icon}</span>
                 <span className="font-semibold text-xs sm:text-sm uppercase tracking-wider" style={{ color: dimensionInfo.color }}>
-                  {currentQuestion.dimensionName}
+                  {dimName}
                 </span>
               </div>
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-1.5 sm:mb-2 px-2">
-                {currentQuestion.section}
+                {sectionTitle}
               </h2>
               <p className="text-xs sm:text-sm text-gray-500 px-2">
-                {currentQuestion.sectionDescription}
+                {sectionDesc}
               </p>
             </div>
 
-            {/* Level Cards with Descriptions */}
+            {/* Level Cards */}
             <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
               {currentQuestion.levels.map((level, idx) => {
                 const levelKey = level.name.toUpperCase() as keyof typeof LEVEL_CONFIG;
                 const config = LEVEL_CONFIG[levelKey];
                 if (!config) return null;
-                
+
                 const currentScore = scores[currentQuestion.id as keyof WarriorPowerScores];
                 const hasScoreInThisLevel = currentScore && config.range.includes(currentScore);
-                
+                const displayName = language === 'en' ? level.nameEn : level.name;
+                const displayTitle = language === 'en' ? level.title.en : level.title.ro;
+                const displayDesc = language === 'en' ? level.description.en : level.description.ro;
+
                 return (
                   <motion.div
                     key={idx}
@@ -193,9 +205,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                         : "border-gray-200 bg-white hover:border-gray-400"
                     )}
                   >
-                    {/* Level Card with inline score buttons */}
                     <div className="p-3 sm:p-4 flex items-start gap-3 sm:gap-4">
-                      {/* Icon Badge */}
                       <div className={cn(
                         "flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center text-lg sm:text-xl",
                         hasScoreInThisLevel
@@ -204,15 +214,14 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                       )}>
                         {config.icon}
                       </div>
-                      
-                      {/* Content */}
+
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
                           <span className={cn(
                             "font-bold text-sm sm:text-base uppercase tracking-wide",
                             hasScoreInThisLevel ? config.text : "text-gray-900"
                           )}>
-                            {level.name}
+                            {displayName}
                           </span>
                           <span className="text-[10px] sm:text-xs text-gray-500">
                             [{level.range.join('-')}]
@@ -224,22 +233,19 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                             </span>
                           )}
                         </div>
-                        {/* Titlu nivel */}
                         <p className={cn(
                           "text-xs sm:text-sm font-semibold mb-0.5 sm:mb-1",
                           hasScoreInThisLevel ? "text-gray-900" : "text-gray-800"
                         )}>
-                          {level.title}
+                          {displayTitle}
                         </p>
-                        {/* Descriere completă */}
                         <p className={cn(
                           "text-xs sm:text-sm leading-relaxed",
                           hasScoreInThisLevel ? "text-gray-800" : "text-gray-500"
                         )}>
-                          {level.description}
+                          {displayDesc}
                         </p>
 
-                        {/* Quick Score Buttons - Always visible under the description */}
                         <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-2">
                           {config.range.map((score) => (
                             <motion.button
@@ -258,7 +264,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                             </motion.button>
                           ))}
                           <span className="text-xs sm:text-sm text-gray-500 ml-1">
-                            — selectează nivelul tău
+                            {t.selectLevel}
                           </span>
                         </div>
                       </div>
@@ -277,12 +283,12 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                   className="gap-2 text-gray-500 hover:text-gray-900"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  Întrebarea anterioară
+                  {t.prevQuestion}
                 </Button>
               </div>
             )}
 
-            {/* Last question with score - show complete button */}
+            {/* Last question complete button */}
             {currentIndex === WARRIOR_POWER_QUESTIONS.length - 1 && 
              scores[currentQuestion.id as keyof WarriorPowerScores] && (
               <motion.div
@@ -296,7 +302,7 @@ export function WarriorPowerQuiz({ onComplete }: WarriorPowerQuizProps) {
                   className="gap-2 bg-gradient-to-r from-primary to-primary/80 font-bold px-8"
                 >
                   <Flame className="h-4 w-4" />
-                  Vezi Rezultatele
+                  {t.seeResults}
                 </Button>
               </motion.div>
             )}
