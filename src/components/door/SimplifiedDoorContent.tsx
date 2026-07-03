@@ -532,7 +532,7 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Focus Column - No extra wrapper, DominoDoor has its own styling */}
-            <div onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+            <div className="min-w-0" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
               <DominoDoor 
                 selectedDomino={selectedDomino}
                 dominoKeyPoints={dominoKeyPoints}
