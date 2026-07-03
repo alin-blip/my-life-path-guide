@@ -162,7 +162,7 @@ export default function WarriorPower() {
 
         if (emailError || (emailData as any)?.error) {
           console.error('Error sending email:', emailError);
-          toast.warning('Email-ul cu rezultatele a întâmpinat probleme. Verifică spam.');
+          toast.warning(isEn ? 'Email with results had issues. Check spam.' : 'Email-ul cu rezultatele a întâmpinat probleme. Verifică spam.');
         }
       } catch (emailError) {
         console.error('Error sending email:', emailError);
@@ -171,25 +171,22 @@ export default function WarriorPower() {
       // Route based on split test variant (already assigned above)
       switch (variant) {
         case 'A':
-          // Redirect to Warrior Launch Accelerator (€497 offer)
-          toast.success('Ți-am trimis rezultatele pe email! Verifică inbox-ul.');
+          toast.success(isEn ? "We sent your results by email! Check your inbox." : 'Ți-am trimis rezultatele pe email! Verifică inbox-ul.');
           navigate('/warrior-launch-accelerator?source=warrior-power-split-a');
           break;
         case 'B':
-          // Show results page (current flow with challenge upsell)
-          toast.success('Ți-am trimis rezultatele pe email!');
+          toast.success(isEn ? "We sent your results by email!" : 'Ți-am trimis rezultatele pe email!');
           setLeadData(data);
           setStep('results');
           break;
         case 'C':
-          // Redirect to homepage to explore platform
-          toast.success('Ți-am trimis rezultatele pe email! Explorează platforma.');
+          toast.success(isEn ? "We sent your results by email! Explore the platform." : 'Ți-am trimis rezultatele pe email! Explorează platforma.');
           navigate('/?source=warrior-power-split-c');
           break;
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('A apărut o eroare. Încearcă din nou.');
+      toast.error(isEn ? 'Something went wrong. Try again.' : 'A apărut o eroare. Încearcă din nou.');
     } finally {
       setIsLoading(false);
     }
