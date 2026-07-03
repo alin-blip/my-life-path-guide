@@ -35,9 +35,10 @@ export default function WarriorPower() {
     setStep('lead-form');
   };
 
+  const isEn = language === 'en';
   const handleLeadSubmit = async (data: SimpleLeadFormData) => {
     if (!quizScores) {
-      toast.error('Quiz incomplet. Încearcă din nou.');
+      toast.error(isEn ? 'Quiz incomplete. Try again.' : 'Quiz incomplet. Încearcă din nou.');
       setStep('quiz');
       return;
     }
@@ -161,7 +162,7 @@ export default function WarriorPower() {
 
         if (emailError || (emailData as any)?.error) {
           console.error('Error sending email:', emailError);
-          toast.warning('Email-ul cu rezultatele a întâmpinat probleme. Verifică spam.');
+          toast.warning(isEn ? 'Email with results had issues. Check spam.' : 'Email-ul cu rezultatele a întâmpinat probleme. Verifică spam.');
         }
       } catch (emailError) {
         console.error('Error sending email:', emailError);
@@ -170,25 +171,22 @@ export default function WarriorPower() {
       // Route based on split test variant (already assigned above)
       switch (variant) {
         case 'A':
-          // Redirect to Warrior Launch Accelerator (€497 offer)
-          toast.success('Ți-am trimis rezultatele pe email! Verifică inbox-ul.');
+          toast.success(isEn ? "We sent your results by email! Check your inbox." : 'Ți-am trimis rezultatele pe email! Verifică inbox-ul.');
           navigate('/warrior-launch-accelerator?source=warrior-power-split-a');
           break;
         case 'B':
-          // Show results page (current flow with challenge upsell)
-          toast.success('Ți-am trimis rezultatele pe email!');
+          toast.success(isEn ? "We sent your results by email!" : 'Ți-am trimis rezultatele pe email!');
           setLeadData(data);
           setStep('results');
           break;
         case 'C':
-          // Redirect to homepage to explore platform
-          toast.success('Ți-am trimis rezultatele pe email! Explorează platforma.');
+          toast.success(isEn ? "We sent your results by email! Explore the platform." : 'Ți-am trimis rezultatele pe email! Explorează platforma.');
           navigate('/?source=warrior-power-split-c');
           break;
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('A apărut o eroare. Încearcă din nou.');
+      toast.error(isEn ? 'Something went wrong. Try again.' : 'A apărut o eroare. Încearcă din nou.');
     } finally {
       setIsLoading(false);
     }
@@ -206,20 +204,24 @@ export default function WarriorPower() {
   return (
     <>
       <Helmet>
-        <title>Warrior Power Assessment - Descoperă-ți puterea reală</title>
+        <title>{isEn ? 'Warrior Power Assessment — Discover your real power' : 'Warrior Power Assessment - Descoperă-ți puterea reală'}</title>
         <meta
           name="description"
-          content="Evaluează-te în cele 4 dimensiuni ale vieții: corp, ființă, echilibru și business. Descoperă unde te afli și primește un plan personalizat de transformare."
+          content={isEn
+            ? 'Rate yourself across the 4 dimensions of life: body, being, balance and business. Discover where you stand and get a personalized transformation plan.'
+            : 'Evaluează-te în cele 4 dimensiuni ale vieții: corp, ființă, echilibru și business. Descoperă unde te afli și primește un plan personalizat de transformare.'}
         />
         <link rel="canonical" href="https://ceomindos.com/warrior-power" />
-        <meta property="og:title" content="Warrior Power Assessment - Descoperă-ți puterea reală" />
-        <meta property="og:description" content="Evaluează-te în cele 4 dimensiuni ale vieții și descoperă-ți potențialul real." />
+        <html lang={isEn ? 'en' : 'ro'} />
+        <meta property="og:title" content={isEn ? 'Warrior Power Assessment — Discover your real power' : 'Warrior Power Assessment - Descoperă-ți puterea reală'} />
+        <meta property="og:description" content={isEn ? 'Rate yourself across the 4 dimensions and discover your real potential.' : 'Evaluează-te în cele 4 dimensiuni ale vieții și descoperă-ți potențialul real.'} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ceomindos.com/warrior-power" />
         <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta property="og:locale" content={isEn ? 'en_US' : 'ro_RO'} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Warrior Power Assessment - Descoperă-ți puterea reală" />
-        <meta name="twitter:description" content="Descoperă-ți puterea reală în 4 dimensiuni: corp, ființă, echilibru, business." />
+        <meta name="twitter:title" content={isEn ? 'Warrior Power Assessment — Discover your real power' : 'Warrior Power Assessment - Descoperă-ți puterea reală'} />
+        <meta name="twitter:description" content={isEn ? 'Discover your real power across 4 dimensions: body, being, balance, business.' : 'Descoperă-ți puterea reală în 4 dimensiuni: corp, ființă, echilibru, business.'} />
         <meta name="twitter:image" content="https://ceomindos.com/og-image.png" />
       </Helmet>
 
