@@ -98,8 +98,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
     } catch (error) {
       console.error('Error signing out:', error);
       toast({
-        title: 'Eroare',
-        description: 'Nu s-a putut efectua delogarea.',
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en' ? 'Could not sign out.' : 'Nu s-a putut efectua delogarea.',
         variant: 'destructive',
       });
     }
@@ -124,8 +124,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       } else {
         if (preOpened) preOpened.close();
         toast({
-          title: 'Eroare',
-          description: 'Portalul de abonament nu este disponibil momentan.',
+          title: language === 'en' ? 'Error' : 'Eroare',
+          description: language === 'en'
+            ? 'The subscription portal is not available right now.'
+            : 'Portalul de abonament nu este disponibil momentan.',
           variant: 'destructive',
         });
       }
@@ -133,8 +135,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       console.error('Error opening customer portal:', error);
       if (preOpened) preOpened.close();
       toast({
-        title: 'Eroare',
-        description: 'Nu s-a putut deschide portalul de abonament.',
+        title: language === 'en' ? 'Error' : 'Eroare',
+        description: language === 'en'
+          ? 'Could not open the subscription portal.'
+          : 'Nu s-a putut deschide portalul de abonament.',
         variant: 'destructive',
       });
     }

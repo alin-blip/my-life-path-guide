@@ -1617,7 +1617,11 @@ export const LanguageProvider: React.FC<{
           return;
         }
 
-        if (data?.language && (data.language === 'en' || data.language === 'ro')) {
+        // Only apply DB value if the user hasn't explicitly picked a language
+        // on this device. Otherwise a stale DB value ('ro') overwrites the user's
+        // in-session choice ('en') right after login.
+        const hasExplicitLocalChoice = localStorage.getItem('language_explicit') === '1';
+        if (!hasExplicitLocalChoice && data?.language && (data.language === 'en' || data.language === 'ro')) {
           setLanguageState(data.language as Language);
           localStorage.setItem('language', data.language);
         }
@@ -1636,6 +1640,11 @@ export const LanguageProvider: React.FC<{
     // Update local state immediately
     setLanguageState(newLanguage);
     localStorage.setItem('language', newLanguage);
+    localStorage.setItem('language_explicit', '1'); // mark as user-chosen so DB load won't overwrite
+    // Reflect on <html lang> for SEO / a11y
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = newLanguage;
+    }
 
     // If user is authenticated, save to database
     if (userId) {
@@ -1663,7 +1672,14 @@ export const LanguageProvider: React.FC<{
   }, [userId]);
 
   const t = useCallback((key: string): string => {
-    return translations[language][key] || translations['ro'][key] || key;
+    // Fallback chain: current language → key itself. Never fall back to RO,
+    // which would leak Romanian into an EN session when a key is missing/empty.
+    const value = translations[language]?.[key];
+    if (value !== undefined && value !== null && value !== '') return value;
+    if (import.meta.env.DEV && language === 'en' && translations['ro']?.[key]) {
+      console.warn(`[i18n] Missing EN translation for key: ${key}`);
+    }
+    return key;
   }, [language]);
 
   return (
