@@ -1,5 +1,6 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -12,13 +13,25 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-6">
+      <div className="text-center max-w-md">
+        <div className="font-display text-primary text-7xl md:text-8xl font-semibold tracking-tight mb-4">
+          404
+        </div>
+        <div className="h-px w-16 bg-primary/40 mx-auto mb-6" />
+        <h1 className="font-display text-2xl md:text-3xl font-semibold mb-3">
+          Ruta nu există
+        </h1>
+        <p className="text-muted-foreground mb-8 text-sm md:text-base">
+          Pagina <code className="text-foreground/80">{location.pathname}</code> nu face parte din CEO Mind OS.
+        </p>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline underline-offset-4 font-medium"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Înapoi la Home
+        </Link>
       </div>
     </div>
   );
