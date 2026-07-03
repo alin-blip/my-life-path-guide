@@ -7,9 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger 
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Label } from '@/components/ui/label';
 import { 
   Users, Plus, Crown, UserMinus, Calendar, Shield
@@ -83,17 +81,17 @@ export const CoachTribeManager: React.FC<CoachTribeManagerProps> = ({
             they'll be automatically added to your tribe.
           </p>
           
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
+          <ResponsiveModal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            
+              <Button className="gap-2" onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-4 w-4" />
                 Create Tribe
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create Your Coach Tribe</DialogTitle>
-              </DialogHeader>
+            
+            
+              <ResponsiveModalHeader>
+                <ResponsiveModalTitle>Create Your Coach Tribe</ResponsiveModalTitle>
+              </ResponsiveModalHeader>
               <div className="space-y-4 pt-4">
                 <div className="space-y-2">
                   <Label>Tribe Name</Label>
@@ -126,8 +124,8 @@ export const CoachTribeManager: React.FC<CoachTribeManagerProps> = ({
                   {creating ? 'Creating...' : 'Create Tribe'}
                 </Button>
               </div>
-            </DialogContent>
-          </Dialog>
+            
+          </ResponsiveModal>
         </CardContent>
       </Card>
     );

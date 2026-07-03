@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Star, Plus, Trash2, Award, Medal, Crown } from 'lucide-react';
 
@@ -130,12 +130,12 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
 
         <TabsContent value="leaderboard" className="mt-4 space-y-4">
           {isOwner && (
-            <Dialog open={pointsDialog} onOpenChange={setPointsDialog}>
-              <DialogTrigger asChild>
-                <Button className="gap-2"><Plus className="h-4 w-4" />{t.awardPoints}</Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-sm">
-                <DialogHeader><DialogTitle>{t.awardPoints}</DialogTitle></DialogHeader>
+            <ResponsiveModal open={pointsDialog} onOpenChange={setPointsDialog} className="max-w-sm">
+              
+                <Button className="gap-2" onClick={() => setPointsDialog(true)}><Plus className="h-4 w-4" />{t.awardPoints}</Button>
+              
+              
+                <ResponsiveModalHeader><ResponsiveModalTitle>{t.awardPoints}</ResponsiveModalTitle></ResponsiveModalHeader>
                 <div className="space-y-3">
                   <select
                     className="w-full border rounded-md p-2 bg-background text-foreground"
@@ -163,8 +163,8 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
                     <Button onClick={handleAwardPoints}>{t.award}</Button>
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
+              
+            </ResponsiveModal>
           )}
 
           {leaderboard.length === 0 ? (
@@ -198,12 +198,12 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
 
         <TabsContent value="badges" className="mt-4 space-y-4">
           {isOwner && (
-            <Dialog open={badgeDialog} onOpenChange={setBadgeDialog}>
-              <DialogTrigger asChild>
-                <Button className="gap-2"><Plus className="h-4 w-4" />{t.newBadge}</Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-sm">
-                <DialogHeader><DialogTitle>{t.newBadge}</DialogTitle></DialogHeader>
+            <ResponsiveModal open={badgeDialog} onOpenChange={setBadgeDialog} className="max-w-sm">
+              
+                <Button className="gap-2" onClick={() => setBadgeDialog(true)}><Plus className="h-4 w-4" />{t.newBadge}</Button>
+              
+              
+                <ResponsiveModalHeader><ResponsiveModalTitle>{t.newBadge}</ResponsiveModalTitle></ResponsiveModalHeader>
                 <div className="space-y-3">
                   <Input
                     placeholder={t.badgeName}
@@ -232,8 +232,8 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
                     <Button onClick={handleCreateBadge}>{t.create}</Button>
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
+              
+            </ResponsiveModal>
           )}
 
           {badges.length === 0 ? (

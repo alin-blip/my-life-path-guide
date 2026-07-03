@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Calendar, Clock, MapPin, Video, Plus, Trash2, Users, CheckCircle } from 'lucide-react';
 import { format, isPast, isToday, isFuture } from 'date-fns';
 
@@ -205,17 +205,17 @@ export const CoachTribeCalendar: React.FC<Props> = ({ tribeId, userId, isOwner }
           {t.title}
         </h2>
         {isOwner && (
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
+          <ResponsiveModal open={dialogOpen} onOpenChange={setDialogOpen} className="max-w-md">
+            
+              <Button className="gap-2" onClick={() => setDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
                 {t.newEvent}
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{t.newEvent}</DialogTitle>
-              </DialogHeader>
+            
+            
+              <ResponsiveModalHeader>
+                <ResponsiveModalTitle>{t.newEvent}</ResponsiveModalTitle>
+              </ResponsiveModalHeader>
               <div className="space-y-3">
                 <Input
                   placeholder={t.eventTitle}
@@ -273,8 +273,8 @@ export const CoachTribeCalendar: React.FC<Props> = ({ tribeId, userId, isOwner }
                   <Button onClick={handleCreate} disabled={!form.title || !form.start_at}>{t.create}</Button>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
+            
+          </ResponsiveModal>
         )}
       </div>
 

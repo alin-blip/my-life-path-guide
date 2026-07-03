@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Users, Plus, Crown, Lock, Globe } from 'lucide-react';
@@ -128,19 +128,19 @@ export const BrotherhoodTribes: React.FC = () => {
           </p>
         </div>
         
-        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
+        <ResponsiveModal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          
+            <Button className="gap-2" onClick={() => setIsCreateOpen(true)}>
               <Plus className="h-4 w-4" />
               {language === 'ro' ? 'Creează Tribe' : 'Create Tribe'}
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
+          
+          
+            <ResponsiveModalHeader>
+              <ResponsiveModalTitle>
                 {language === 'ro' ? 'Creează un Tribe Nou' : 'Create a New Tribe'}
-              </DialogTitle>
-            </DialogHeader>
+              </ResponsiveModalTitle>
+            </ResponsiveModalHeader>
             <div className="space-y-4 pt-4">
               <div className="space-y-2">
                 <Label>{language === 'ro' ? 'Nume' : 'Name'}</Label>
@@ -182,8 +182,8 @@ export const BrotherhoodTribes: React.FC = () => {
                   : (language === 'ro' ? 'Creează Tribe' : 'Create Tribe')}
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
+          
+        </ResponsiveModal>
       </div>
 
       {/* My Tribes Section */}

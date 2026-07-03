@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalDescription, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
   Package, Plus, DollarSign, Eye, EyeOff, Trash2, 
@@ -137,20 +137,20 @@ export const CoachContentManager: React.FC<CoachContentManagerProps> = ({ coachP
               Create and sell resources to your clients. You earn 70% of each sale.
             </CardDescription>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button>
+          <ResponsiveModal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            
+              <Button onClick={() => setIsCreateOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Content
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Content</DialogTitle>
-                <DialogDescription>
+            
+            
+              <ResponsiveModalHeader>
+                <ResponsiveModalTitle>Create New Content</ResponsiveModalTitle>
+                <ResponsiveModalDescription>
                   Add a new resource to sell to your clients
-                </DialogDescription>
-              </DialogHeader>
+                </ResponsiveModalDescription>
+              </ResponsiveModalHeader>
               <div className="space-y-4 pt-4">
                 <div>
                   <label className="text-sm font-medium">Title</label>
@@ -226,8 +226,8 @@ export const CoachContentManager: React.FC<CoachContentManagerProps> = ({ coachP
                   )}
                 </Button>
               </div>
-            </DialogContent>
-          </Dialog>
+            
+          </ResponsiveModal>
         </CardHeader>
         <CardContent>
           {content.length === 0 ? (
