@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Paperclip, X, Mic, MicOff, Loader2, FileText, Image as ImageIcon, FileAudio } from 'lucide-react';
 import { toast } from 'sonner';
 import { marriageService, MarriageAttachment } from '@/services/marriageService';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   onAttachmentsChange: (atts: MarriageAttachment[], transcripts: string) => void;
