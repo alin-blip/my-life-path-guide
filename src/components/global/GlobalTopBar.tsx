@@ -92,12 +92,12 @@ export const GlobalTopBar: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9"
+            className="relative h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
             onClick={() => navigate('/messages')}
           >
             <MessageCircle className="h-4.5 w-4.5" />
             {unreadTotal > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+              <span className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
                 {unreadTotal > 99 ? '99+' : unreadTotal}
               </span>
             )}
