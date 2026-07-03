@@ -7,7 +7,7 @@ interface BlogSEOProps {
   canonicalBase?: string;
 }
 
-export const BlogSEO = ({ post, isIndex, canonicalBase = 'https://my-life-path-guide.lovable.app' }: BlogSEOProps) => {
+export const BlogSEO = ({ post, isIndex, canonicalBase = 'https://ceomindos.com' }: BlogSEOProps) => {
   if (isIndex) {
     return (
       <Helmet>
