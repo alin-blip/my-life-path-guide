@@ -942,6 +942,12 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
 
   return (
     <div className="relative min-h-screen">
+      {/* Decorative navy backdrop — radial gold at bottom + top hairline */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,hsl(var(--primary)/0.10),transparent_60%)]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        <div className="absolute inset-0 opacity-[0.04] [background-image:radial-gradient(hsl(var(--primary))_1px,transparent_1px)] [background-size:24px_24px]" />
+      </div>
       {/* Header — Navy & Gold premium band */}
       {currentStepId !== 'completion' && (
         <div className="sticky top-0 z-10 border-b border-[hsl(var(--primary)/0.25)] bg-gradient-to-b from-[hsl(222_55%_7%)] via-[hsl(222_50%_9%)] to-[hsl(222_45%_11%)] backdrop-blur-xl shadow-[0_4px_24px_-12px_hsl(222_60%_4%/0.8)]">
