@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Settings2, PieChart, Dumbbell, Flame, Heart, Zap, CheckSquare, BookOpen, Droplets, Brain, Lightbulb, NotebookPen, Trophy, Palette, CalendarClock } from 'lucide-react';
