@@ -3,7 +3,12 @@
 //  - trial-reminder (once, when Stripe subscription is trialing and trial ends in <= 2 days)
 //  - retention-winback (once every 30 days, to users inactive for 14+ days)
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4'
-import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+}
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
