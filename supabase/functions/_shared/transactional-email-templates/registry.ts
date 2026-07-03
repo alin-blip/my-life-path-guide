@@ -18,6 +18,10 @@ import { template as challengeUpsell1 } from './challenge-upsell-1.tsx'
 import { template as challengeUpsell2 } from './challenge-upsell-2.tsx'
 import { template as challengeWelcomeSetPassword } from './challenge-welcome-set-password.tsx'
 import { template as marriageQuizReport } from './marriage-quiz-report.tsx'
+import { template as welcome } from './welcome.tsx'
+import { template as trialReminder } from './trial-reminder.tsx'
+import { template as subscriptionUpgraded } from './subscription-upgraded.tsx'
+import { template as retentionWinback } from './retention-winback.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'burnout-results': burnoutResults,
@@ -29,4 +33,8 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'challenge-upsell-2': challengeUpsell2,
   'challenge-welcome-set-password': challengeWelcomeSetPassword,
   'marriage-quiz-report': marriageQuizReport,
+  'welcome': welcome,
+  'trial-reminder': trialReminder,
+  'subscription-upgraded': subscriptionUpgraded,
+  'retention-winback': retentionWinback,
 }
