@@ -1,3 +1,5 @@
+// ============= Full file contents =============
+
 export type LifeScoreCategory = 'body' | 'being' | 'balance' | 'business' | 'overall';
 
 export interface LifeScoreOption {
@@ -13,6 +15,14 @@ export interface LifeScoreQuestion {
   question: string;
   questionRo: string;
   options: LifeScoreOption[];
+}
+
+/** A localized (single-language) version of a question, used by the quiz UI. */
+export interface LifeScoreQuestionLocalized {
+  id: string;
+  category: LifeScoreCategory;
+  question: string;
+  options: Array<{ label: string; emoji: string; points: number }>;
 }
 
 export const lifeScoreQuestions: LifeScoreQuestion[] = [
@@ -77,6 +87,23 @@ export const lifeScoreQuestions: LifeScoreQuestion[] = [
     ],
   },
 ];
+
+/**
+ * Returns the quiz questions with all user-facing strings resolved to the
+ * requested language. Use this in quiz UI components instead of accessing
+ * `lifeScoreQuestions` directly.
+ */
+export const getLifeScoreQuestions = (language: 'en' | 'ro'): LifeScoreQuestionLocalized[] =>
+  lifeScoreQuestions.map(q => ({
+    id: q.id,
+    category: q.category,
+    question: language === 'en' ? q.question : q.questionRo,
+    options: q.options.map(o => ({
+      label: language === 'en' ? o.label : o.labelRo,
+      emoji: o.emoji,
+      points: o.points,
+    })),
+  }));
 
 export const categoryLabels: Record<LifeScoreCategory, { en: string; ro: string; color: string; emoji: string }> = {
   body: { en: 'Body', ro: 'Corp', color: '#22c55e', emoji: '💪' },

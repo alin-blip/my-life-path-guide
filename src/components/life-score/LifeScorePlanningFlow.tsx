@@ -12,6 +12,28 @@ import { getWeekKeyForPlanning } from '@/utils/weekUtils';
 import { weeklyPlanningService } from '@/services/weeklyPlanningService';
 import { InlineAuthModal } from './InlineAuthModal';
 
+// ---------------------------------------------------------------------------
+// Bilingual copy dictionary
+// ---------------------------------------------------------------------------
+const COPY = {
+  ro: {
+    authRequired: 'Eroare',
+    authRequiredDesc: 'Trebuie să fii autentificat',
+    planSaved: '✅ Plan salvat!',
+    planSavedDesc: (label: string) => `Strategia ta pentru ${label} a fost salvată și trimisă pe email.`,
+    errorTitle: 'Eroare',
+    errorDesc: 'Nu s-a putut salva planul',
+  },
+  en: {
+    authRequired: 'Error',
+    authRequiredDesc: 'You must be logged in',
+    planSaved: '✅ Plan saved!',
+    planSavedDesc: (label: string) => `Your ${label} strategy has been saved and sent via email.`,
+    errorTitle: 'Error',
+    errorDesc: 'Could not save plan',
+  },
+} as const;
+
 type FlowStep = 'category-select' | 'planning' | 'plan-created' | 'offer';
 
 interface LifeScorePlanningFlowProps {
@@ -43,6 +65,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
   weakestCategory,
   language,
 }) => {
+  const t = COPY[language];
   const [step, setStep] = useState<FlowStep>('category-select');
   const [selectedCategory, setSelectedCategory] = useState<GoalCategory | null>(null);
   const [createdPlan, setCreatedPlan] = useState<VisionPlanData | null>(null);
@@ -52,14 +75,10 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
   const { toast } = useToast();
 
   const handleStartPlanning = useCallback(async (categories: GoalCategory[]) => {
-    // Use first selected category (single selection for free tier)
     const category = categories[0];
-    
-    // Check if user is authenticated before opening AI planning modal
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      // Show inline auth modal instead of redirecting
       setPendingCategory(category);
       setShowAuthModal(true);
       return;
@@ -85,15 +104,10 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
     setCreatedPlan(planData);
     setShowPlanningModal(false);
     
-    // Save to database
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: language === 'ro' ? 'Eroare' : 'Error',
-          description: language === 'ro' ? 'Trebuie să fii autentificat' : 'You must be logged in',
-          variant: 'destructive',
-        });
+        toast({ title: t.authRequired, description: t.authRequiredDesc, variant: 'destructive' });
         return;
       }
 
@@ -108,13 +122,9 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           period: String(new Date().getFullYear()),
           completed: false,
           goal_data: { vision: planData.annualVision, source: 'life-score' },
-        }, {
-          onConflict: 'user_id,category,mission_type,period'
-        });
+        }, { onConflict: 'user_id,category,mission_type,period' });
 
-      if (annualError) {
-        console.error('Error saving annual mission:', annualError);
-      }
+      if (annualError) console.error('Error saving annual mission:', annualError);
 
       // Save quarterly mission
       const quarter = Math.ceil((new Date().getMonth() + 1) / 3);
@@ -128,13 +138,9 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           period: `${new Date().getFullYear()}-Q${quarter}`,
           completed: false,
           goal_data: { milestone: planData.quarterlyMilestone, source: 'life-score' },
-        }, {
-          onConflict: 'user_id,category,mission_type,period'
-        });
+        }, { onConflict: 'user_id,category,mission_type,period' });
 
-      if (quarterlyError) {
-        console.error('Error saving quarterly mission:', quarterlyError);
-      }
+      if (quarterlyError) console.error('Error saving quarterly mission:', quarterlyError);
 
       // Save monthly mission
       const { error: monthlyError } = await supabase
@@ -147,13 +153,9 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           period: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
           completed: false,
           goal_data: { focus: planData.monthlyFocus, source: 'life-score' },
-        }, {
-          onConflict: 'user_id,category,mission_type,period'
-        });
+        }, { onConflict: 'user_id,category,mission_type,period' });
 
-      if (monthlyError) {
-        console.error('Error saving monthly mission:', monthlyError);
-      }
+      if (monthlyError) console.error('Error saving monthly mission:', monthlyError);
 
       // Save weekly planning with keys
       const weekKey = getWeekKeyForPlanning();
@@ -188,7 +190,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
               list_type: step.listType,
               completed: false,
               category: planData.category,
-              domain_category: planData.category, // Critical for filtering in Door
+              domain_category: planData.category,
             });
           } catch (taskError) {
             console.error('Error adding task:', taskError);
@@ -216,34 +218,24 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
             language,
           },
         });
-        
-        if (response.error) {
-          console.error('Error sending plan email:', response.error);
-        } else {
-          console.log('Plan email sent successfully');
-        }
+        if (response.error) console.error('Error sending plan email:', response.error);
+        else console.log('Plan email sent successfully');
       } catch (emailError) {
         console.error('Error invoking send-life-score-plan:', emailError);
       }
 
       toast({
-        title: language === 'ro' ? '✅ Plan salvat!' : '✅ Plan saved!',
-        description: language === 'ro' 
-          ? `Strategia ta pentru ${planData.categoryLabel} a fost salvată și trimisă pe email.`
-          : `Your ${planData.categoryLabel} strategy has been saved and sent via email.`,
+        title: t.planSaved,
+        description: t.planSavedDesc(planData.categoryLabel),
       });
 
     } catch (error) {
       console.error('Error saving plan:', error);
-      toast({
-        title: language === 'ro' ? 'Eroare' : 'Error',
-        description: language === 'ro' ? 'Nu s-a putut salva planul' : 'Could not save plan',
-        variant: 'destructive',
-      });
+      toast({ title: t.errorTitle, description: t.errorDesc, variant: 'destructive' });
     }
 
     setStep('plan-created');
-  }, [language, toast]);
+  }, [language, toast, t]);
 
   const handleContinueToOffer = useCallback(() => {
     setStep('offer');
@@ -297,11 +289,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
             <MembershipOfferStack
               language={language}
               scores={mapToQuizScores(categoryScores)}
-              answers={{
-                annual: {},
-                quarterly: {},
-                monthly: {},
-              }}
+              answers={{ annual: {}, quarterly: {}, monthly: {} }}
             />
           </motion.div>
         )}
@@ -310,10 +298,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
       {/* Inline Auth Modal */}
       <InlineAuthModal
         isOpen={showAuthModal}
-        onClose={() => {
-          setShowAuthModal(false);
-          setPendingCategory(null);
-        }}
+        onClose={() => { setShowAuthModal(false); setPendingCategory(null); }}
         onSuccess={handleAuthSuccess}
         language={language}
       />
@@ -323,9 +308,7 @@ export const LifeScorePlanningFlow: React.FC<LifeScorePlanningFlowProps> = ({
           isOpen={showPlanningModal}
           onClose={() => {
             setShowPlanningModal(false);
-            if (!createdPlan) {
-              setStep('category-select');
-            }
+            if (!createdPlan) setStep('category-select');
           }}
           category={selectedCategory}
           categoryLabel={getCategoryLabel(selectedCategory)}
