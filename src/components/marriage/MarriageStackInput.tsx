@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Paperclip, X, Mic, MicOff, Loader2, FileText, Image as ImageIcon, FileAudio } from 'lucide-react';
 import { toast } from 'sonner';
 import { marriageService, MarriageAttachment } from '@/services/marriageService';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   onAttachmentsChange: (atts: MarriageAttachment[], transcripts: string) => void;
@@ -19,7 +20,7 @@ const readFileAsDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(reader.error || new Error('Nu am putut citi fișierul'));
+    reader.onerror = () => reject(reader.error || new Error('Could not read file'));
     reader.readAsDataURL(file);
   });
 
@@ -61,6 +62,7 @@ const optimizeImageForAttachment = (file: File) =>
   });
 
 export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attachments }) => {
+  const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pasteText, setPasteText] = useState('');
   const [recording, setRecording] = useState(false);
@@ -79,7 +81,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
   const addAtt = (att: MarriageAttachment) => {
     setAttsFunctional((prev) => {
       if (prev.length >= MAX_FILES) {
-        toast.error(`Maxim ${MAX_FILES} atașamente per sesiune`);
+        toast.error(t('marriage.stackInput.maxAttachments').replace('{n}', String(MAX_FILES)));
         return prev;
       }
       return [...prev, att];
@@ -107,7 +109,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
     let skippedCount = 0;
     const pushAtt = (att: MarriageAttachment) => {
       if (working.length >= MAX_FILES) {
-        toast.error(`Maxim ${MAX_FILES} atașamente per sesiune`);
+        toast.error(t('marriage.stackInput.maxAttachments').replace('{n}', String(MAX_FILES)));
         skippedCount += 1;
         return false;
       }
@@ -121,7 +123,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
     for (const file of fileArr) {
       if (file.size > MAX_SIZE) {
         skippedCount += 1;
-        toast.error(`${file.name}: depășește 20MB`);
+        toast.error(`${file.name}: ` + t('marriage.stackInput.exceeds20MB'));
         continue;
       }
       try {
@@ -138,7 +140,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
           try {
             const text = await marriageService.transcribeAudio(file);
             pushAtt({ type: 'audio', content: text, name: file.name, size: file.size });
-            toast.success('Audio transcris');
+            toast.success(t('marriage.stackInput.audioTranscribed'));
           } finally {
             setTranscribing(false);
           }
@@ -149,14 +151,14 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
       } catch (e: any) {
         skippedCount += 1;
         console.error('[MarriageStackInput] upload error:', file.name, e);
-        toast.error(`Eroare upload ${file.name}: ${e.message || e}`);
+        toast.error(t('marriage.stackInput.uploadError') + ` ${file.name}: ${e.message || e}`);
       }
     }
 
     if (addedCount > 0) {
-      toast.success(`${addedCount} fișier(e) adăugat(e)`);
+      toast.success(`${addedCount} ` + t('marriage.stackInput.filesAdded'));
     } else if (skippedCount > 0) {
-      toast.error('Niciun fișier nu a putut fi adăugat. Verifică formatul și dimensiunea.');
+      toast.error(t('marriage.stackInput.noFileAdded'));
     }
   };
 
@@ -167,9 +169,9 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
     try {
       const text = await marriageService.transcribeAudio(file);
       addAtt({ type: 'audio', content: text, name: file.name, size: file.size });
-      toast.success('Audio transcris');
+      toast.success(t('marriage.stackInput.audioTranscribed'));
     } catch (e: any) {
-      toast.error('Transcriere eșuată: ' + e.message);
+      toast.error(t('marriage.stackInput.transcribeFailed') + e.message);
     } finally {
       setTranscribing(false);
     }
@@ -177,7 +179,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
 
   const addPasteText = () => {
     if (!pasteText.trim()) return;
-    addAtt({ type: 'text', content: pasteText.trim(), name: 'Text lipit' });
+    addAtt({ type: 'text', content: pasteText.trim(), name: t('marriage.stackInput.pastedText') });
     setPasteText('');
   };
 
@@ -198,7 +200,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
       mr.start();
       setRecording(true);
     } catch (e: any) {
-      toast.error('Microfon indisponibil: ' + e.message);
+      toast.error(t('marriage.stackInput.micUnavailable') + e.message);
     }
   };
 
@@ -210,7 +212,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
   return (
     <Card className="p-4 space-y-4 border-border bg-card">
       <div>
-        <label className="text-sm font-medium block mb-2">Atașamente ({attachments.length}/{MAX_FILES})</label>
+        <label className="text-sm font-medium block mb-2">{t('marriage.stackInput.attachments')} ({attachments.length}/{MAX_FILES})</label>
         <input
           ref={fileRef}
           type="file"
@@ -221,16 +223,16 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
         />
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-            <Paperclip className="h-4 w-4 mr-1" /> Adaugă fișiere
+            <Paperclip className="h-4 w-4 mr-1" /> {t('marriage.stackInput.addFiles')}
           </Button>
           {!recording ? (
             <Button type="button" variant="outline" size="sm" onClick={startRecording} disabled={transcribing}>
               {transcribing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Mic className="h-4 w-4 mr-1" />}
-              Înregistrează memo vocal
+              {t('marriage.stackInput.recordMemo')}
             </Button>
           ) : (
             <Button type="button" variant="destructive" size="sm" onClick={stopRecording}>
-              <MicOff className="h-4 w-4 mr-1" /> Oprește
+              <MicOff className="h-4 w-4 mr-1" /> {t('marriage.stackInput.stop')}
             </Button>
           )}
         </div>
@@ -239,7 +241,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
           <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2">
             {attachments.map((att, i) => (
               <div key={i} className="relative border border-border rounded p-2 bg-background">
-                <button type="button" onClick={() => removeAtt(i)} className="absolute -top-2 -right-2 bg-background border border-border rounded-full p-1 shadow hover:bg-muted z-10" aria-label="Elimină">
+                <button type="button" onClick={() => removeAtt(i)} className="absolute -top-2 -right-2 bg-background border border-border rounded-full p-1 shadow hover:bg-muted z-10" aria-label={t('marriage.stackInput.remove')}>
                   <X className="h-3 w-3" />
                 </button>
                 {att.type === 'image' && att.url ? (
@@ -263,16 +265,16 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
       </div>
 
       <div>
-        <label className="text-sm font-medium block mb-2">Sau lipește transcript / mesaje / notă</label>
+        <label className="text-sm font-medium block mb-2">{t('marriage.stackInput.pasteLabel')}</label>
         <Textarea
           value={pasteText}
           onChange={(e) => setPasteText(e.target.value)}
-          placeholder="Lipește conversația, descrie conflictul, notițele tale..."
+          placeholder={t('marriage.stackInput.pastePlaceholder')}
           className="min-h-[100px]"
         />
         {pasteText.trim() && (
           <Button type="button" variant="outline" size="sm" className="mt-2" onClick={addPasteText}>
-            Adaugă ca atașament
+            {t('marriage.stackInput.addAttachment')}
           </Button>
         )}
       </div>

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { getISOWeek, getYear, startOfWeek } from 'date-fns';
 import { marriageService, MarriageSession } from '@/services/marriageService';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   session: MarriageSession;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export const MarriageTaskExportCard: React.FC<Props> = ({ session, onExported }) => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(session.task_exported);
 
@@ -44,10 +46,10 @@ export const MarriageTaskExportCard: React.FC<Props> = ({ session, onExported })
       if (error) throw error;
       await marriageService.markTaskExported(session.id, data.id);
       setDone(true);
-      toast.success('Task adăugat în HIT List 🎯');
+      toast.success(t('marriage.taskExport.addedToHitList'));
       onExported?.();
     } catch (e: any) {
-      toast.error('Eroare la export: ' + e.message);
+      toast.error(t('marriage.taskExport.exportError') + e.message);
     } finally {
       setLoading(false);
     }
@@ -63,12 +65,12 @@ export const MarriageTaskExportCard: React.FC<Props> = ({ session, onExported })
           <div className="mt-4">
             {done ? (
               <Button variant="outline" disabled className="gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary" /> Adăugat în HIT List
+                <CheckCircle2 className="h-4 w-4 text-primary" /> {t('marriage.taskExport.addedBtn')}
               </Button>
             ) : (
               <Button onClick={exportToHitList} disabled={loading}>
                 {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Target className="h-4 w-4 mr-2" />}
-                Adaugă în „The Door" → HIT List
+                {t('marriage.taskExport.addBtn')}
               </Button>
             )}
           </div>

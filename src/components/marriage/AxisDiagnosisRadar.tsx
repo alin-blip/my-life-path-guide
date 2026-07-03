@@ -3,22 +3,25 @@ import { Card } from '@/components/ui/card';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   axisScores: Record<string, number>;
   primaryDestructured?: string | null;
 }
 
-const LABELS: Record<string, string> = {
-  cognitiva: 'Cognitivă',
-  afectiva: 'Afectivă',
-  comportamentala: 'Comportamentală',
-  volitiva: 'Volitivă',
-  profesionala: 'Profesională',
-  spirituala: 'Spirituală',
-};
-
 export const AxisDiagnosisRadar: React.FC<Props> = ({ axisScores, primaryDestructured }) => {
+  const { t } = useLanguage();
+
+  const LABELS: Record<string, string> = {
+    cognitiva: t('marriage.radar.axisCognitive'),
+    afectiva: t('marriage.radar.axisAffective'),
+    comportamentala: t('marriage.radar.axisBehavioral'),
+    volitiva: t('marriage.radar.axisVolitional'),
+    profesionala: t('marriage.radar.axisProfessional'),
+    spirituala: t('marriage.radar.axisSpiritual'),
+  };
+
   const data = Object.keys(LABELS).map(key => ({
     axis: LABELS[key],
     score: Number(axisScores?.[key] ?? 0),
@@ -28,13 +31,13 @@ export const AxisDiagnosisRadar: React.FC<Props> = ({ axisScores, primaryDestruc
     <Card className="p-5 bg-card">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-display font-semibold">Arhitectura Psiho-Mentală</h3>
-          <p className="text-xs text-muted-foreground">Scor pe 6 axe relaționale (0 = destructurat, 100 = sănătos)</p>
+          <h3 className="font-display font-semibold">{t('marriage.radar.title')}</h3>
+          <p className="text-xs text-muted-foreground">{t('marriage.radar.subtitle')}</p>
         </div>
         {primaryDestructured && (
           <Badge variant="destructive" className="gap-1">
             <AlertTriangle className="h-3 w-3" />
-            Axă critică: {primaryDestructured}
+            {t('marriage.radar.criticalAxis')} {LABELS[primaryDestructured] || primaryDestructured}
           </Badge>
         )}
       </div>
