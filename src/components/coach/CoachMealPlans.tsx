@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Trash2, UtensilsCrossed, Send, ChevronLeft, Apple } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -317,19 +317,19 @@ export const CoachMealPlans: React.FC<Props> = ({ coachProfileId, userId }) => {
               : 'Create nutrition plans for your members'}
           </p>
         </div>
-        <Dialog open={showCreate} onOpenChange={setShowCreate}>
-          <DialogTrigger asChild>
-            <Button>
+        <ResponsiveModal open={showCreate} onOpenChange={setShowCreate} className="max-w-md">
+          
+            <Button onClick={() => setShowCreate(true)}>
               <Plus className="h-4 w-4 mr-2" />
               {language === 'ro' ? 'Plan Nou' : 'New Plan'}
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
+          
+          
+            <ResponsiveModalHeader>
+              <ResponsiveModalTitle>
                 {language === 'ro' ? 'Plan de Mese Nou' : 'New Meal Plan'}
-              </DialogTitle>
-            </DialogHeader>
+              </ResponsiveModalTitle>
+            </ResponsiveModalHeader>
             <div className="space-y-4">
               <div>
                 <Label>{language === 'ro' ? 'Nume' : 'Name'}</Label>
@@ -372,13 +372,13 @@ export const CoachMealPlans: React.FC<Props> = ({ coachProfileId, userId }) => {
                 </div>
               </div>
             </div>
-            <DialogFooter>
+            <ResponsiveModalFooter>
               <Button onClick={handleCreate} disabled={!formName.trim()}>
                 {language === 'ro' ? 'Creează' : 'Create'}
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </ResponsiveModalFooter>
+          
+        </ResponsiveModal>
       </div>
 
       {loading ? (

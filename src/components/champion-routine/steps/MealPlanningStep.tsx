@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { UtensilsCrossed, Plus, ArrowRight, Flame, Beef, Trash2, Search, X, Settings, Wheat } from 'lucide-react';
 import { foods, foodCategories, searchFoods, FoodItem } from '@/services/fitness/data/foodDatabase';
 import { NutritionSetupQuiz, NutritionSettings as QuizSettings } from './NutritionSetupQuiz';
@@ -328,20 +328,20 @@ export function MealPlanningStep({
 
         {/* Add options */}
         <div className="grid grid-cols-2 gap-2">
-          <Dialog open={showFoodPicker} onOpenChange={setShowFoodPicker}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2 border-primary/50 text-primary hover:bg-primary/10">
+          <ResponsiveModal open={showFoodPicker} onOpenChange={setShowFoodPicker} className="max-w-2xl max-h-[80vh]">
+            
+              <Button variant="outline" className="gap-2 border-primary/50 text-primary hover:bg-primary/10" onClick={() => setShowFoodPicker(true)}>
                 <Search className="h-4 w-4" />
                 Selectează din Baza de Date
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh]">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
+            
+            
+              <ResponsiveModalHeader>
+                <ResponsiveModalTitle className="flex items-center gap-2">
                   <UtensilsCrossed className="h-5 w-5" />
                   Selectează Aliment - {getMealTypeInfo(selectedType).label}
-                </DialogTitle>
-              </DialogHeader>
+                </ResponsiveModalTitle>
+              </ResponsiveModalHeader>
               <div className="space-y-4">
                 {/* Search */}
                 <div className="relative">
@@ -410,8 +410,8 @@ export function MealPlanningStep({
                   </div>
                 </ScrollArea>
               </div>
-            </DialogContent>
-          </Dialog>
+            
+          </ResponsiveModal>
 
           <Button 
             variant="outline" 
