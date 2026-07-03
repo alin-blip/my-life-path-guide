@@ -164,8 +164,7 @@ export const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
   };
 
   return (
-    <ResponsiveModal open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+    <ResponsiveModal className="sm:max-w-md" open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <ResponsiveModalHeader>
           <ResponsiveModalTitle className="flex items-center gap-2">
             <CategoryIcon className={`h-5 w-5 ${config.color}`} />

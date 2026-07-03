@@ -71,8 +71,7 @@ export const CategorySelectionDialog: React.FC<CategorySelectionDialogProps> = (
   };
 
   return (
-    <ResponsiveModal open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
+    <ResponsiveModal className="max-w-lg p-0 overflow-hidden" open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <div className="p-6 pb-4">
           <ResponsiveModalHeader>
             <ResponsiveModalTitle className="text-xl font-bold text-center">
