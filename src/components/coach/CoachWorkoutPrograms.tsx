@@ -318,7 +318,7 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
       </ResponsiveModal>
 
       {/* Edit Program Dialog */}
-      <ResponsiveModal open={!!editingProgram} onOpenChange={(open) = className="max-w-2xl max-h-[80vh] overflow-y-auto"> { if (!open) { setEditingProgram(null); setExpandedDay(null); } }}>
+      <ResponsiveModal open={!!editingProgram} onOpenChange={(open) => { if (!open) { setEditingProgram(null); setExpandedDay(null); } }} className="max-w-2xl max-h-[80vh] overflow-y-auto">
         
           <ResponsiveModalHeader>
             <ResponsiveModalTitle className="flex items-center gap-2">
