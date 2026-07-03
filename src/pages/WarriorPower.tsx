@@ -204,20 +204,24 @@ export default function WarriorPower() {
   return (
     <>
       <Helmet>
-        <title>Warrior Power Assessment - Descoperă-ți puterea reală</title>
+        <title>{isEn ? 'Warrior Power Assessment — Discover your real power' : 'Warrior Power Assessment - Descoperă-ți puterea reală'}</title>
         <meta
           name="description"
-          content="Evaluează-te în cele 4 dimensiuni ale vieții: corp, ființă, echilibru și business. Descoperă unde te afli și primește un plan personalizat de transformare."
+          content={isEn
+            ? 'Rate yourself across the 4 dimensions of life: body, being, balance and business. Discover where you stand and get a personalized transformation plan.'
+            : 'Evaluează-te în cele 4 dimensiuni ale vieții: corp, ființă, echilibru și business. Descoperă unde te afli și primește un plan personalizat de transformare.'}
         />
         <link rel="canonical" href="https://ceomindos.com/warrior-power" />
-        <meta property="og:title" content="Warrior Power Assessment - Descoperă-ți puterea reală" />
-        <meta property="og:description" content="Evaluează-te în cele 4 dimensiuni ale vieții și descoperă-ți potențialul real." />
+        <html lang={isEn ? 'en' : 'ro'} />
+        <meta property="og:title" content={isEn ? 'Warrior Power Assessment — Discover your real power' : 'Warrior Power Assessment - Descoperă-ți puterea reală'} />
+        <meta property="og:description" content={isEn ? 'Rate yourself across the 4 dimensions and discover your real potential.' : 'Evaluează-te în cele 4 dimensiuni ale vieții și descoperă-ți potențialul real.'} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://ceomindos.com/warrior-power" />
         <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta property="og:locale" content={isEn ? 'en_US' : 'ro_RO'} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Warrior Power Assessment - Descoperă-ți puterea reală" />
-        <meta name="twitter:description" content="Descoperă-ți puterea reală în 4 dimensiuni: corp, ființă, echilibru, business." />
+        <meta name="twitter:title" content={isEn ? 'Warrior Power Assessment — Discover your real power' : 'Warrior Power Assessment - Descoperă-ți puterea reală'} />
+        <meta name="twitter:description" content={isEn ? 'Discover your real power across 4 dimensions: body, being, balance, business.' : 'Descoperă-ți puterea reală în 4 dimensiuni: corp, ființă, echilibru, business.'} />
         <meta name="twitter:image" content="https://ceomindos.com/og-image.png" />
       </Helmet>
 
