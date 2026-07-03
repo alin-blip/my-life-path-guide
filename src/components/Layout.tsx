@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SideMenu } from './SideMenu';
 import { useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ReferralTracker } from './ReferralTracker';
 import { ReferralClientOnboarding } from './coach/ReferralClientOnboarding';
 import { useIsMobile } from '@/hooks/use-mobile';
