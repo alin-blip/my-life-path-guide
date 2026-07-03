@@ -1,10 +1,9 @@
 import React from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  ResponsiveModal,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from '@/components/ui/responsive-modal';
 import { DailyHabit } from '@/hooks/useDailyHabits';
 import { HabitSettingsPanel } from './HabitSettingsPanel';
 
@@ -30,20 +29,22 @@ export const HabitSettingsModal: React.FC<HabitSettingsModalProps> = ({
   onReorder,
 }) => {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Configurare Habits</DialogTitle>
-        </DialogHeader>
+    <ResponsiveModal
+      open={open}
+      onOpenChange={onOpenChange}
+      className="max-w-md max-h-[80vh] overflow-y-auto"
+    >
+      <ResponsiveModalHeader>
+        <ResponsiveModalTitle>Configurare Habits</ResponsiveModalTitle>
+      </ResponsiveModalHeader>
 
-        <HabitSettingsPanel
-          habits={habits}
-          onAdd={onAdd}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onReorder={onReorder}
-        />
-      </DialogContent>
-    </Dialog>
+      <HabitSettingsPanel
+        habits={habits}
+        onAdd={onAdd}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+        onReorder={onReorder}
+      />
+    </ResponsiveModal>
   );
 };
