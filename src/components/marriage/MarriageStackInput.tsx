@@ -228,7 +228,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
           {!recording ? (
             <Button type="button" variant="outline" size="sm" onClick={startRecording} disabled={transcribing}>
               {transcribing ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Mic className="h-4 w-4 mr-1" />}
-              {t('marriage.stackInput.recordVoice')}
+              {t('marriage.stackInput.recordMemo')}
             </Button>
           ) : (
             <Button type="button" variant="destructive" size="sm" onClick={stopRecording}>
@@ -274,7 +274,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
         />
         {pasteText.trim() && (
           <Button type="button" variant="outline" size="sm" className="mt-2" onClick={addPasteText}>
-            {t('marriage.stackInput.addAsAttachment')}
+            {t('marriage.stackInput.addAttachment')}
           </Button>
         )}
       </div>
