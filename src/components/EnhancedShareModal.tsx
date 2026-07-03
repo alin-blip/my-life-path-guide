@@ -397,8 +397,7 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
   };
 
   return (
-    <ResponsiveModal open={true} onOpenChange={(open) => !open && onClose()}>
-      __DCSTART__bg-card border border-primary/20 text-white sm:max-w-xl__DCEND__<ResponsiveModalHeader>
+    <ResponsiveModal open={true} onOpenChange={(open) => !open && onClose()} className="bg-card border border-primary/20 text-white sm:max-w-xl"><ResponsiveModalHeader>
           <ResponsiveModalTitle className="text-center text-xl">
             {language === 'en' ? 'Share Inspiration' : 'Distribuie Inspirația'}
           </ResponsiveModalTitle>
