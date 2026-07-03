@@ -18,6 +18,7 @@ export const GlobalTopBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadTotal } = useDirectMessages();
+  const { openMobileMenu } = useTourContext();
 
   const isActive = (path: string) => {
     if (path === '/programs?tab=community') {
