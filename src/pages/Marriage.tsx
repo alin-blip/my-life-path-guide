@@ -7,12 +7,19 @@ import { ArrowLeft, Sparkles, History, User, Heart, AlertTriangle, Plus } from '
 import { useMarriageProfile, useMarriageSessions } from '@/hooks/useMarriageStack';
 import { AxisDiagnosisRadar } from '@/components/marriage/AxisDiagnosisRadar';
 import { formatDistanceToNow } from 'date-fns';
-import { ro } from 'date-fns/locale';
+import { ro as roLocale, enUS as enLocale } from 'date-fns/locale';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Marriage() {
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
   const { profile, loading: pLoad } = useMarriageProfile();
   const { sessions, loading: sLoad } = useMarriageSessions();
+  const dateLocale = language === 'en' ? enLocale : roLocale;
+
+  const titleParts = t('marriage.dashboard.title').split(' ');
+  const titleLead = titleParts.slice(0, -2).join(' ');
+  const titleTail = titleParts.slice(-2).join(' ');
 
   return (
     <div className="min-h-screen bg-background">
@@ -27,14 +34,14 @@ export default function Marriage() {
                 <Heart className="h-3 w-3 text-primary" /> EXECUTIVE MARRIAGE AUDIT
               </Badge>
               <h1 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">
-                Marriage Therapy <em className="text-primary not-italic italic">pentru lideri</em>
+                {titleLead} <em className="text-primary not-italic italic">{titleTail}</em>
               </h1>
               <p className="text-muted-foreground mt-2 max-w-2xl">
-                Încarcă conflicte concrete (screenshots, audio, text), AI Coach-ul face decelare cognitivă, diagnoză pe 6 axe relaționale și îți dă task practic pentru The Door.
+                {t('marriage.dashboard.subtitle')}
               </p>
             </div>
             <Button size="lg" onClick={() => navigate('/marriage/audit')}>
-              <Plus className="h-4 w-4 mr-2" /> Analiză nouă
+              <Plus className="h-4 w-4 mr-2" /> {t('marriage.dashboard.newAnalysis')}
             </Button>
           </div>
         </div>
@@ -45,12 +52,12 @@ export default function Marriage() {
           <Card className="p-5 bg-card border-l-4 border-l-yellow-500/60 flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold">Configurează profilul relațional</h3>
+              <h3 className="font-semibold">{t('marriage.dashboard.setupProfile')}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Pentru memorie persistentă și pattern detection în timp, AI-ul are nevoie de context: nume partener, ani, copii, limbaj iubire.
+                {t('marriage.dashboard.setupProfileDesc')}
               </p>
               <Button variant="link" className="px-0 h-auto mt-1" onClick={() => navigate('/marriage/profile')}>
-                Configurează profilul →
+                {t('marriage.dashboard.setupProfileCta')}
               </Button>
             </div>
           </Card>
@@ -61,17 +68,19 @@ export default function Marriage() {
             <Card className="p-4 bg-card md:col-span-1">
               <div className="flex items-center gap-2 mb-2">
                 <User className="h-4 w-4 text-primary" />
-                <span className="text-xs uppercase tracking-wide text-muted-foreground">Partener</span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {language === 'en' ? 'Partner' : 'Partener'}
+                </span>
               </div>
               <div className="font-display text-lg font-semibold">{profile.partner_name}</div>
               <div className="text-sm text-muted-foreground">
-                {profile.relationship_years || '?'} ani • {profile.children_count || 0} copii
+                {profile.relationship_years || '?'} {language === 'en' ? 'years' : 'ani'} • {profile.children_count || 0} {language === 'en' ? 'children' : 'copii'}
               </div>
               {profile.partner_love_language && (
                 <Badge variant="outline" className="mt-2 text-[10px]">{profile.partner_love_language}</Badge>
               )}
               <Button variant="ghost" size="sm" className="mt-3 -ml-2" onClick={() => navigate('/marriage/profile')}>
-                Editează profil
+                {language === 'en' ? 'Edit profile' : 'Editează profil'}
               </Button>
             </Card>
 
@@ -82,7 +91,11 @@ export default function Marriage() {
                 <Card className="p-5 bg-card h-full flex items-center justify-center text-center">
                   <div>
                     <Sparkles className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Rulează prima analiză pentru a vedea scorul pe 6 axe</p>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'en'
+                        ? 'Run your first analysis to see your 6-axis score'
+                        : 'Rulează prima analiză pentru a vedea scorul pe 6 axe'}
+                    </p>
                   </div>
                 </Card>
               )}
@@ -96,15 +109,23 @@ export default function Marriage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <Heart className="h-4 w-4 text-rose-500" />
-                <span className="text-xs uppercase tracking-wide text-muted-foreground">Credința Iubirii — Apreciere fără DAR</span>
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {language === 'en'
+                    ? 'Love Belief — Appreciation without BUT'
+                    : 'Credința Iubirii — Apreciere fără DAR'}
+                </span>
               </div>
-              <h3 className="font-display text-lg font-semibold">Înainte de următoarea conversație grea</h3>
+              <h3 className="font-display text-lg font-semibold">
+                {language === 'en' ? 'Before the next hard conversation' : 'Înainte de următoarea conversație grea'}
+              </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Scrie aprecierea pe care vrei să i-o spui {profile?.partner_name || 'partenerului'}. AI-ul detectează "DAR"-ul ascuns și o reformulează PUR.
+                {language === 'en'
+                  ? `Write the appreciation you want to give ${profile?.partner_name || 'your partner'}. Coach detects the hidden "BUT" and reframes it PURE.`
+                  : `Scrie aprecierea pe care vrei să i-o spui ${profile?.partner_name || 'partenerului'}. Coach detectează "DAR"-ul ascuns și o reformulează PUR.`}
               </p>
             </div>
             <Button size="sm" variant="default" className="gap-2" onClick={() => navigate('/credinte/apreciere-fara-dar')}>
-              Reformulează <ArrowLeft className="h-4 w-4 rotate-180" />
+              {language === 'en' ? 'Reframe' : 'Reformulează'} <ArrowLeft className="h-4 w-4 rotate-180" />
             </Button>
           </div>
         </Card>
@@ -112,7 +133,7 @@ export default function Marriage() {
         {profile?.recurring_patterns && profile.recurring_patterns.length > 0 && (
           <Card className="p-5 bg-card">
             <h3 className="font-display font-semibold mb-3 flex items-center gap-2">
-              <History className="h-4 w-4 text-primary" /> Tipare recurente detectate
+              <History className="h-4 w-4 text-primary" /> {t('marriage.dashboard.recurringPatterns')}
             </h3>
             <div className="flex flex-wrap gap-2">
               {profile.recurring_patterns.slice(-10).map((p: any, i: number) => (
@@ -126,21 +147,21 @@ export default function Marriage() {
 
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display text-xl font-semibold">Istoric analize</h2>
+            <h2 className="font-display text-xl font-semibold">{t('marriage.dashboard.historyTitle')}</h2>
             {sessions.length > 0 && (
               <Button variant="link" size="sm" onClick={() => navigate('/marriage/timeline')}>
-                Vezi timeline complet →
+                {language === 'en' ? 'See full timeline →' : 'Vezi timeline complet →'}
               </Button>
             )}
           </div>
           {sLoad ? (
-            <Card className="p-5 bg-card text-sm text-muted-foreground">Se încarcă...</Card>
+            <Card className="p-5 bg-card text-sm text-muted-foreground">{t('marriage.dashboard.loading')}</Card>
           ) : sessions.length === 0 ? (
             <Card className="p-8 bg-card text-center">
               <Sparkles className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground mb-4">Nicio analiză încă. Începe primul audit relațional.</p>
+              <p className="text-muted-foreground mb-4">{t('marriage.dashboard.historyEmpty')}</p>
               <Button onClick={() => navigate('/marriage/audit')}>
-                <Plus className="h-4 w-4 mr-2" /> Analiză nouă
+                <Plus className="h-4 w-4 mr-2" /> {t('marriage.dashboard.newAnalysis')}
               </Button>
             </Card>
           ) : (
@@ -152,16 +173,16 @@ export default function Marriage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <h4 className="font-semibold truncate">{s.title}</h4>
                         {s.primary_destructured_axis && (
-                          <Badge variant="outline" className="text-[10px]">Axa {s.primary_destructured_axis}</Badge>
+                          <Badge variant="outline" className="text-[10px]">{t('marriage.timeline.axis')} {s.primary_destructured_axis}</Badge>
                         )}
                         {s.pattern_recurrence > 1 && (
-                          <Badge variant="destructive" className="text-[10px]">Tipar {s.pattern_recurrence}x</Badge>
+                          <Badge variant="destructive" className="text-[10px]">{language === 'en' ? 'Pattern' : 'Tipar'} {s.pattern_recurrence}x</Badge>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{s.factual_situation}</p>
                     </div>
                     <div className="text-xs text-muted-foreground whitespace-nowrap">
-                      {formatDistanceToNow(new Date(s.created_at), { addSuffix: true, locale: ro })}
+                      {formatDistanceToNow(new Date(s.created_at), { addSuffix: true, locale: dateLocale })}
                     </div>
                   </div>
                 </Card>
