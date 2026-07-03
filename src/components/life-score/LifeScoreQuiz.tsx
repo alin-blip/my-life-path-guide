@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { lifeScoreQuestions, categoryLabels } from '@/data/lifeScoreQuestions';
+import { getLifeScoreQuestions, categoryLabels } from '@/data/lifeScoreQuestions';
 import { ArrowLeft, Loader2, CheckCircle2, Sparkles, Eye, EyeOff, Lock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +10,66 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { assignLifeScoreVariant, SplitVariant } from '@/utils/splitTest';
 
+// ---------------------------------------------------------------------------
+// Bilingual copy dictionary
+// ---------------------------------------------------------------------------
+const COPY = {
+  ro: {
+    question: 'Întrebarea',
+    createTitle: 'Creează-ți Planul 2026!',
+    createSubtitle: 'Creează un cont gratuit pentru a-ți construi viziunea anuală',
+    namePlaceholder: 'Numele tău (opțional)',
+    emailPlaceholder: 'Adresa ta de email',
+    passwordPlaceholder: 'Creează parolă (min 6 caractere)',
+    createBtn: 'Creează Planul Meu',
+    trialBadge: 'Trial gratuit 3 zile • Fără card bancar',
+    featureWizard: 'Wizard AI',
+    featureGoals: 'Obiective Anuale',
+    featurePlan: 'Plan 90 Zile',
+    back: 'Înapoi',
+    timeLeft: '~60 secunde rămase',
+    // toast messages
+    passShort: 'Parolă prea scurtă',
+    passShortDesc: 'Parola trebuie să aibă minim 6 caractere',
+    accountExists: 'Contul există deja',
+    accountExistsDesc: 'Folosește alt email sau loghează-te',
+    accountCreated: 'Cont creat!',
+    redirectChallenge: 'Te redirecționăm către Challenge-ul de 7 Zile...',
+    redirectDashboard: 'Bine ai venit în aplicație!',
+    redirectBusiness: 'Ai potențial de business - vezi oferta specială!',
+    redirectJourney: 'Te redirecționăm...',
+    errorTitle: 'Eroare',
+    errorDesc: 'Ceva nu a mers bine',
+  },
+  en: {
+    question: 'Question',
+    createTitle: 'Create Your 2026 Plan!',
+    createSubtitle: 'Create a free account to build your annual vision',
+    namePlaceholder: 'Your name (optional)',
+    emailPlaceholder: 'Your email address',
+    passwordPlaceholder: 'Create password (min 6 chars)',
+    createBtn: 'Create My Plan',
+    trialBadge: '3-day free trial • No credit card required',
+    featureWizard: 'AI Wizard',
+    featureGoals: 'Annual Goals',
+    featurePlan: '90-Day Plan',
+    back: 'Back',
+    timeLeft: '~60 seconds left',
+    // toast messages
+    passShort: 'Password too short',
+    passShortDesc: 'Password must be at least 6 characters',
+    accountExists: 'Account exists',
+    accountExistsDesc: 'Please use a different email or login',
+    accountCreated: 'Account created!',
+    redirectChallenge: 'Redirecting to 7-Day Challenge...',
+    redirectDashboard: 'Welcome to your dashboard!',
+    redirectBusiness: 'You have business potential - check this special offer!',
+    redirectJourney: 'Redirecting to your journey...',
+    errorTitle: 'Error',
+    errorDesc: 'Something went wrong',
+  },
+} as const;
+
 interface LifeScoreQuizProps {
   language: 'en' | 'ro';
 }
@@ -17,6 +77,9 @@ interface LifeScoreQuizProps {
 type QuizStep = 'quiz' | 'signup';
 
 export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
+  const t = COPY[language];
+  const questions = getLifeScoreQuestions(language);
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [step, setStep] = useState<QuizStep>('quiz');
@@ -28,9 +91,9 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const currentQuestion = lifeScoreQuestions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === lifeScoreQuestions.length - 1;
-  const progress = ((currentQuestionIndex + 1) / lifeScoreQuestions.length) * 100;
+  const currentQuestion = questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   const handleSelectAnswer = (points: number) => {
     setAnswers(prev => ({
@@ -49,7 +112,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         
         // Calculate category scores
         const categoryScores: Record<string, number> = {};
-        lifeScoreQuestions.forEach(question => {
+        questions.forEach(question => {
           const answer = finalAnswers[question.id];
           if (answer !== undefined) {
             categoryScores[question.category] = answer;
@@ -82,7 +145,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
 
   const calculateCategoryScores = (): Record<string, number> => {
     const scores: Record<string, number> = {};
-    lifeScoreQuestions.forEach(question => {
+    questions.forEach(question => {
       const answer = answers[question.id];
       if (answer !== undefined) {
         scores[question.category] = answer;
@@ -97,8 +160,8 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
 
     if (password.length < 6) {
       toast({
-        title: language === 'en' ? 'Password too short' : 'Parolă prea scurtă',
-        description: language === 'en' ? 'Password must be at least 6 characters' : 'Parola trebuie să aibă minim 6 caractere',
+        title: t.passShort,
+        description: t.passShortDesc,
         variant: 'destructive',
       });
       return;
@@ -136,8 +199,8 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
           
           if (signInError) {
             toast({
-              title: language === 'en' ? 'Account exists' : 'Contul există deja',
-              description: language === 'en' ? 'Please use a different email or login' : 'Folosește alt email sau loghează-te',
+              title: t.accountExists,
+              description: t.accountExistsDesc,
               variant: 'destructive',
             });
             setIsSubmitting(false);
@@ -163,6 +226,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         name: name.trim() || null,
         lead_magnet: 'life_score_quiz',
         source: `life_score_split_${variant.toLowerCase()}`,
+        language,
         metadata: {
           totalScore,
           categoryScores,
@@ -216,8 +280,8 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         case 'A':
           // Current flow - Challenge
           toast({
-            title: language === 'en' ? 'Account created!' : 'Cont creat!',
-            description: language === 'en' ? 'Redirecting to 7-Day Challenge...' : 'Te redirecționăm către Challenge-ul de 7 Zile...',
+            title: t.accountCreated,
+            description: t.redirectChallenge,
           });
           setTimeout(() => navigate('/challenge?source=life-score-split-a'), 500);
           break;
@@ -225,8 +289,8 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         case 'B':
           // Direct to dashboard
           toast({
-            title: language === 'en' ? 'Account created!' : 'Cont creat!',
-            description: language === 'en' ? 'Welcome to your dashboard!' : 'Bine ai venit în aplicație!',
+            title: t.accountCreated,
+            description: t.redirectDashboard,
           });
           setTimeout(() => navigate('/dashboard?source=life-score-split-b'), 500);
           break;
@@ -235,15 +299,15 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
           // Business performers → Warrior Launch Accelerator
           if (businessPercentage >= 60) {
             toast({
-              title: language === 'en' ? 'Account created!' : 'Cont creat!',
-              description: language === 'en' ? 'You have business potential - check this special offer!' : 'Ai potențial de business - vezi oferta specială!',
+              title: t.accountCreated,
+              description: t.redirectBusiness,
             });
             setTimeout(() => navigate('/warrior-launch-accelerator?source=life-score-split-c'), 500);
           } else {
             // Fallback for low business score - go to challenge
             toast({
-              title: language === 'en' ? 'Account created!' : 'Cont creat!',
-              description: language === 'en' ? 'Redirecting to your journey...' : 'Te redirecționăm...',
+              title: t.accountCreated,
+              description: t.redirectJourney,
             });
             setTimeout(() => navigate('/challenge?source=life-score-split-c-fallback'), 500);
           }
@@ -253,8 +317,8 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
     } catch (error: any) {
       console.error('Error in signup:', error);
       toast({
-        title: language === 'en' ? 'Error' : 'Eroare',
-        description: error.message || (language === 'en' ? 'Something went wrong' : 'Ceva nu a mers bine'),
+        title: t.errorTitle,
+        description: error.message || t.errorDesc,
         variant: 'destructive',
       });
     } finally {
@@ -275,12 +339,10 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
               <Sparkles className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-white mb-3">
-              {language === 'en' ? 'Create Your 2026 Plan!' : 'Creează-ți Planul 2026!'}
+              {t.createTitle}
             </h2>
             <p className="text-white/70 text-lg">
-              {language === 'en' 
-                ? 'Create a free account to build your annual vision'
-                : 'Creează un cont gratuit pentru a-ți construi viziunea anuală'}
+              {t.createSubtitle}
             </p>
           </div>
 
@@ -288,7 +350,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
             <div>
               <Input
                 type="text"
-                placeholder={language === 'en' ? 'Your name (optional)' : 'Numele tău (opțional)'}
+                placeholder={t.namePlaceholder}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
@@ -297,7 +359,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
             <div>
               <Input
                 type="email"
-                placeholder={language === 'en' ? 'Your email address' : 'Adresa ta de email'}
+                placeholder={t.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -308,7 +370,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
               <Input
                 type={showPassword ? 'text' : 'password'}
-                placeholder={language === 'en' ? 'Create password (min 6 chars)' : 'Creează parolă (min 6 caractere)'}
+                placeholder={t.passwordPlaceholder}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -334,21 +396,19 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
               ) : (
                 <CheckCircle2 className="w-5 h-5 mr-2" />
               )}
-              {language === 'en' ? 'Create My Plan' : 'Creează Planul Meu'}
+              {t.createBtn}
             </Button>
           </form>
 
           <div className="mt-6 space-y-3">
             <p className="text-center text-sm text-white/40 flex items-center justify-center gap-2">
               <span>🔒</span>
-              {language === 'en' 
-                ? '3-day free trial • No credit card required'
-                : 'Trial gratuit 3 zile • Fără card bancar'}
+              {t.trialBadge}
             </p>
             <div className="flex items-center justify-center gap-4 text-xs text-white/30">
-              <span>✓ {language === 'en' ? 'AI Wizard' : 'Wizard AI'}</span>
-              <span>✓ {language === 'en' ? 'Annual Goals' : 'Obiective Anuale'}</span>
-              <span>✓ {language === 'en' ? '90-Day Plan' : 'Plan 90 Zile'}</span>
+              <span>✓ {t.featureWizard}</span>
+              <span>✓ {t.featureGoals}</span>
+              <span>✓ {t.featurePlan}</span>
             </div>
           </div>
         </div>
@@ -365,7 +425,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         <div className="mb-8">
           <div className="flex justify-between text-sm mb-3">
             <span className="text-white/60">
-              {language === 'en' ? 'Question' : 'Întrebarea'} {currentQuestionIndex + 1}/{lifeScoreQuestions.length}
+              {t.question} {currentQuestionIndex + 1}/{questions.length}
             </span>
             <span className="text-white/60 flex items-center gap-1">
               <span className="text-amber-400">⚡</span>
@@ -404,7 +464,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
             className="space-y-6"
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center text-white leading-tight">
-              {language === 'en' ? currentQuestion.question : currentQuestion.questionRo}
+              {currentQuestion.question}
             </h2>
 
             {/* Options */}
@@ -426,7 +486,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
                 >
                   <span className="text-3xl group-hover:scale-110 transition-transform">{option.emoji}</span>
                   <span className="font-medium text-white flex-1">
-                    {language === 'en' ? option.label : option.labelRo}
+                    {option.label}
                   </span>
                   {answers[currentQuestion.id] === option.points && (
                     <CheckCircle2 className="w-6 h-6 text-amber-400" />
@@ -446,12 +506,12 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
             className="text-white/60 hover:text-white hover:bg-white/10"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {language === 'en' ? 'Back' : 'Înapoi'}
+            {t.back}
           </Button>
           
           <div className="text-sm text-white/40 flex items-center gap-2">
             <span>⏱️</span>
-            {language === 'en' ? '~60 seconds left' : '~60 secunde rămase'}
+            {t.timeLeft}
           </div>
         </div>
       </div>

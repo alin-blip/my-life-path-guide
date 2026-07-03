@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { WARRIOR_POWER_QUESTIONS, WarriorPowerScores, getLevelForScore } from '@/data/warriorPowerQuestions';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useLanguage } from '@/context/LanguageContext';
 
 const LEVEL_CONFIG = {
   ADORMIT: {
@@ -97,6 +98,7 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
   existingScores 
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const { language } = useLanguage();
   const [scores, setScores] = useState<Partial<WarriorPowerScores>>(existingScores || {});
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
@@ -308,10 +310,10 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
             )}>
               <div className="mb-3 sm:mb-4">
                 <h3 className="text-base sm:text-lg font-semibold text-primary mb-1">
-                  {currentQuestion.section}
+                  {language === 'ro' ? currentQuestion.section : currentQuestion.sectionEn}
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  {currentQuestion.sectionDescription}
+                  {currentQuestion.sectionDescription[language]}
                 </p>
               </div>
 
@@ -368,10 +370,10 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
                             "text-xs sm:text-sm font-medium mb-1 sm:mb-2",
                             hasScoreInThisLevel || isSelected ? config.text : "text-foreground/80"
                           )}>
-                            {level.title}
+                            {level.title[language]}
                           </p>
                           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-3">
-                            {level.description}
+                            {level.description[language]}
                           </p>
                           
                           {/* Inline Score Buttons - Always visible */}

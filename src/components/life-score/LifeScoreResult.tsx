@@ -7,6 +7,36 @@ import { useNavigate } from 'react-router-dom';
 import { LifeScorePlanningFlow } from './LifeScorePlanningFlow';
 import visionBoardPreview from '@/assets/vision-board-preview.png';
 
+// ---------------------------------------------------------------------------
+// Bilingual copy dictionary
+// ---------------------------------------------------------------------------
+const COPY = {
+  ro: {
+    lifeScore: 'Scorul Vieții',
+    ctaTitle: 'Creează Viziunea Ta pentru 2026',
+    ctaSubtitle: 'Setează obiectivele anuale, 90 zile, lunare și săptămânale cu ghidare AI.',
+    ctaBtn: 'Începe Planificarea Obiectivelor',
+    focusLabel: (cat: string) => `Focus pe ${cat}`,
+    focusDesc: 'Această arie are nevoie de cea mai mare atenție.',
+    shareWa: (pct: number) =>
+      `Tocmai am făcut quiz-ul Life Score 60s și am obținut ${pct}%! 🎯 Vezi cum te compari: `,
+    shareTw: (pct: number) =>
+      `Scorul meu de Viață: ${pct}% 🎯 Ia quiz-ul de 60 secunde pentru a-l descoperi pe al tău!`,
+  },
+  en: {
+    lifeScore: 'Life Score',
+    ctaTitle: 'Create Your 2026 Vision',
+    ctaSubtitle: 'Set your annual, 90-day, monthly & weekly goals with AI-powered guidance.',
+    ctaBtn: 'Start Planning My Goals',
+    focusLabel: (cat: string) => `Focus on ${cat}`,
+    focusDesc: 'This area needs the most attention right now.',
+    shareWa: (pct: number) =>
+      `I just took the Life Score 60s quiz and scored ${pct}%! 🎯 See how you compare: `,
+    shareTw: (pct: number) =>
+      `My Life Score: ${pct}% 🎯 Take the 60-second quiz to discover yours!`,
+  },
+} as const;
+
 interface LifeScoreResultProps {
   totalScore: number;
   categoryScores: Record<string, number>;
@@ -18,6 +48,7 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
   categoryScores,
   language,
 }) => {
+  const t = COPY[language];
   const navigate = useNavigate();
   const [showPlanningFlow, setShowPlanningFlow] = useState(false);
   
@@ -34,19 +65,13 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
   const weakestCategoryInfo = categoryLabels[weakestCategory];
 
   const handleShareWhatsApp = () => {
-    const text = language === 'en'
-      ? `I just took the Life Score 60s quiz and scored ${percentage}%! 🎯 See how you compare: `
-      : `Tocmai am făcut quiz-ul Life Score 60s și am obținut ${percentage}%! 🎯 Vezi cum te compari: `;
     const url = window.location.origin + '/life-score';
-    window.open(`https://wa.me/?text=${encodeURIComponent(text + url)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(t.shareWa(percentage) + url)}`, '_blank');
   };
 
   const handleShareTwitter = () => {
-    const text = language === 'en'
-      ? `My Life Score: ${percentage}% 🎯 Take the 60-second quiz to discover yours!`
-      : `Scorul meu de Viață: ${percentage}% 🎯 Ia quiz-ul de 60 secunde pentru a-l descoperi pe al tău!`;
     const url = window.location.origin + '/life-score';
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t.shareTw(percentage))}&url=${encodeURIComponent(url)}`, '_blank');
   };
 
   // Show planning flow if user clicked CTA
@@ -72,22 +97,10 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         {/* Score Circle - Responsive */}
         <div className="relative w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-3 sm:mb-4">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 144 144">
-            <circle
-              cx="72"
-              cy="72"
-              r="64"
-              fill="none"
-              stroke="rgba(255,255,255,0.1)"
-              strokeWidth="10"
-            />
+            <circle cx="72" cy="72" r="64" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
             <motion.circle
-              cx="72"
-              cy="72"
-              r="64"
-              fill="none"
-              stroke="url(#scoreGradient)"
-              strokeWidth="10"
-              strokeLinecap="round"
+              cx="72" cy="72" r="64" fill="none"
+              stroke="url(#scoreGradient)" strokeWidth="10" strokeLinecap="round"
               strokeDasharray={402}
               initial={{ strokeDashoffset: 402 }}
               animate={{ strokeDashoffset: 402 - (402 * percentage) / 100 }}
@@ -112,12 +125,12 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
               {percentage}%
             </motion.span>
             <span className="text-white/50 text-[10px] sm:text-xs font-medium">
-              {language === 'en' ? 'Life Score' : 'Scorul Vieții'}
+              {t.lifeScore}
             </span>
           </div>
         </div>
 
-        {/* Level Badge - Compact on Mobile */}
+        {/* Level Badge */}
         <motion.div
           className="flex items-center justify-center gap-2"
           initial={{ opacity: 0, y: 10 }}
@@ -136,7 +149,7 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         </motion.div>
       </motion.div>
 
-      {/* CTA Section - Compact on Mobile */}
+      {/* CTA Section */}
       <motion.div 
         className="bg-gradient-to-br from-violet-500/30 to-purple-600/30 backdrop-blur-xl border border-violet-400/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center"
         initial={{ opacity: 0, y: 20 }}
@@ -144,17 +157,13 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
         transition={{ delay: 1.3 }}
       >
         <h3 className="text-base sm:text-lg font-bold text-white mb-1">
-          {language === 'en' 
-            ? 'Create Your 2026 Vision' 
-            : 'Creează Viziunea Ta pentru 2026'}
+          {t.ctaTitle}
         </h3>
         <p className="text-white/60 text-[10px] sm:text-xs mb-2 sm:mb-3">
-          {language === 'en'
-            ? 'Set your annual, 90-day, monthly & weekly goals with AI-powered guidance.'
-            : 'Setează obiectivele anuale, 90 zile, lunare și săptămânale cu ghidare AI.'}
+          {t.ctaSubtitle}
         </p>
         
-        {/* Vision Board Preview - Visible on all screens */}
+        {/* Vision Board Preview */}
         <div className="rounded-lg sm:rounded-xl overflow-hidden border border-white/10 mb-2 sm:mb-3">
           <img 
             src={visionBoardPreview} 
@@ -168,12 +177,12 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
           onClick={() => setShowPlanningFlow(true)}
           className="w-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-600 hover:via-green-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 text-sm sm:text-base py-3 sm:py-4"
         >
-          {language === 'en' ? 'Start Planning My Goals' : 'Începe Planificarea Obiectivelor'}
+          {t.ctaBtn}
           <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
         </Button>
       </motion.div>
 
-      {/* Category Breakdown - 2x2 Grid, Compact */}
+      {/* Category Breakdown - 2x2 Grid */}
       <motion.div 
         className="grid grid-cols-2 gap-1.5 sm:gap-2"
         initial={{ opacity: 0, y: 20 }}
@@ -189,9 +198,7 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
               <div 
                 key={category}
                 className={`bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 border transition-all ${
-                  isWeakest 
-                    ? 'border-amber-400/50 bg-amber-400/10' 
-                    : 'border-white/10'
+                  isWeakest ? 'border-amber-400/50 bg-amber-400/10' : 'border-white/10'
                 }`}
               >
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
@@ -209,24 +216,20 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
                   <div className="flex-1 h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
                     <motion.div 
                       className="h-full rounded-full"
-                      style={{ 
-                        background: `linear-gradient(90deg, ${info.color}, ${info.color}99)` 
-                      }}
+                      style={{ background: `linear-gradient(90deg, ${info.color}, ${info.color}99)` }}
                       initial={{ width: 0 }}
                       animate={{ width: `${(score / 4) * 100}%` }}
                       transition={{ delay: 1.7, duration: 0.5 }}
                     />
                   </div>
-                  <span className="text-[10px] sm:text-xs font-bold text-white">
-                    {score}/4
-                  </span>
+                  <span className="text-[10px] sm:text-xs font-bold text-white">{score}/4</span>
                 </div>
               </div>
             );
           })}
       </motion.div>
 
-      {/* Weakest Area Insight - Compact */}
+      {/* Weakest Area Insight */}
       <motion.div 
         className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-400/30 rounded-lg sm:rounded-xl p-2.5 sm:p-3"
         initial={{ opacity: 0, y: 20 }}
@@ -239,14 +242,10 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
           </div>
           <div className="min-w-0">
             <h3 className="font-bold text-white text-xs sm:text-sm truncate">
-              {language === 'en' 
-                ? `Focus on ${weakestCategoryInfo.en}`
-                : `Focus pe ${weakestCategoryInfo.ro}`}
+              {t.focusLabel(language === 'en' ? weakestCategoryInfo.en : weakestCategoryInfo.ro)}
             </h3>
             <p className="text-white/60 text-[10px] sm:text-xs">
-              {language === 'en'
-                ? 'This area needs the most attention right now.'
-                : 'Această arie are nevoie de cea mai mare atenție.'}
+              {t.focusDesc}
             </p>
           </div>
         </div>
