@@ -1672,7 +1672,14 @@ export const LanguageProvider: React.FC<{
   }, [userId]);
 
   const t = useCallback((key: string): string => {
-    return translations[language][key] || translations['ro'][key] || key;
+    // Fallback chain: current language → key itself. Never fall back to RO,
+    // which would leak Romanian into an EN session when a key is missing/empty.
+    const value = translations[language]?.[key];
+    if (value !== undefined && value !== null && value !== '') return value;
+    if (import.meta.env.DEV && language === 'en' && translations['ro']?.[key]) {
+      console.warn(`[i18n] Missing EN translation for key: ${key}`);
+    }
+    return key;
   }, [language]);
 
   return (
