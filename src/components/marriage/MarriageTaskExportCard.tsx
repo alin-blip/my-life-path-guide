@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { getISOWeek, getYear, startOfWeek } from 'date-fns';
 import { marriageService, MarriageSession } from '@/services/marriageService';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   session: MarriageSession;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export const MarriageTaskExportCard: React.FC<Props> = ({ session, onExported }) => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(session.task_exported);
 
