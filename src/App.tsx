@@ -503,6 +503,7 @@ const App = () => (
                       </ProtectedRoute>
                     } />
                     <Route path="/mind-coach-transform" element={<MindCoachLanding />} />
+                    <Route path="/chat" element={<Navigate to="/mind-coach" replace />} />
                     <Route path="/marriage-quiz" element={<MarriageQuiz />} />
                     <Route path="/marriage" element={
                       <ProtectedRoute>
