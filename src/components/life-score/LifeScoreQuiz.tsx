@@ -226,6 +226,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
         name: name.trim() || null,
         lead_magnet: 'life_score_quiz',
         source: `life_score_split_${variant.toLowerCase()}`,
+        language,
         metadata: {
           totalScore,
           categoryScores,
