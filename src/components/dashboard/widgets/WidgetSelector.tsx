@@ -65,19 +65,17 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({ widgets, onToggl
   }, {} as Record<string, typeof AVAILABLE_WIDGETS>);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Settings2 className="h-4 w-4" />
-          {language === 'ro' ? 'Personalizează' : 'Customize'}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
+    <>
+      <Button variant="outline" size="sm" className="gap-2" onClick={() => setOpen(true)}>
+        <Settings2 className="h-4 w-4" />
+        {language === 'ro' ? 'Personalizează' : 'Customize'}
+      </Button>
+      <ResponsiveModal open={open} onOpenChange={setOpen} className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle>
             {language === 'ro' ? 'Personalizează Dashboard' : 'Customize Dashboard'}
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveModalTitle>
+        </ResponsiveModalHeader>
         <div className="space-y-6 py-4">
           {Object.entries(groupedWidgets).map(([category, categoryWidgets]) => (
             <div key={category} className="space-y-3">
@@ -117,7 +115,7 @@ export const WidgetSelector: React.FC<WidgetSelectorProps> = ({ widgets, onToggl
             </div>
           ))}
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
+    </>
   );
 };
