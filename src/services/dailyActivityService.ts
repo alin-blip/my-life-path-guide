@@ -109,7 +109,7 @@ export async function getTodayActivity(userId: string): Promise<DailyActivitySna
   const hot = await safe(
     supabase
       .from('hot_list_items')
-      .select('id,text,list_type,updated_at,completed')
+      .select('id,title,list_type,updated_at,completed')
       .eq('user_id', userId)
       .eq('completed', true)
       .gte('updated_at', since)
@@ -120,7 +120,7 @@ export async function getTodayActivity(userId: string): Promise<DailyActivitySna
       id: `hot:${t.id}`,
       axis: 'business',
       source: 'hot_list',
-      title: t.text || 'Sarcină din lista Hot',
+      title: t.title || 'Sarcină din lista Hot',
       occurredAt: t.updated_at,
       metadata: { list_type: t.list_type },
     });
@@ -130,19 +130,20 @@ export async function getTodayActivity(userId: string): Promise<DailyActivitySna
   const stacks = await safe(
     supabase
       .from('stack_sessions')
-      .select('id,emotion,created_at,completed_at')
+      .select('id,stack_type,data,created_at,updated_at,completed')
       .eq('user_id', userId)
       .gte('created_at', since)
       .order('created_at', { ascending: false })
       .limit(15) as any
   );
   ((stacks as any)?.data ?? []).forEach((s: any) => {
+    const emotion = s?.data?.emotion || s?.stack_type || 'emoție';
     items.push({
       id: `stack:${s.id}`,
       axis: 'mind',
       source: 'stack',
-      title: `Stack — ${s.emotion || 'emoție'}`,
-      occurredAt: s.completed_at || s.created_at,
+      title: `Stack — ${emotion}`,
+      occurredAt: s.updated_at || s.created_at,
     });
   });
 

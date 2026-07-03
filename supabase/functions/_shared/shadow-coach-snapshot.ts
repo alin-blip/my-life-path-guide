@@ -55,7 +55,7 @@ export async function buildShadowSnapshot(
   ] = await Promise.all([
     safe(supabase.from('champion_routine_logs').select('*').eq('user_id', userId).eq('date', dateStr).maybeSingle() as any),
     safe(supabase.from('user_tasks').select('title,updated_at').eq('user_id', userId).eq('completed', true).gte('updated_at', sinceIso).limit(50) as any),
-    safe(supabase.from('hot_list_items').select('text,updated_at').eq('user_id', userId).eq('completed', true).gte('updated_at', sinceIso).limit(50) as any),
+    safe(supabase.from('hot_list_items').select('title,updated_at').eq('user_id', userId).eq('completed', true).gte('updated_at', sinceIso).limit(50) as any),
     safe(supabase.from('stack_sessions').select('stack_type,updated_at,completed').eq('user_id', userId).gte('created_at', sinceIso).limit(30) as any),
     safe(supabase.from('mentalitate_stack_sessions').select('completed,updated_at').eq('user_id', userId).gte('created_at', sinceIso).limit(30) as any),
     safe(supabase.from('mind_quiz_responses').select('completed_at').eq('user_id', userId).gte('completed_at', sinceIso).limit(30) as any),
@@ -89,7 +89,7 @@ export async function buildShadowSnapshot(
   ((doneTasksRes as any)?.data ?? []).forEach((t: any) =>
     inc('business', `Task: ${t.title ?? 'sarcină'}`, 'user_tasks', t.updated_at));
   ((hotRes as any)?.data ?? []).forEach((t: any) =>
-    inc('business', `Hot list: ${t.text ?? 'sarcină'}`, 'hot_list_items', t.updated_at));
+    inc('business', `Hot list: ${t.title ?? 'sarcină'}`, 'hot_list_items', t.updated_at));
   ((stacksRes as any)?.data ?? []).forEach((s: any) => {
     if (s.completed) inc('mind', `Stack ${s.stack_type ?? ''} finalizat`, 'stack_sessions', s.updated_at);
   });
