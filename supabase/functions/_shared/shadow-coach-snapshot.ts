@@ -89,7 +89,7 @@ export async function buildShadowSnapshot(
   ((doneTasksRes as any)?.data ?? []).forEach((t: any) =>
     inc('business', `Task: ${t.title ?? 'sarcină'}`, 'user_tasks', t.updated_at));
   ((hotRes as any)?.data ?? []).forEach((t: any) =>
-    inc('business', `Hot list: ${t.text ?? 'sarcină'}`, 'hot_list_items', t.updated_at));
+    inc('business', `Hot list: ${t.title ?? 'sarcină'}`, 'hot_list_items', t.updated_at));
   ((stacksRes as any)?.data ?? []).forEach((s: any) => {
     if (s.completed) inc('mind', `Stack ${s.stack_type ?? ''} finalizat`, 'stack_sessions', s.updated_at);
   });
