@@ -1794,7 +1794,19 @@ const translations: Translations = {
     "warrior.leadForm.vPassMin": "Parola trebuie să aibă minim 8 caractere",
     "warrior.leadForm.vPassUpper": "Parola trebuie să conțină cel puțin o majusculă",
     "warrior.leadForm.vPassNum": "Parola trebuie să conțină cel puțin o cifră",
-    "warrior.leadForm.vPassMatch": "Parolele nu se potrivesc"
+    "warrior.leadForm.vPassMatch": "Parolele nu se potrivesc",
+    "marriage.stackInput.readFileError": "Nu am putut citi fișierul",
+    "marriage.stackInput.maxAttachments": "Maxim {n} atașamente per sesiune",
+    "marriage.stackInput.exceeds20MB": "depășește 20MB",
+    "marriage.stackInput.audioTranscribed": "Audio transcris",
+    "marriage.stackInput.uploadError": "Eroare upload",
+    "marriage.stackInput.filesAdded": "fișier(e) adăugat(e)",
+    "marriage.stackInput.noFileAdded": "Niciun fișier nu a putut fi adăugat. Verifică formatul și dimensiunea.",
+    "marriage.stackInput.transcribeFailed": "Transcriere eșuată: ",
+    "marriage.stackInput.micUnavailable": "Microfon indisponibil: ",
+    "marriage.stackInput.pastedText": "Text lipit",
+    "marriage.stackInput.attachments": "Atașamente",
+    "marriage.stackInput.remove": "Elimină"
   }
 };
 
