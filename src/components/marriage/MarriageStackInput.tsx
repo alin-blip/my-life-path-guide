@@ -62,6 +62,7 @@ const optimizeImageForAttachment = (file: File) =>
   });
 
 export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attachments }) => {
+  const { t } = useLanguage();
   const fileRef = useRef<HTMLInputElement>(null);
   const [pasteText, setPasteText] = useState('');
   const [recording, setRecording] = useState(false);
