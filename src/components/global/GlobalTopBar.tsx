@@ -45,8 +45,10 @@ export const GlobalTopBar: React.FC = () => {
   ];
 
   return (
-    <header className="border-b border-border bg-background/90 backdrop-blur-sm sticky top-0 z-30">
+    <header className="sticky top-0 z-30 backdrop-blur-md bg-background/80 border-b border-primary/15">
       <div className="flex items-center justify-between h-14 px-4 gap-2">
+        {/* subtle gold hairline */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         {/* Left: Logo (hamburger is a floating overlay handled in Layout) */}
         <div className={cn("flex items-center gap-1 shrink-0", isMobile && "ml-12")}>
           <Link to="/dashboard" className="flex items-center gap-2 group">
