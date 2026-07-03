@@ -72,7 +72,7 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={className}>{children}
+      <DialogContent className={className}>{children}</DialogContent>
     </Dialog>
   );
 };
