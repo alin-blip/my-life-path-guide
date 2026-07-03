@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SideMenu } from './SideMenu';
 import { useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ReferralTracker } from './ReferralTracker';
 import { ReferralClientOnboarding } from './coach/ReferralClientOnboarding';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import { useTourContext } from '@/context/TourContext';
 import { GlobalTopBar } from './global/GlobalTopBar';
+import { MobileGlobalNav } from './global/MobileGlobalNav';
 
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import { lazy, Suspense } from 'react';
@@ -85,22 +86,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       </div>
       
-      {/* Menu Toggle Button */}
-      <button 
-        onClick={toggleMenu} 
+      {/* Menu Toggle Button - desktop only (mobile uses bottom nav) */}
+      <button
+        onClick={toggleMenu}
         className={`
-          fixed z-30 p-2.5 rounded-xl shadow-lg transition-all duration-300
+          hidden md:flex fixed z-30 p-2.5 rounded-xl shadow-lg transition-all duration-300
           bg-gradient-primary text-primary-foreground hover:shadow-xl hover:scale-105
-          ${isMobile 
-            ? 'top-4 left-4' 
-            : `top-6 transition-all duration-300 ${isMenuCollapsed ? 'left-[86px]' : 'left-[276px]'}`
-          }
+          top-6 ${isMenuCollapsed ? 'left-[86px]' : 'left-[276px]'}
         `}
       >
-        {isMobile 
-          ? (isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />) 
-          : (isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />)
-        }
+        {isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
       
       {/* Main Content */}
@@ -111,10 +106,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Global Top Bar */}
         <GlobalTopBar />
         
-        <div className={`${isMobile ? 'px-4 py-4 pt-16 safe-x safe-bottom' : 'p-8'} overflow-x-hidden min-h-full`}>
+        <div className={`${isMobile ? 'px-4 py-4 pt-4 pb-24 safe-x safe-bottom' : 'p-8'} overflow-x-hidden min-h-full`}>
           <main className="animate-fade-in">{children}</main>
         </div>
       </div>
+
+      {/* Mobile bottom nav */}
+      {isMobile && (
+        <MobileGlobalNav onMenuClick={() => setIsMobileMenuOpen(true)} />
+      )}
       
       {/* Goal Reminders Notification - lazy loaded */}
       <Suspense fallback={null}>
