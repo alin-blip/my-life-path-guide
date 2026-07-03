@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { MessageCircle, Users, GraduationCap } from 'lucide-react';
+import { MessageCircle, Users, GraduationCap, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserAccountDropdown } from '@/components/UserAccountDropdown';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useDirectMessages } from '@/hooks/useDirectMessages';
+import { useTourContext } from '@/context/TourContext';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { cn } from '@/lib/utils';
 
