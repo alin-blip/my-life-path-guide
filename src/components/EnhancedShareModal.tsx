@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -397,13 +397,12 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
   };
 
   return (
-    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-card border border-primary/20 text-white sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl">
+    <ResponsiveModal open={true} onOpenChange={(open) => !open && onClose()}>
+      __DCSTART__bg-card border border-primary/20 text-white sm:max-w-xl__DCEND__<ResponsiveModalHeader>
+          <ResponsiveModalTitle className="text-center text-xl">
             {language === 'en' ? 'Share Inspiration' : 'Distribuie Inspirația'}
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveModalTitle>
+        </ResponsiveModalHeader>
         
         {/* Preview */}
         <div className="my-4">
@@ -788,7 +787,6 @@ export const EnhancedShareModal: React.FC<EnhancedShareModalProps> = ({
           width="1200" 
           height="630"
         />
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal>
   );
 };
