@@ -1153,3 +1153,69 @@
 .animate-pulse-glow {
   animation: neon-pulse 2s ease-in-out infinite;
 }
+
+/* ============================================
+   MOBILE-FIRST PREMIUM OPTIMIZATION
+   Target: iPhone 12–15 (390–430px)
+   ============================================ */
+
+/* Safe areas — respect notch & home indicator */
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+@media (max-width: 640px) {
+  /* Tighter, edge-to-edge feel on phones */
+  html, body { -webkit-text-size-adjust: 100%; }
+
+  /* Kill overflow that creates horizontal scroll on mobile */
+  body, #root { overflow-x: hidden; max-width: 100vw; }
+
+  /* Container padding — use full lateral space with minimal gutter */
+  .container { padding-left: 1rem !important; padding-right: 1rem !important; }
+
+  /* Cards get generous inner spacing and premium radius on phones */
+  .card, [class*="rounded-lg"].border, [class*="rounded-xl"].border {
+    border-radius: 18px;
+  }
+
+  /* Typography — mobile hierarchy */
+  h1 { font-size: clamp(1.5rem, 6vw, 1.875rem); line-height: 1.15; letter-spacing: -0.02em; }
+  h2 { font-size: clamp(1.25rem, 5vw, 1.5rem); line-height: 1.2; letter-spacing: -0.015em; }
+  h3 { font-size: clamp(1.075rem, 4.4vw, 1.25rem); line-height: 1.25; }
+  p, li, label, span { font-size: 15px; line-height: 1.55; }
+
+  /* Tap targets — WCAG 2.5.5 */
+  button, [role="button"], a.btn, .btn, input[type="button"], input[type="submit"] {
+    min-height: 44px;
+  }
+
+  /* Compact section vertical rhythm */
+  .n8n-section { padding: 3rem 0; }
+
+  /* Dialogs → behave like bottom sheets on phones */
+  [role="dialog"][data-state="open"].sheet-mobile,
+  .dialog-mobile-sheet {
+    position: fixed !important;
+    left: 0 !important; right: 0 !important; bottom: 0 !important;
+    top: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea { font-size: 16px !important; }
+}
+
+/* Sticky bottom nav helper */
+.mobile-bottom-nav {
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
