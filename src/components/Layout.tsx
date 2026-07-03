@@ -86,7 +86,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       </div>
       
-      {/* Menu Toggle Button - desktop only (mobile uses bottom nav) */}
+      {/* Menu Toggle Button - desktop only (mobile uses floating overlay) */}
       <button
         onClick={toggleMenu}
         className={`
@@ -97,6 +97,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         {isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
+
+      {/* Floating hamburger overlay - mobile, always visible (even over hero) */}
+      {isMobile && !isMobileMenuOpen && (
+        <button
+          onClick={() => setIsMobileMenuOpen(true)}
+          aria-label="Open menu"
+          className="md:hidden fixed left-3 z-50 h-10 w-10 flex items-center justify-center rounded-full bg-background/85 backdrop-blur-md border border-border shadow-lg text-foreground hover:bg-background transition-colors"
+          style={{ top: 'max(0.5rem, env(safe-area-inset-top))' }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      )}
       
       {/* Main Content */}
       <div className={`
