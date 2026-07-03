@@ -3,30 +3,32 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { User, Heart, Brain } from 'lucide-react';
 import { MarriageSession } from '@/services/marriageService';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
   session: MarriageSession;
 }
 
 export const RelationalTriangle: React.FC<Props> = ({ session }) => {
+  const { t } = useLanguage();
   const cards = [
     {
-      title: 'Tu (Antreprenorul)',
-      subtitle: 'Iluzia / Filtrul distorsionat',
+      title: t('marriage.triangle.you'),
+      subtitle: t('marriage.triangle.illusion'),
       content: session.perspective_husband,
       icon: User,
       accent: 'border-l-4 border-l-muted-foreground',
     },
     {
-      title: 'Partener (Realitatea Resimțită)',
-      subtitle: 'Ce trăiește celălalt',
+      title: t('marriage.triangle.partner'),
+      subtitle: t('marriage.triangle.partnerReality'),
       content: session.perspective_wife,
       icon: Heart,
       accent: 'border-l-4 border-l-destructive/60',
     },
     {
-      title: 'AI Coach',
-      subtitle: 'Adevărul obiectiv',
+      title: 'Coach',
+      subtitle: t('marriage.triangle.objectiveTruth'),
       content: session.perspective_coach,
       icon: Brain,
       accent: 'border-l-4 border-l-primary',
