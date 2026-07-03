@@ -100,6 +100,33 @@ export default function EmailMonitoring() {
     return s;
   }, [filtered]);
 
+  // Alerts: anomalies in the last hour across the raw log (not deduped)
+  const alerts = useMemo(() => {
+    const list: { level: "error" | "warning"; message: string }[] = [];
+    const hourAgo = Date.now() - 3600 * 1000;
+    const recent = rows.filter((r) => new Date(r.created_at).getTime() >= hourAgo);
+    const failedRecent = recent.filter((r) => r.status === "dlq" || r.status === "failed" || r.status === "bounced");
+    const pendingRecent = recent.filter((r) => r.status === "pending");
+    if (pendingRecent.length > 20) {
+      list.push({ level: "warning", message: `Spike retry: ${pendingRecent.length} email-uri în așteptare în ultima oră.` });
+    }
+    if (state?.retry_after_until && new Date(state.retry_after_until).getTime() > Date.now()) {
+      list.push({ level: "warning", message: `Rate-limit activ până la ${new Date(state.retry_after_until).toLocaleTimeString()}.` });
+    }
+    const errBuckets = new Map<string, number>();
+    for (const r of failedRecent) {
+      const key = (r.error_message ?? "unknown").slice(0, 120);
+      errBuckets.set(key, (errBuckets.get(key) ?? 0) + 1);
+    }
+    for (const [msg, n] of errBuckets.entries()) {
+      if (n >= 3) list.push({ level: "error", message: `Eroare repetată (${n}× în ultima oră): ${msg}` });
+    }
+    if (failedRecent.length >= 5) {
+      list.push({ level: "error", message: `${failedRecent.length} eșecuri în ultima oră — verifică logurile funcției.` });
+    }
+    return list;
+  }, [rows, state]);
+
   const triggerLifecycle = async () => {
     setTriggering(true);
     try {
