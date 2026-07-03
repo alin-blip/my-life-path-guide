@@ -17,6 +17,7 @@ import { CRMDashboard } from './admin/crm/CRMDashboard';
 import { LeadMagnetAnalytics } from './admin/LeadMagnetAnalytics';
 import { AdminCoaches } from './admin/AdminCoaches';
 import { EngagementDashboard } from './admin/EngagementDashboard';
+import { AdminHealthPanel } from './admin/AdminHealthPanel';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
   Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck, Activity
@@ -146,6 +147,7 @@ export const SecureAdminPanel: React.FC = () => {
         
         {/* Tab 1: CMO Command Center */}
         <TabsContent value="overview" className="pt-4">
+          <AdminHealthPanel />
           <CMOCommandCenter />
         </TabsContent>
         
