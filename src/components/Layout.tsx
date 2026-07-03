@@ -86,22 +86,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       </div>
       
-      {/* Menu Toggle Button */}
-      <button 
-        onClick={toggleMenu} 
+      {/* Menu Toggle Button - desktop only (mobile uses bottom nav) */}
+      <button
+        onClick={toggleMenu}
         className={`
-          fixed z-30 p-2.5 rounded-xl shadow-lg transition-all duration-300
+          hidden md:flex fixed z-30 p-2.5 rounded-xl shadow-lg transition-all duration-300
           bg-gradient-primary text-primary-foreground hover:shadow-xl hover:scale-105
-          ${isMobile 
-            ? 'top-4 left-4' 
-            : `top-6 transition-all duration-300 ${isMenuCollapsed ? 'left-[86px]' : 'left-[276px]'}`
-          }
+          top-6 ${isMenuCollapsed ? 'left-[86px]' : 'left-[276px]'}
         `}
       >
-        {isMobile 
-          ? (isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />) 
-          : (isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />)
-        }
+        {isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
       
       {/* Main Content */}
