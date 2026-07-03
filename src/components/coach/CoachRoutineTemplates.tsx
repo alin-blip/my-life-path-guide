@@ -11,13 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -331,14 +325,14 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
       )}
 
       {/* Editor Dialog */}
-      <Dialog open={showEditor} onOpenChange={setShowEditor}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
+      <ResponsiveModal open={showEditor} onOpenChange={setShowEditor} className="max-w-lg max-h-[85vh] overflow-y-auto">
+        
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>
               {editingTemplate ? t.edit : t.createNew}
-            </DialogTitle>
-            <DialogDescription>{t.subtitle}</DialogDescription>
-          </DialogHeader>
+            </ResponsiveModalTitle>
+            <ResponsiveModalDescription>{t.subtitle}</ResponsiveModalDescription>
+          </ResponsiveModalHeader>
 
           <div className="space-y-4 py-2">
             <div>
@@ -415,8 +409,8 @@ export const CoachRoutineTemplates: React.FC<Props> = ({ coachProfileId, userId 
               {t.save}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
+        
+      </ResponsiveModal>
 
       {/* Apply Dialog */}
       <CoachApplyDialog

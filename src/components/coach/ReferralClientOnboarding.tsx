@@ -2,13 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -270,25 +264,25 @@ export const ReferralClientOnboarding: React.FC = () => {
   const differentiators = [t.diff1, t.diff2, t.diff3, t.diff4];
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0 overflow-hidden">
+    <ResponsiveModal open={isOpen} onOpenChange={setIsOpen} className="max-w-3xl max-h-[90vh] p-0 overflow-hidden">
+      
         <ScrollArea className="max-h-[90vh]">
           <div className="p-6">
             {/* Header */}
-            <DialogHeader className="text-center mb-6">
+            <ResponsiveModalHeader className="text-center mb-6">
               <div className="flex justify-center mb-4">
                 <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-1">
                   <Crown className="h-3 w-3 mr-1" />
                   {t.coachBadge}
                 </Badge>
               </div>
-              <DialogTitle className="text-2xl md:text-3xl font-bold">
+              <ResponsiveModalTitle className="text-2xl md:text-3xl font-bold">
                 {t.welcomeTitle}
-              </DialogTitle>
-              <DialogDescription className="text-base mt-2">
+              </ResponsiveModalTitle>
+              <ResponsiveModalDescription className="text-base mt-2">
                 {t.welcomeSubtitle.replace('{coachName}', coachName)}
-              </DialogDescription>
-            </DialogHeader>
+              </ResponsiveModalDescription>
+            </ResponsiveModalHeader>
 
             {/* What You Get Section */}
             <div className="mb-6">
@@ -372,7 +366,7 @@ export const ReferralClientOnboarding: React.FC = () => {
             </div>
           </div>
         </ScrollArea>
-      </DialogContent>
-    </Dialog>
+      
+    </ResponsiveModal>
   );
 };

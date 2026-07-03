@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -281,11 +281,11 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
       )}
 
       {/* Create Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t.createProgram}</DialogTitle>
-          </DialogHeader>
+      <ResponsiveModal open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>{t.createProgram}</ResponsiveModalTitle>
+          </ResponsiveModalHeader>
           <div className="space-y-4">
             <div>
               <Label>{t.name}</Label>
@@ -310,22 +310,22 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
               </Select>
             </div>
           </div>
-          <DialogFooter>
+          <ResponsiveModalFooter>
             <Button variant="outline" onClick={() => setShowCreateDialog(false)}>{t.cancel}</Button>
             <Button onClick={handleCreate} disabled={!formName.trim()}>{t.save}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </ResponsiveModalFooter>
+        
+      </ResponsiveModal>
 
       {/* Edit Program Dialog */}
-      <Dialog open={!!editingProgram} onOpenChange={(open) => { if (!open) { setEditingProgram(null); setExpandedDay(null); } }}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      <ResponsiveModal open={!!editingProgram} onOpenChange={(open) = className="max-w-2xl max-h-[80vh] overflow-y-auto"> { if (!open) { setEditingProgram(null); setExpandedDay(null); } }}>
+        
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle className="flex items-center gap-2">
               <Dumbbell className="h-5 w-5" />
               {editingProgram?.name}
-            </DialogTitle>
-          </DialogHeader>
+            </ResponsiveModalTitle>
+          </ResponsiveModalHeader>
 
           {editingProgram?.days && (
             <div className="space-y-3">
@@ -417,8 +417,8 @@ export const CoachWorkoutPrograms: React.FC<Props> = ({ coachProfileId, userId }
               ))}
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        
+      </ResponsiveModal>
       {/* Apply Dialog */}
       <CoachApplyDialog
         open={!!applyTarget}
