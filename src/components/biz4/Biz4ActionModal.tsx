@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription, ResponsiveModalFooter } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -161,11 +155,9 @@ export const Biz4ActionModal: React.FC<Biz4ActionModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{config.title[language]}</DialogTitle>
-        </DialogHeader>
+    <ResponsiveModal open={isOpen} onOpenChange={onClose} className="sm:max-w-md"><ResponsiveModalHeader>
+          <ResponsiveModalTitle>{config.title[language]}</ResponsiveModalTitle>
+        </ResponsiveModalHeader>
 
         <div className="space-y-4 py-4">
           {config.fields.map((field) => (
@@ -215,7 +207,7 @@ export const Biz4ActionModal: React.FC<Biz4ActionModalProps> = ({
           ))}
         </div>
 
-        <DialogFooter className="flex flex-col sm:flex-row gap-2">
+        <ResponsiveModalFooter className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
             onClick={handleQuickComplete}
@@ -231,8 +223,7 @@ export const Biz4ActionModal: React.FC<Biz4ActionModalProps> = ({
           >
             {language === 'en' ? 'Save with Metrics' : 'Salvează cu Metrici'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModal>
   );
 };

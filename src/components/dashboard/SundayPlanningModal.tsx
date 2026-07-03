@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle, ResponsiveModalDescription } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -161,19 +161,18 @@ export const SundayPlanningModal: React.FC<SundayPlanningModalProps> = ({ isOpen
   // If no objectives at all, show setup prompt
   if (!hasAnyObjective) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      <ResponsiveModal open={isOpen} onOpenChange={onClose} className="sm:max-w-md">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
               {i18n.language === 'ro' ? 'Setează-ți Obiectivele pentru 2026' : 'Set Your 2026 Objectives'}
-            </DialogTitle>
-            <DialogDescription>
+            </ResponsiveModalTitle>
+            <ResponsiveModalDescription>
               {i18n.language === 'ro' 
                 ? 'Pentru o planificare eficientă a săptămânii, recomandăm să setezi mai întâi obiectivele anuale, pe 90 de zile și lunare.'
                 : 'For effective weekly planning, we recommend setting your annual, 90-day, and monthly objectives first.'}
-            </DialogDescription>
-          </DialogHeader>
+            </ResponsiveModalDescription>
+          </ResponsiveModalHeader>
           
           <div className="space-y-4 py-4">
             <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -202,24 +201,22 @@ export const SundayPlanningModal: React.FC<SundayPlanningModalProps> = ({ isOpen
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </ResponsiveModal>
     );
   }
 
   return (
     <>
-      <Dialog open={isOpen && !showAIPlanningModal && !showVoicePlanningModal} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      <ResponsiveModal open={isOpen && !showAIPlanningModal && !showVoicePlanningModal} onOpenChange={onClose} className="sm:max-w-xl max-h-[90vh]">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
               {i18n.language === 'ro' ? 'Planifică Săptămâna Viitoare' : 'Plan Next Week'}
-            </DialogTitle>
-            <DialogDescription>
+            </ResponsiveModalTitle>
+            <ResponsiveModalDescription>
               {format(nextMonday, 'd MMM', { locale: dateLocale })} - {format(nextSunday, 'd MMM yyyy', { locale: dateLocale })}
-            </DialogDescription>
-          </DialogHeader>
+            </ResponsiveModalDescription>
+          </ResponsiveModalHeader>
           
           <ScrollArea className="max-h-[60vh] pr-4">
             <div className="space-y-4 py-4">
@@ -391,8 +388,7 @@ export const SundayPlanningModal: React.FC<SundayPlanningModalProps> = ({ isOpen
               </Button>
             </div>
           </ScrollArea>
-        </DialogContent>
-      </Dialog>
+        </ResponsiveModal>
 
       {/* AI Planning Modal */}
       <DoorPlanningModal

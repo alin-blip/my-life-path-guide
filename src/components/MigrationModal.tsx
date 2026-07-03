@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useMigration } from '@/context/MigrationContext';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  ResponsiveModal,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+} from '@/components/ui/responsive-modal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,20 +96,19 @@ export const MigrationModal: React.FC = () => {
 
   return (
     <>
-      <Dialog open={showMigrationUI && !showCleanupDialog} onOpenChange={(open) => !open && !isMigrating && skipMigration()}>
-        <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <ResponsiveModal open={showMigrationUI && !showCleanupDialog} onOpenChange={(open) => !open && !isMigrating && skipMigration()} className="sm:max-w-md">
+        <ResponsiveModalHeader>
           <div className="flex items-center gap-2 mb-2">
             <Cloud className="w-5 h-5 text-primary" />
             <Database className="w-5 h-5 text-primary" />
           </div>
-          <DialogTitle>Migrate to Cloud</DialogTitle>
-          <DialogDescription>
+          <ResponsiveModalTitle>Migrate to Cloud</ResponsiveModalTitle>
+          <ResponsiveModalDescription>
             {isMigrating
               ? 'Migrating your local data to the cloud...'
               : 'We detected local data that can be migrated to the cloud for better sync and backup.'}
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
 
         {isMigrating && (
           <div className="space-y-4 py-4">
@@ -147,17 +145,16 @@ export const MigrationModal: React.FC = () => {
         )}
 
         {!isMigrating && (
-          <DialogFooter className="flex gap-2 sm:gap-0">
+          <ResponsiveModalFooter className="flex gap-2 sm:gap-0">
             <Button variant="outline" onClick={skipMigration}>
               Skip for Now
             </Button>
             <Button onClick={startMigration}>
               Migrate to Cloud
             </Button>
-          </DialogFooter>
+          </ResponsiveModalFooter>
         )}
-        </DialogContent>
-      </Dialog>
+      </ResponsiveModal>
 
       {/* Cleanup Confirmation Dialog */}
       <AlertDialog open={showCleanupDialog} onOpenChange={setShowCleanupDialog}>
