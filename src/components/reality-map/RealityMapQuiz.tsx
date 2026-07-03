@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { WARRIOR_POWER_QUESTIONS, WarriorPowerScores, getLevelForScore } from '@/data/warriorPowerQuestions';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useLanguage } from '@/context/LanguageContext';
 
 const LEVEL_CONFIG = {
   ADORMIT: {
@@ -97,6 +98,7 @@ export const RealityMapQuiz: React.FC<RealityMapQuizProps> = ({
   existingScores 
 }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const { language } = useLanguage();
   const [scores, setScores] = useState<Partial<WarriorPowerScores>>(existingScores || {});
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedScore, setSelectedScore] = useState<number | null>(null);
