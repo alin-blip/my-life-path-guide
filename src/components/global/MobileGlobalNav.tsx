@@ -72,21 +72,6 @@ export const MobileGlobalNav: React.FC<MobileGlobalNavProps> = ({ onMenuClick })
             </li>
           );
         })}
-        <li className="flex-1">
-          <button
-            type="button"
-            onClick={() => {
-              haptic.light();
-              onMenuClick();
-            }}
-            className="w-full h-full min-h-[44px] flex flex-col items-center justify-center gap-0.5 text-muted-foreground active:bg-accent/40"
-          >
-            <Menu className="h-5 w-5" />
-            <span className="text-[10px] leading-none">
-              {language === "en" ? "Menu" : "Meniu"}
-            </span>
-          </button>
-        </li>
       </ul>
     </nav>
   );
