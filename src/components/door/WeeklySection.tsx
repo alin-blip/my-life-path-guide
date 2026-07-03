@@ -532,9 +532,9 @@ export const WeeklySection: React.FC = () => {
           </>
         ) : (
           /* Desktop: 3-Column Layout - Clean Notion Style */
-          <div className="grid grid-cols-3 gap-6 animate-fade-in">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)] gap-6 animate-fade-in">
             {/* To Do Column */}
-            <div className="bg-card border border-border rounded-xl p-5">
+            <div className="min-w-0 [&_*]:break-words bg-card border border-border rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-medium text-foreground flex items-center gap-2">
                   <ListTodo className="w-4 h-4 text-primary" />

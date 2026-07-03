@@ -133,70 +133,70 @@ export function EarlyBirdBanner() {
       animate={{ opacity: 1, y: 0 }}
       className="mb-6"
     >
-      <Card className="relative overflow-hidden border-2 border-amber-500/50 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-amber-500/10">
-        {/* Dismiss button */}
+      <Card className="relative overflow-hidden border border-primary/25 bg-card shadow-[0_1px_0_0_hsl(var(--primary)/0.15)_inset,0_8px_30px_-12px_hsl(var(--primary)/0.25)]">
+        {/* Dismiss */}
         <Button
           variant="ghost"
           size="icon"
           onClick={handleDismiss}
-          className="absolute top-2 right-2 h-8 w-8 rounded-full hover:bg-amber-500/20"
+          className="absolute top-2 right-2 h-8 w-8 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 z-10"
         >
           <X className="h-4 w-4" />
         </Button>
 
-        {/* Animated gradient border */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 animate-pulse" />
+        {/* Gold hairline top */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
         <CardContent className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             {/* Icon */}
-            <div className="flex-shrink-0 p-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/20">
-              <Gift className="h-8 w-8 text-white" />
+            <div className="flex-shrink-0 h-14 w-14 rounded-full grid place-items-center bg-primary/10 border border-primary/30">
+              <Gift className="h-6 w-6 text-primary" />
             </div>
 
             {/* Content */}
             <div className="flex-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                <Badge className="bg-primary/15 text-primary border border-primary/30 hover:bg-primary/20">
                   {content.badge}
                 </Badge>
               </div>
-              
-              <h3 className="text-lg md:text-xl font-bold text-foreground mb-1">
+
+              <h3 className="font-display text-xl md:text-2xl font-semibold text-foreground mb-1">
                 {content.title}
               </h3>
-              
-              <p className="text-sm text-muted-foreground mb-2">
+
+              <p className="text-sm text-muted-foreground mb-3">
                 {content.subtitle}
               </p>
 
-              {/* Price comparison */}
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                <span className="text-muted-foreground line-through text-lg">
+              {/* Price */}
+              <div className="flex items-baseline justify-center md:justify-start gap-2">
+                <span className="text-muted-foreground line-through text-base">
                   {content.originalPrice}
                 </span>
-                <span className="text-2xl md:text-3xl font-black text-amber-500">
+                <span className="font-display text-3xl md:text-4xl font-semibold text-primary">
                   {content.currentPrice}
                 </span>
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {content.perMonth}
                 </span>
               </div>
 
-              {/* Countdown Timer */}
+              {/* Countdown */}
               {countdown.total > 0 && (
-                <div className="flex items-center justify-center md:justify-start gap-1.5 mt-2">
-                  <Clock className="h-3.5 w-3.5 text-amber-400" />
-                  <div className="flex items-center gap-0.5 font-mono text-sm font-semibold">
-                    <span className="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                <div className="flex items-center justify-center md:justify-start gap-1.5 mt-3">
+                  <Clock className="h-3.5 w-3.5 text-primary" />
+                  <div className="flex items-center gap-1 font-mono text-sm">
+                    <span className="text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded">
                       {String(countdown.hours).padStart(2, '0')}
                     </span>
-                    <span className="text-amber-400/60">:</span>
-                    <span className="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                    <span className="text-primary/50">:</span>
+                    <span className="text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded">
                       {String(countdown.minutes).padStart(2, '0')}
                     </span>
-                    <span className="text-amber-400/60">:</span>
-                    <span className="text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                    <span className="text-primary/50">:</span>
+                    <span className="text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded">
                       {String(countdown.seconds).padStart(2, '0')}
                     </span>
                   </div>
@@ -204,12 +204,12 @@ export function EarlyBirdBanner() {
               )}
             </div>
 
-            {/* CTA Button */}
+            {/* CTA */}
             <div className="flex-shrink-0">
               <Button
                 onClick={handleActivate}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white gap-2 px-6 py-2 h-auto"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-6 py-2 h-auto font-semibold"
               >
                 {isLoading ? (
                   <>

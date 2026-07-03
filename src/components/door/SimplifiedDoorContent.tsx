@@ -503,10 +503,10 @@ export const SimplifiedDoorContent: React.FC = () => {
             />
           </>
         ) : (
-          /* Desktop: 3-Column Layout */
-          <div className="grid grid-cols-3 gap-6 animate-fade-in">
+          /* Desktop: 3-Column Layout — min-w-0 stops flex/grid content from blowing out */
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)] gap-6 animate-fade-in">
             {/* To Do Column */}
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="min-w-0 [&_*]:break-words bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-semibold text-foreground">📋 To Do</h2>
                 <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{filteredHotList.length}</span>
@@ -532,7 +532,7 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Focus Column - No extra wrapper, DominoDoor has its own styling */}
-            <div onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
+            <div className="min-w-0" onDragOver={handleDragOverDomino} onDrop={handleDropOnDomino}>
               <DominoDoor 
                 selectedDomino={selectedDomino}
                 dominoKeyPoints={dominoKeyPoints}
@@ -552,7 +552,7 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Tasks Column */}
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOver} onDrop={handleDrop}>
+            <div className="min-w-0 [&_*]:break-words bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOver} onDrop={handleDrop}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
                 <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.tasks}</span>

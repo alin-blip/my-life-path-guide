@@ -73,36 +73,40 @@ export default function MindCoach() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <div className="border-b border-border bg-card">
-        <div className="container max-w-4xl mx-auto px-4 py-10">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              navigate(-1);
-            }}
-            className="mb-4"
-            type="button"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {language === 'ro' ? 'Înapoi' : 'Back'}
-          </Button>
+      <div className="container max-w-4xl mx-auto px-4 py-8">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            navigate(-1);
+          }}
+          className="mb-6"
+          type="button"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          {language === 'ro' ? 'Înapoi' : 'Back'}
+        </Button>
 
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 border border-border px-4 py-1.5 rounded-full">
+        {/* Unified premium shell: header + 4-step + chat, joined by gold hairline dividers */}
+        <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-card shadow-[0_1px_0_0_hsl(var(--primary)/0.15)_inset,0_20px_60px_-30px_hsl(var(--primary)/0.35)]">
+          {/* top gold hairline */}
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+          {/* subtle radial gold glow */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.08),transparent_60%)]" />
+
+          {/* Header */}
+          <div className="relative px-6 md:px-10 pt-10 pb-8 text-center space-y-4">
+            <div className="inline-flex items-center gap-2 border border-primary/30 bg-primary/5 px-4 py-1.5 rounded-full">
               <Brain className="h-4 w-4 text-primary" />
               <span className="text-mono text-xs uppercase tracking-[0.2em] text-primary">Mind Coach</span>
             </div>
-
             <h1 className="font-display text-3xl md:text-5xl font-semibold tracking-tight">
-              {language === 'ro' 
+              {language === 'ro'
                 ? <>Transformă orice emoție <em className="text-primary not-italic font-display italic">în putere</em></>
                 : <>Transform any emotion <em className="text-primary not-italic font-display italic">into power</em></>}
             </h1>
-
             <p className="text-muted-foreground max-w-xl mx-auto">
               {language === 'ro'
                 ? 'Metodologia Tony Robbins pentru a transforma frica, furia, tristețea sau procrastinarea în energie și acțiune concretă.'
@@ -110,41 +114,47 @@ export default function MindCoach() {
             </p>
           </div>
 
-          {/* Feature highlights */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border mt-10 border border-border">
+          {/* gold divider */}
+          <div className="mx-6 md:mx-10 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+          {/* 4-step grid */}
+          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-px bg-primary/15 mx-6 md:mx-10 my-6 rounded-lg overflow-hidden border border-primary/15">
             {[
               { icon: Target, label: language === 'ro' ? 'Identifică' : 'Identify', desc: language === 'ro' ? 'Ce simți' : 'What you feel' },
               { icon: Sparkles, label: language === 'ro' ? 'Clarifică' : 'Clarify', desc: language === 'ro' ? 'Fapte vs Povești' : 'Facts vs Stories' },
               { icon: Zap, label: language === 'ro' ? 'Transformă' : 'Transform', desc: language === 'ro' ? 'În putere' : 'Into power' },
               { icon: Heart, label: language === 'ro' ? 'Acționează' : 'Act', desc: language === 'ro' ? 'Concret' : 'Concretely' },
             ].map((feature, idx) => (
-              <div key={idx} className="text-center p-4 bg-background">
+              <div key={idx} className="text-center p-4 bg-card">
                 <feature.icon className="h-5 w-5 mx-auto text-primary mb-2" />
                 <p className="text-mono text-xs uppercase tracking-wider text-foreground">{feature.label}</p>
                 <p className="text-xs text-muted-foreground mt-1">{feature.desc}</p>
               </div>
             ))}
           </div>
+
+          {/* gold divider */}
+          <div className="mx-6 md:mx-10 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+          {/* Chat */}
+          <div className="relative px-4 md:px-8 py-8">
+            <div className="max-w-2xl mx-auto">
+              <MindCoachChat
+                onAddToHitList={handleAddToHitList}
+                onAddHabit={handleAddHabit}
+                onComplete={handleComplete}
+                language={language === 'ro' ? 'ro' : 'en'}
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Mind Coach Chat */}
-      <div className="container max-w-2xl mx-auto px-4 py-8">
-        <MindCoachChat
-          onAddToHitList={handleAddToHitList}
-          onAddHabit={handleAddHabit}
-          onComplete={handleComplete}
-          language={language === 'ro' ? 'ro' : 'en'}
-        />
-      </div>
-
-      {/* Bottom info */}
-      <div className="container max-w-2xl mx-auto px-4 pb-8">
-        <div className="border border-border bg-card p-4 text-center">
+        {/* Footer info */}
+        <div className="mt-6 border border-border/60 bg-card/60 rounded-lg p-4 text-center max-w-2xl mx-auto">
           <p className="text-sm text-muted-foreground">
             {language === 'ro'
-              ? '💡 Mind Coach folosește metodologia Tony Robbins pentru transformare emoțională în 5 pași: Identificare → Investigare → Clarificare → Transformare → Acțiune'
-              : '💡 Mind Coach uses Tony Robbins methodology for emotional transformation in 5 steps: Identification → Investigation → Clarification → Transformation → Action'}
+              ? 'Mind Coach folosește metodologia Tony Robbins în 5 pași: Identificare → Investigare → Clarificare → Transformare → Acțiune'
+              : 'Mind Coach uses Tony Robbins methodology in 5 steps: Identification → Investigation → Clarification → Transformation → Action'}
           </p>
         </div>
       </div>

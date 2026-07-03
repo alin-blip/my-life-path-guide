@@ -493,11 +493,20 @@
 
 /* Fixed sidebar styles */
 .sidebar-item {
-  @apply flex items-center gap-3 px-3 py-2.5 text-sm text-sidebar-foreground rounded-xl transition-all duration-200 hover:bg-sidebar-accent/10;
+  @apply flex items-center gap-3 px-3 py-2.5 text-sm text-sidebar-foreground rounded-lg transition-colors duration-150 relative;
 }
-
+.sidebar-item:hover {
+  background: hsl(var(--primary) / 0.06);
+  color: hsl(var(--foreground));
+}
 .sidebar-item.active {
-  @apply bg-gradient-to-r from-primary to-accent text-primary-foreground font-medium shadow-lg;
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  font-weight: 500;
+  box-shadow: inset 2px 0 0 hsl(var(--primary));
+}
+.sidebar-item.active svg {
+  color: hsl(var(--primary));
 }
 
 /* Fix for sidebar layout */

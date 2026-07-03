@@ -256,8 +256,8 @@ export const ObjectiveVisionBoard: React.FC<ObjectiveVisionBoardProps> = ({
           className={`absolute inset-0 w-full h-full object-cover ${!imageUrl ? 'opacity-70' : ''}`}
         />
         
-        {/* Overlay */}
-        <div className={`absolute inset-0 ${imageUrl ? 'bg-black/30' : ''} flex flex-col items-center justify-center p-3`}>
+        {/* Overlay — bottom gradient only so image breathes */}
+        <div className={`absolute inset-0 ${imageUrl ? 'bg-gradient-to-t from-background/95 via-background/25 to-transparent' : ''} flex flex-col items-center justify-end p-3`}>
           {isGeneratingThis ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-white" />
