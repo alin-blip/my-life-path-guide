@@ -552,7 +552,7 @@ export const SimplifiedDoorContent: React.FC = () => {
             </div>
 
             {/* Tasks Column */}
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOver} onDrop={handleDrop}>
+            <div className="min-w-0 [&_*]:break-words bg-card border border-border rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300" onDragOver={handleDragOver} onDrop={handleDrop}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-foreground">📋 Sarcini Zilnice</h2>
                 <span className="text-sm text-muted-foreground px-2 py-1 bg-accent/30 rounded-lg">{stats.tasks}</span>
