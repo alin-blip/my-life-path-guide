@@ -161,8 +161,7 @@ export const SundayPlanningModal: React.FC<SundayPlanningModalProps> = ({ isOpen
   // If no objectives at all, show setup prompt
   if (!hasAnyObjective) {
     return (
-      <ResponsiveModal open={isOpen} onOpenChange={onClose}>
-        <div data-modal-content className="sm:max-w-md">
+      <ResponsiveModal open={isOpen} onOpenChange={onClose} className="sm:max-w-md">
           <ResponsiveModalHeader>
             <ResponsiveModalTitle className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />
@@ -202,15 +201,13 @@ export const SundayPlanningModal: React.FC<SundayPlanningModalProps> = ({ isOpen
               </Button>
             </div>
           </div>
-        </div>
-      </ResponsiveModal>
+        </ResponsiveModal>
     );
   }
 
   return (
     <>
-      <ResponsiveModal open={isOpen && !showAIPlanningModal && !showVoicePlanningModal} onOpenChange={onClose}>
-        <div data-modal-content className="sm:max-w-xl max-h-[90vh]">
+      <ResponsiveModal open={isOpen && !showAIPlanningModal && !showVoicePlanningModal} onOpenChange={onClose} className="sm:max-w-xl max-h-[90vh]">
           <ResponsiveModalHeader>
             <ResponsiveModalTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
@@ -391,8 +388,7 @@ export const SundayPlanningModal: React.FC<SundayPlanningModalProps> = ({ isOpen
               </Button>
             </div>
           </ScrollArea>
-        </div>
-      </ResponsiveModal>
+        </ResponsiveModal>
 
       {/* AI Planning Modal */}
       <DoorPlanningModal
