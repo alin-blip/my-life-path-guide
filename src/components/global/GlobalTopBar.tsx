@@ -71,7 +71,8 @@ export const GlobalTopBar: React.FC = () => {
               CEO Mind <em className="not-italic font-display italic text-primary">OS</em>
             </span>
           )}
-        </Link>
+          </Link>
+        </div>
 
         {/* Center: Nav tabs */}
         <nav className="flex items-center gap-1">
