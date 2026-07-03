@@ -1,11 +1,5 @@
 import { ReactNode } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalDescription, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 
 interface StepConfigDialogProps {
   open: boolean;
@@ -23,18 +17,18 @@ export function StepConfigDialog({
   children
 }: StepConfigDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+    <ResponsiveModal open={open} onOpenChange={onOpenChange} className="max-w-md">
+      
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle>{title}</ResponsiveModalTitle>
           {description && (
-            <DialogDescription>{description}</DialogDescription>
+            <ResponsiveModalDescription>{description}</ResponsiveModalDescription>
           )}
-        </DialogHeader>
+        </ResponsiveModalHeader>
         <div className="py-4">
           {children}
         </div>
-      </DialogContent>
-    </Dialog>
+      
+    </ResponsiveModal>
   );
 }

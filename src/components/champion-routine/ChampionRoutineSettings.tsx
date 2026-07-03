@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -191,11 +191,11 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl">Personalizează Rutina de Campion</DialogTitle>
-        </DialogHeader>
+    <ResponsiveModal open={open} onOpenChange={onOpenChange} className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle className="text-xl">Personalizează Rutina de Campion</ResponsiveModalTitle>
+        </ResponsiveModalHeader>
 
         <Tabs defaultValue="steps" className="w-full">
           <TabsList className="grid w-full grid-cols-5">
@@ -412,7 +412,7 @@ export function ChampionRoutineSettings({ open, onOpenChange }: ChampionRoutineS
           <Save className="h-4 w-4 mr-2" />
           {isSaving ? 'Se salvează...' : 'Salvează și Închide'}
         </Button>
-      </DialogContent>
-    </Dialog>
+      
+    </ResponsiveModal>
   );
 }
