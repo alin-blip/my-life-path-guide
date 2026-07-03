@@ -20,7 +20,7 @@ const readFileAsDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(reader.error || new Error(t('marriage.stackInput.readFileError')));
+    reader.onerror = () => reject(reader.error || new Error('Could not read file'));
     reader.readAsDataURL(file);
   });
 
