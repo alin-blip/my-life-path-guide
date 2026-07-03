@@ -543,7 +543,7 @@ const Pricing: React.FC = () => {
               </div>
             )}
           </div>
-        </main>
+        </div>
       </div>
     </Layout>
   );
