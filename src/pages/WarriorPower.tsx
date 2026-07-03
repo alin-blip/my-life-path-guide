@@ -35,9 +35,10 @@ export default function WarriorPower() {
     setStep('lead-form');
   };
 
+  const isEn = language === 'en';
   const handleLeadSubmit = async (data: SimpleLeadFormData) => {
     if (!quizScores) {
-      toast.error('Quiz incomplet. Încearcă din nou.');
+      toast.error(isEn ? 'Quiz incomplete. Try again.' : 'Quiz incomplet. Încearcă din nou.');
       setStep('quiz');
       return;
     }
