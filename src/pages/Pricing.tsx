@@ -377,7 +377,8 @@ const Pricing: React.FC = () => {
               
               return (
                 <Card 
-                  key={plan.id} 
+                  key={plan.id}
+                  id={`plan-${basePlanId}`}
                   className={`relative overflow-hidden transition-all duration-300 ${
                     plan.featured 
                       ? 'ring-2 ring-primary shadow-lg shadow-primary/20 scale-[1.02]' 
