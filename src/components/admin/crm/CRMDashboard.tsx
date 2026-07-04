@@ -82,6 +82,10 @@ export const CRMDashboard: React.FC = () => {
           <FunnelPipeline onSelectContact={setSelectedContactId} />
         </TabsContent>
 
+        <TabsContent value="burnout-seq">
+          <BurnoutSequenceStats />
+        </TabsContent>
+
         <TabsContent value="funnel-leads">
           <FunnelLeadsDashboard />
         </TabsContent>
