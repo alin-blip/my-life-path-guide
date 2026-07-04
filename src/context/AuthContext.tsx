@@ -281,7 +281,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       clearTimeout(releaseLoadingTimer);
       if (!silent) setSubscriptionLoading(false);
+      setSubscriptionInitialized(true);
     }
+
   };
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
