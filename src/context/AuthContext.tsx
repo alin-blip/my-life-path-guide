@@ -11,6 +11,8 @@ interface AuthContextType {
   subscribed: boolean;
   subscriptionTier: string | null;
   subscriptionEnd: string | null;
+  trialExpired: boolean;
+
   earlyBirdExpiresAt: string | null;
   isEarlyBirdActive: boolean;
   refreshSubscription: (opts?: { silent?: boolean }) => Promise<void>;
