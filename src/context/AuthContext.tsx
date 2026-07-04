@@ -91,6 +91,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // CHALLENGE OAUTH LEAD CAPTURE — only on real new sign-ins, not tab focus re-fires
         if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
+          // One-shot migration of pre-auth localStorage journal entries
+          migrateLocalJournalEntries(session.user.id).catch(err =>
+            console.error('[AuthContext] journal migration failed:', err)
+          );
+
+
           // Track login activity in CRM
           const sessionId = sessionStorage.getItem('crm_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           supabase.from('crm_activity_timeline').insert([{
