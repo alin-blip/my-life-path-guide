@@ -53,11 +53,9 @@ export const NewHeroSection = () => {
             </SectionLabel>
           </motion.div>
 
-          {/* Headline — Fraunces, italic gold accent on second line */}
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.18 }}
+          {/* Headline — Fraunces, italic gold accent on second line.
+              LCP element: rendered without fade-in so the largest text paints immediately. */}
+          <h1
             className="font-display text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.05] tracking-tight text-foreground mb-6"
           >
             {isRo ? 'Afacerea ta are un sistem de operare.' : 'Your business has an operating system.'}
@@ -65,7 +63,8 @@ export const NewHeroSection = () => {
             <em className="italic text-primary font-semibold">
               {isRo ? 'Tu încă rulezi pe haos.' : "You're still running on chaos."}
             </em>
-          </motion.h1>
+          </h1>
+
 
           {/* Subcopy */}
           <motion.p
@@ -112,9 +111,11 @@ export const NewHeroSection = () => {
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
+                loading="lazy"
                 className="w-full h-full"
                 title="CEO Mind OS"
               />
+
             </div>
           </motion.div>
 
