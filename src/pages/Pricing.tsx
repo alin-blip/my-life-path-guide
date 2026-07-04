@@ -203,7 +203,7 @@ const Pricing: React.FC = () => {
       trackCheckoutInitiated(planId, priceMap[planId] || 0, 'EUR');
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { plan: planId },
+        body: { plan: planId, utm: getStoredUtm() || undefined },
       });
       if (error) {
         if (preOpened) preOpened.close();

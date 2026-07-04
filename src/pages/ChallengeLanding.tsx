@@ -151,7 +151,7 @@ export default function ChallengeLanding() {
       }
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId, source: 'challenge-landing' }
+        body: { plan: planId, source: 'challenge-landing', utm: getStoredUtm() || undefined }
       });
 
       if (error) throw error;

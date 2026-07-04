@@ -58,7 +58,7 @@ const ChallengeUpsell = () => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId, source: 'challenge-upsell' },
+        body: { plan: planId, source: 'challenge-upsell', utm: getStoredUtm() || undefined },
         headers: { Authorization: `Bearer ${sessionData.session?.access_token}` }
       });
 

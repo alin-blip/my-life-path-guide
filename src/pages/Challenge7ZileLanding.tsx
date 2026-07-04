@@ -76,7 +76,7 @@ const Challenge7ZileLanding = () => {
       try {
         const preOpened = preOpenWindow();
         const { data, error } = await supabase.functions.invoke('create-checkout', {
-          body: { plan: planId, source: 'challenge-7-zile' }
+          body: { plan: planId, source: 'challenge-7-zile', utm: getStoredUtm() || undefined }
         });
 
         if (error) { if (preOpened) preOpened.close(); throw error; }
