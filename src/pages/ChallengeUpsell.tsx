@@ -1,3 +1,4 @@
+import { getStoredUtm } from '@/hooks/useUtmCapture';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';

@@ -1,3 +1,4 @@
+import { getStoredUtm } from '@/hooks/useUtmCapture';
 import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
