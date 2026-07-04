@@ -418,18 +418,39 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                         </button>
                         {nestedOpen && (
                           <ul className="ml-5 mt-1 space-y-0.5 border-l border-border/30 pl-3">
-                            {subItem.subItems.map((leaf) => (
-                              <li key={leaf.path}>
-                                <Link
-                                  to={leaf.path}
-                                  onClick={onItemClick}
-                                  className={`sidebar-item text-xs ${isPathActive(leaf.path) ? 'active' : ''}`}
-                                >
-                                  <leaf.icon className="w-3 h-3" />
-                                  <span>{leaf.title}</span>
-                                </Link>
-                              </li>
-                            ))}
+                            {subItem.subItems.map((leaf) => {
+                              const leafBadge = tierBadge(leaf.path);
+                              if (leafBadge) {
+                                return (
+                                  <li key={leaf.path}>
+                                    <button
+                                      type="button"
+                                      onClick={() => setUpgradeState({ open: true, tier: leafBadge.tier, feature: leaf.title })}
+                                      className={`sidebar-item text-xs w-full opacity-70`}
+                                    >
+                                      <leaf.icon className="w-3 h-3" />
+                                      <span>{leaf.title}</span>
+                                      <span className="ml-auto flex items-center gap-1">
+                                        <Lock className="w-3 h-3" />
+                                        <Badge variant="outline" className="text-[10px] px-1 py-0">{leafBadge.label}</Badge>
+                                      </span>
+                                    </button>
+                                  </li>
+                                );
+                              }
+                              return (
+                                <li key={leaf.path}>
+                                  <Link
+                                    to={leaf.path}
+                                    onClick={onItemClick}
+                                    className={`sidebar-item text-xs ${isPathActive(leaf.path) ? 'active' : ''}`}
+                                  >
+                                    <leaf.icon className="w-3 h-3" />
+                                    <span>{leaf.title}</span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
                           </ul>
                         )}
                       </li>
