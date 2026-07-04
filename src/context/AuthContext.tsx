@@ -226,7 +226,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // users to /pricing).
     const releaseLoadingTimer = setTimeout(() => {
       if (!silent) setSubscriptionLoading(false);
+      setSubscriptionInitialized(true);
     }, 8000);
+
 
     try {
       if (!silent) setSubscriptionLoading(true);
