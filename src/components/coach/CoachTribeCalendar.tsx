@@ -205,14 +205,12 @@ export const CoachTribeCalendar: React.FC<Props> = ({ tribeId, userId, isOwner }
           {t.title}
         </h2>
         {isOwner && (
-          <ResponsiveModal open={dialogOpen} onOpenChange={setDialogOpen} className="max-w-md">
-            
-              <Button className="gap-2" onClick={() => setDialogOpen(true)}>
-                <Plus className="h-4 w-4" />
-                {t.newEvent}
-              </Button>
-            
-            
+          <>
+            <Button className="gap-2" onClick={() => setDialogOpen(true)}>
+              <Plus className="h-4 w-4" />
+              {t.newEvent}
+            </Button>
+            <ResponsiveModal open={dialogOpen} onOpenChange={setDialogOpen} className="max-w-md">
               <ResponsiveModalHeader>
                 <ResponsiveModalTitle>{t.newEvent}</ResponsiveModalTitle>
               </ResponsiveModalHeader>
@@ -273,9 +271,10 @@ export const CoachTribeCalendar: React.FC<Props> = ({ tribeId, userId, isOwner }
                   <Button onClick={handleCreate} disabled={!form.title || !form.start_at}>{t.create}</Button>
                 </div>
               </div>
-            
-          </ResponsiveModal>
+            </ResponsiveModal>
+          </>
         )}
+
       </div>
 
       {loading ? (

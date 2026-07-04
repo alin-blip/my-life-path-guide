@@ -114,13 +114,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
   const [showRecovery, setShowRecovery] = useState(false);
 
-  // Only block on real auth loading. Admin & subscription resolve in the background:
-  // - admin only EXPANDS access (never restricts), so treating it as false until loaded is safe
-  // - subscription errors keep last known state (see AuthContext); paid routes redirect to /pricing
-  //   as a fallback if data hasn't landed yet
-  // Blocking on adminLoading was the root cause of the "Conexiunea pare blocată" recovery screen
-  // firing on route changes, because useAdminAuth reset loading=true on every remount.
-  const isLoading = loading;
+  // Block on auth AND subscription so paid users aren't briefly treated as free tier
+  // and bounced to /pricing during the check-subscription round-trip.
+  // Admin only EXPANDS access (never restricts), so treating it as false until loaded is safe
+  // and avoids the "Conexiunea pare blocată" recovery screen firing on remounts.
+  const isLoading = loading || subscriptionLoading;
 
   useEffect(() => {
     if (!isLoading) {

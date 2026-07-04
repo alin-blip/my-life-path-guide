@@ -317,14 +317,11 @@ export const CoachMealPlans: React.FC<Props> = ({ coachProfileId, userId }) => {
               : 'Create nutrition plans for your members'}
           </p>
         </div>
+        <Button onClick={() => setShowCreate(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          {language === 'ro' ? 'Plan Nou' : 'New Plan'}
+        </Button>
         <ResponsiveModal open={showCreate} onOpenChange={setShowCreate} className="max-w-md">
-          
-            <Button onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {language === 'ro' ? 'Plan Nou' : 'New Plan'}
-            </Button>
-          
-          
             <ResponsiveModalHeader>
               <ResponsiveModalTitle>
                 {language === 'ro' ? 'Plan de Mese Nou' : 'New Meal Plan'}
@@ -377,8 +374,8 @@ export const CoachMealPlans: React.FC<Props> = ({ coachProfileId, userId }) => {
                 {language === 'ro' ? 'Creează' : 'Create'}
               </Button>
             </ResponsiveModalFooter>
-          
         </ResponsiveModal>
+
       </div>
 
       {loading ? (

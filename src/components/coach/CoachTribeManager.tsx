@@ -81,14 +81,11 @@ export const CoachTribeManager: React.FC<CoachTribeManagerProps> = ({
             they'll be automatically added to your tribe.
           </p>
           
+          <Button className="gap-2" onClick={() => setIsCreateOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Create Tribe
+          </Button>
           <ResponsiveModal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            
-              <Button className="gap-2" onClick={() => setIsCreateOpen(true)}>
-                <Plus className="h-4 w-4" />
-                Create Tribe
-              </Button>
-            
-            
               <ResponsiveModalHeader>
                 <ResponsiveModalTitle>Create Your Coach Tribe</ResponsiveModalTitle>
               </ResponsiveModalHeader>
@@ -124,8 +121,8 @@ export const CoachTribeManager: React.FC<CoachTribeManagerProps> = ({
                   {creating ? 'Creating...' : 'Create Tribe'}
                 </Button>
               </div>
-            
           </ResponsiveModal>
+
         </CardContent>
       </Card>
     );
