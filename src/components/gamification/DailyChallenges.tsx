@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useXPSystem, XP_REWARDS } from '@/hooks/useXPSystem';
+import { supabase } from '@/integrations/supabase/client';
 import { Zap, Target, BookOpen, Flame, Users, Brain, Dumbbell, Clock, CheckCircle2, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
 
 interface DailyChallenge {
   id: string;
