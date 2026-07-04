@@ -6,5 +6,8 @@ Disallow: /dashboard
 Disallow: /auth
 Disallow: /settings
 Disallow: /profile
+Disallow: /stack
+Disallow: /stack-library
+
 
 Sitemap: https://ceomindos.com/sitemap.xml
