@@ -157,14 +157,25 @@ export const DailyChallenges: React.FC<DailyChallengesProps> = ({
     });
   }, [stackCompleted, core4Score, biz4Score, pagesReadToday, actionsCompletedToday]);
 
-  // Load claimed challenges from localStorage
+  // Load claimed challenges from database
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const stored = localStorage.getItem(`dailyChallenges_${today}`);
-    if (stored) {
-      setClaimedChallenges(JSON.parse(stored));
-    }
+    let cancelled = false;
+    (async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      const { data, error } = await supabase
+        .from('daily_challenge_claims')
+        .select('challenge_id')
+        .eq('user_id', session.user.id)
+        .eq('claim_date', today);
+      if (!error && data && !cancelled) {
+        setClaimedChallenges(data.map(r => r.challenge_id));
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
+
 
   // Update time left
   useEffect(() => {
