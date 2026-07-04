@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { trackLead } from '@/lib/facebook-pixel';
+import { migrateLocalJournalEntries } from '@/services/journalMigrationService';
+
 
 interface AuthContextType {
   user: User | null;
