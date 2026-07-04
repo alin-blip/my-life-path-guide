@@ -22,7 +22,10 @@ export interface BlogPost {
   sections: BlogPostSection[];
   metaDescription: string;
   metaKeywords: string[];
+  /** Content language. Defaults to 'ro' when omitted. Drives inline CTA copy. */
+  language?: 'ro' | 'en';
 }
+
 
 export const blogPosts: BlogPost[] = [
   {
