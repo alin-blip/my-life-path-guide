@@ -202,12 +202,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       return BASIC_ROUTES.some(route => path.startsWith(route));
     }
     
-    // Free tier - only habits and challenges
-    if (userTier === 'free' || !subscribed) {
-      return FREE_TIER_ROUTES.some(route => path.startsWith(route));
-    }
-    
-    return true;
+    // Free tier - only habits and challenges (default fallback for any lapsed/unknown case)
+    return FREE_TIER_ROUTES.some(route => path.startsWith(route));
   };
 
   if (isLoading) {
