@@ -287,21 +287,27 @@ const Pricing: React.FC = () => {
           </section>
 
           {/* Billing Period Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <span className={`text-sm font-medium transition-colors ${billingPeriod === 'monthly' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {language === 'en' ? 'Monthly' : 'Lunar'}
-            </span>
-            <Switch 
-              checked={billingPeriod === 'annual'}
-              onCheckedChange={(checked) => setBillingPeriod(checked ? 'annual' : 'monthly')}
-            />
-            <span className={`flex items-center gap-2 text-sm font-medium transition-colors ${billingPeriod === 'annual' ? 'text-foreground' : 'text-muted-foreground'}`}>
-              {language === 'en' ? 'Annual' : 'Anual'}
-              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0">
-                -60%
-              </Badge>
-            </span>
-          </div>
+          <section aria-labelledby="choose-plan-heading">
+            <h2 id="choose-plan-heading" className="text-2xl md:text-3xl font-semibold text-foreground text-center mb-4">
+              {language === 'en' ? 'Choose Your Plan' : 'Alege planul tău'}
+            </h2>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <span className={`text-sm font-medium transition-colors ${billingPeriod === 'monthly' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                {language === 'en' ? 'Monthly' : 'Lunar'}
+              </span>
+              <Switch 
+                checked={billingPeriod === 'annual'}
+                onCheckedChange={(checked) => setBillingPeriod(checked ? 'annual' : 'monthly')}
+                aria-label={language === 'en' ? 'Toggle billing period between monthly and annual' : 'Comută perioada de facturare între lunar și anual'}
+              />
+              <span className={`flex items-center gap-2 text-sm font-medium transition-colors ${billingPeriod === 'annual' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                {language === 'en' ? 'Annual' : 'Anual'}
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0">
+                  -60%
+                </Badge>
+              </span>
+            </div>
+          </section>
 
           {/* Early Bird Countdown Banner - show for monthly: authenticated with active Early Bird OR unauthenticated */}
           {billingPeriod === 'monthly' && showEarlyBirdPricing && (
