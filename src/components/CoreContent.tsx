@@ -262,7 +262,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose === 0 && (
                     <img 
                       src="/lovable-uploads/5d4df0ba-8e02-4eac-8993-76e703419b48.png" 
-                      alt="Human body initial pose" 
+                      alt="Warrior body posture illustration — starting stance, standing upright and grounded" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
@@ -270,7 +270,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose === 1 && (
                     <img 
                       src="/lovable-uploads/a09b8a17-8046-4ed4-9af1-1bc2b170002c.png" 
-                      alt="Human body pose 1" 
+                      alt="Warrior morning routine posture — deep breathing and activation" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
@@ -278,7 +278,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose === 2 && (
                     <img 
                       src="/lovable-uploads/bcd69726-2bc4-4f9f-bf9e-20c73ceb64ce.png" 
-                      alt="Human body pose 2" 
+                      alt="Warrior mobility posture — forward stretch of hamstrings and back" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
@@ -286,7 +286,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose === 3 && (
                     <img 
                       src="/lovable-uploads/075359e4-f407-471e-9f39-3a53f3bd7793.png" 
-                      alt="Human body pose 3" 
+                      alt="Warrior core strength posture — plank position engaging abdominals" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
@@ -294,7 +294,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose === 4 && (
                     <img 
                       src="/lovable-uploads/3bc032f6-0cc5-427c-b563-11ae4132cf78.png" 
-                      alt="Human body pose 4" 
+                      alt="Warrior lower-body posture — squat position building leg strength" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
@@ -302,7 +302,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose === 5 && (
                     <img 
                       src="/lovable-uploads/2b0cba15-9d96-460f-8666-82b6b2e83566.png" 
-                      alt="Human body pose 5" 
+                      alt="Warrior upper-body posture — pressing motion for shoulders and chest" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
@@ -310,7 +310,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose === 6 && (
                     <img 
                       src="/lovable-uploads/7bab07ca-88e3-48e7-b4c0-befaa8178ef7.png" 
-                      alt="Human body pose 6" 
+                      alt="Warrior balance posture — single-leg stance for stability and focus" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
@@ -318,7 +318,7 @@ export const CoreContent: React.FC = () => {
                   {bodyPose >= 7 && (
                     <img 
                       src="/lovable-uploads/ae7db7c1-bcd9-4b60-a218-392246631e24.png" 
-                      alt="Human body final pose" 
+                      alt="Warrior finishing posture — victorious upright stance with arms raised" 
                       className="h-48 sm:h-64 md:h-96 object-contain"
                     />
                   )}
