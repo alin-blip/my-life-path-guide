@@ -5,107 +5,18 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, LogIn } from 'lucide-react';
+import {
+  FREE_TIER_ROUTES,
+  BASIC_ROUTES,
+  PRO_REQUIRED_ROUTES,
+  ELITE_ONLY_ROUTES,
+} from '@/config/routeTiers';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
-
-// Routes available for FREE tier (habit tracking + challenges + Reality Map + Annual Goals for lead magnet)
-const FREE_TIER_ROUTES = [
-  '/dashboard',
-  '/habits',
-  '/challenge',
-  '/challenge-7-zile',
-  '/challenge-upsell',
-  '/settings',
-  '/profile',
-  '/fact-maps', // Reality Map - accessible for lead magnet users
-  '/game-objectives', // Annual Goals - accessible for lead magnet users (Life Score, Business 2026)
-  '/game', // Redirect route to game-objectives
-  '/vibe-canvas', // Creative canvas - accessible for all users
-  '/warriors-way', // Warrior Accelerator - viewable by all, but content locked (only first video free)
-  '/programs', // Programs page - viewable by all, but courses locked by tier
-  '/messages', // Messages - accessible for all users
-  '/groups', // Groups/Community - accessible for all users
-];
-
-// Routes available for BASIC tier (full platform without LIVE coaching)
-const BASIC_ROUTES = [
-  ...FREE_TIER_ROUTES,
-  '/door',
-  '/champion-routine',
-  '/stacks',
-  '/fact-maps',
-  '/journal',
-  '/insights',
-  '/focus',
-  '/clarity',
-  '/anger',
-  '/daily-flow',
-  '/nutrition',
-  '/activity',
-  '/workouts',
-  '/meditation',
-  '/breathing',
-  '/visualization',
-  '/autosuggestion',
-  '/gratitude',
-  '/learn',
-  '/apply',
-  '/reading',
-  '/evening',
-  '/ai-coaching',
-  '/vibe-canvas',
-  '/lifebook',
-  '/tools',
-  '/stack',
-  '/stack-library',
-  '/master-plan',
-  '/core',
-  '/daily-four',
-  '/library',
-  '/notes',
-  '/business',
-  '/voice-analysis',
-  '/daily-timeline',
-  '/empowerment-meditation',
-  '/biz4-report',
-  '/champion-routine-history',
-  '/workout',
-  '/workout-history',
-  '/relationships',
-  '/widget-dashboard',
-  '/leaderboard',
-  '/achievements',
-  '/emotional-tracker',
-  '/time-tracker',
-  '/accountability-coach',
-  '/quick-quiz',
-  '/coach',
-  '/programs',
-  '/personal-power',
-  '/ultimate-you',
-  '/groups',
-  '/messages',
-  '/mind-coach',
-  '/support',
-  '/dashboard/settings',
-  '/warrior-accelerator-thank-you',
-  '/vision-2026',
-];
-
-// Routes blocked for BASIC (require PRO or higher)
-const PRO_REQUIRED_ROUTES = [
-  '/brotherhood', // VIP Community
-  '/live-coaching', // LIVE coaching sessions
-];
-
-// Routes that require ELITE tier
-const ELITE_ONLY_ROUTES = [
-  '/warrior-launch-accelerator', // Sales/checkout page - Elite only
-];
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading, subscribed, subscriptionLoading, subscriptionTier, subscriptionEnd } = useAuth();
