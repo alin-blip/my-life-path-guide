@@ -108,7 +108,7 @@ const ELITE_ONLY_ROUTES = [
 ];
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading, subscribed, subscriptionLoading, subscriptionTier } = useAuth();
+  const { user, loading, subscribed, subscriptionLoading, subscriptionTier, subscriptionEnd } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -116,8 +116,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Block on auth AND subscription so paid users aren't briefly treated as free tier
   // and bounced to /pricing during the check-subscription round-trip.
-  // Admin only EXPANDS access (never restricts), so treating it as false until loaded is safe
-  // and avoids the "Conexiunea pare blocată" recovery screen firing on remounts.
   const isLoading = loading || subscriptionLoading;
 
   useEffect(() => {
@@ -148,27 +146,25 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     navigate('/auth');
   };
 
-  // Determine user tier from subscriptionTier string
-  const getUserTier = (): 'free' | 'basic' | 'pro' | 'elite' | null => {
-    if (!subscriptionTier) return null;
+  // Determine user tier — ONLY if the subscription is actually active.
+  // A lapsed subscription (subscribed=false or subscription_end in the past)
+  // must resolve to 'free', regardless of what tier string is stored.
+  const getUserTier = (): 'free' | 'basic' | 'pro' | 'elite' => {
+    // Enforce end date on the client too — protects against webhook lag.
+    if (subscriptionEnd && new Date(subscriptionEnd).getTime() < Date.now()) {
+      return 'free';
+    }
+    if (!subscribed) return 'free';
+    if (!subscriptionTier) return 'free';
+
     const t = subscriptionTier.toLowerCase();
-    
-    // Elite tier - has access to everything including Warrior Accelerator
     if (t.includes('elite')) return 'elite';
-    
-    // Pro tier - has access to LIVE coaching and VIP community
     if (t.includes('pro')) return 'pro';
-    
-    // Basic tier - full platform without LIVE coaching
     if (t.includes('basic')) return 'basic';
-    
-    // Trial users get basic access
     if (t.includes('trial')) return 'basic';
-    
-    // Free tier - only habits and challenges
+    if (t.includes('accelerator')) return 'elite';
     if (t.includes('free')) return 'free';
-    
-    // Default to basic for any active subscription
+    // Unknown but subscribed → assume basic (safer than elite)
     return 'basic';
   };
 
