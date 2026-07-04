@@ -522,6 +522,8 @@ Inside CEO Mind OS, the Warrior Routine, Domino Door, and AI Mind Coach are buil
   },
   {
     slug: 'entrepreneur-morning-routine-guide',
+    language: 'en',
+
     titleRo: 'Entrepreneur Morning Routine: The CEO Warrior Protocol',
     titleEn: 'Entrepreneur Morning Routine: The CEO Warrior Protocol',
     excerpt: 'A step-by-step morning routine engineered for founders — transition from operator to CEO, escape the burnout trap, and lock focus in under 45 minutes.',
