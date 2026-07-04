@@ -28,21 +28,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // Block on auth AND subscription so paid users aren't briefly treated as free tier
   // and bounced to /pricing during the check-subscription round-trip.
   const isLoading = loading || subscriptionLoading;
+  // But only the auth stage should ever trigger the alarming "connection blocked"
+  // recovery screen — a slow subscription check is not a broken session.
+  const isAuthBlocked = loading;
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isAuthBlocked) {
       setShowRecovery(false);
       return;
     }
 
     const timer = setTimeout(() => {
-      if (isLoading) {
+      if (isAuthBlocked) {
         setShowRecovery(true);
       }
     }, LOADING_TIMEOUT_MS);
 
     return () => clearTimeout(timer);
-  }, [isLoading]);
+  }, [isAuthBlocked]);
 
   const handleResetSession = async () => {
     try {

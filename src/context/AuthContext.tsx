@@ -214,6 +214,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    // Hard safety timeout: never leave subscriptionLoading true if the edge
+    // function hangs. After 8s we release the loading flag and keep the last
+    // known subscription state (do NOT reset to free — that would boot paid
+    // users to /pricing).
+    const releaseLoadingTimer = setTimeout(() => {
+      if (!silent) setSubscriptionLoading(false);
+    }, 8000);
+
     try {
       if (!silent) setSubscriptionLoading(true);
 
@@ -263,6 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Same as above — preserve last known subscription state on network errors.
 
     } finally {
+      clearTimeout(releaseLoadingTimer);
       if (!silent) setSubscriptionLoading(false);
     }
   };
