@@ -1,32 +1,60 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 
 console.log("🚀 Realtime Voice Edge Function Starting...");
 console.log("📍 Environment Check:");
 console.log("  - OPENAI_API_KEY configured:", !!OPENAI_API_KEY);
 console.log("  - API Key length:", OPENAI_API_KEY?.length || 0);
 
+async function verifyUserFromRequest(req: Request): Promise<boolean> {
+  // WebSocket clients cannot set Authorization headers, so accept a JWT
+  // via the `token` query parameter OR the standard Authorization header.
+  const url = new URL(req.url);
+  const qToken = url.searchParams.get('token');
+  const authHeader = req.headers.get('Authorization') ?? '';
+  const headerToken = authHeader.toLowerCase().startsWith('bearer ')
+    ? authHeader.slice(7).trim()
+    : '';
+  const token = qToken || headerToken;
+  if (!token) return false;
+  try {
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+    const { data, error } = await client.auth.getUser(token);
+    return !!data?.user && !error;
+  } catch (_e) {
+    return false;
+  }
+}
+
 serve(async (req) => {
   console.log("📨 Incoming request:", {
     method: req.method,
     url: req.url,
-    headers: Object.fromEntries(req.headers.entries())
   });
 
   const upgrade = req.headers.get("upgrade") || "";
-  
+
   if (upgrade.toLowerCase() !== "websocket") {
     console.error("❌ Not a WebSocket request. Upgrade header:", upgrade);
     return new Response("Expected websocket connection", { status: 426 });
+  }
+
+  const authorized = await verifyUserFromRequest(req);
+  if (!authorized) {
+    console.error("❌ Unauthorized realtime-voice connection attempt");
+    return new Response("Unauthorized", { status: 401 });
   }
 
   if (!OPENAI_API_KEY) {
     console.error("❌ CRITICAL: OPENAI_API_KEY is not configured in secrets!");
     return new Response("Server configuration error - missing API key", { status: 500 });
   }
-  
+
   console.log("✅ WebSocket upgrade request validated");
 
   let openaiWs: WebSocket | null = null;
