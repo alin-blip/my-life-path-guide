@@ -1,11 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { requireUser, corsHeaders, unauthorized } from "../_shared/auth.ts";
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,10 +9,29 @@ serve(async (req) => {
   }
 
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     const { recordingId, transcript, questionText } = await req.json();
-    
+
     if (!transcript) {
       throw new Error('Transcript is required for sentiment analysis');
+    }
+
+    // If a recordingId is supplied, ensure it belongs to the authenticated user
+    // before we later overwrite it using the service role.
+    if (recordingId) {
+      const admin = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+      );
+      const { data: rec, error: recErr } = await admin
+        .from('voice_recordings')
+        .select('user_id')
+        .eq('id', recordingId)
+        .maybeSingle();
+      if (recErr || !rec) return unauthorized('Recording not found', 404);
+      if (rec.user_id !== user.id) return unauthorized('Forbidden', 403);
     }
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
