@@ -88,141 +88,113 @@ export const SecureAdminPanel: React.FC = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="crm">
+      <Tabs defaultValue="overview">
         <TabsList className="mb-8 flex-wrap h-auto gap-1 bg-muted/50 p-1">
-          {/* Tab 1: Overview */}
           <TabsTrigger value="overview" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <LayoutDashboard className="h-4 w-4" />
-            <span className="hidden sm:inline">📊 Overview</span>
+            <span>📊 Overview</span>
           </TabsTrigger>
-          
-          {/* Tab 2: CRM */}
+          <TabsTrigger value="revenue" className="flex items-center gap-1.5 data-[state=active]:bg-background">
+            <DollarSign className="h-4 w-4" />
+            <span>💰 Revenue</span>
+          </TabsTrigger>
+          <TabsTrigger value="growth" className="flex items-center gap-1.5 data-[state=active]:bg-background">
+            <TrendingUp className="h-4 w-4" />
+            <span>🚀 Growth</span>
+          </TabsTrigger>
           <TabsTrigger value="crm" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Target className="h-4 w-4" />
             <span>👥 CRM</span>
           </TabsTrigger>
-          
-          {/* Tab 3: Leads Analytics */}
-          <TabsTrigger value="leads" className="flex items-center gap-1.5 data-[state=active]:bg-background">
-            <TrendingUp className="h-4 w-4" />
-            <span>📈 Leads</span>
-          </TabsTrigger>
-          
-          {/* Tab 4: Engagement */}
           <TabsTrigger value="engagement" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Activity className="h-4 w-4" />
             <span>🔥 Engagement</span>
           </TabsTrigger>
-          
-          {/* Tab 5: Content */}
           <TabsTrigger value="content" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <BookOpen className="h-4 w-4" />
             <span>📚 Content</span>
           </TabsTrigger>
-          
-          {/* Tab 5: AI Studio */}
           <TabsTrigger value="ai-studio" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Bot className="h-4 w-4" />
             <span>🤖 AI Studio</span>
           </TabsTrigger>
-          
-          {/* Tab 6: Marketing */}
-          <TabsTrigger value="marketing" className="flex items-center gap-1.5 data-[state=active]:bg-background">
-            <Megaphone className="h-4 w-4" />
-            <span>📢 Marketing</span>
-          </TabsTrigger>
-          
-          {/* Tab 7: Coaches */}
-          <TabsTrigger value="coaches" className="flex items-center gap-1.5 data-[state=active]:bg-background">
-            <UserCheck className="h-4 w-4" />
-            <span>🎯 Coaches</span>
-          </TabsTrigger>
-          
-          {/* Tab 8: Settings */}
           <TabsTrigger value="settings" className="flex items-center gap-1.5 data-[state=active]:bg-background">
             <Settings className="h-4 w-4" />
             <span>⚙️ Settings</span>
           </TabsTrigger>
         </TabsList>
-        
-        {/* Tab 1: CMO Command Center */}
+
         <TabsContent value="overview" className="pt-4">
           <AdminHealthPanel />
           <CMOCommandCenter />
         </TabsContent>
-        
-        {/* Tab 2: CRM Content */}
+
+        <TabsContent value="revenue" className="pt-4">
+          <Tabs defaultValue="dashboard" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="dashboard">💰 Revenue Dashboard</TabsTrigger>
+              <TabsTrigger value="coaches">🎯 Coaches & Commissions</TabsTrigger>
+            </TabsList>
+            <TabsContent value="dashboard">
+              <RevenueDashboard />
+            </TabsContent>
+            <TabsContent value="coaches">
+              <AdminCoaches />
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
+
+        <TabsContent value="growth" className="pt-4">
+          <Tabs defaultValue="leads" className="w-full">
+            <TabsList className="mb-4 flex-wrap h-auto">
+              <TabsTrigger value="leads">📈 Leads</TabsTrigger>
+              <TabsTrigger value="emails">📧 Email Analytics</TabsTrigger>
+              <TabsTrigger value="split-tests">🧪 Split Tests</TabsTrigger>
+              <TabsTrigger value="hub">📢 Marketing Hub</TabsTrigger>
+            </TabsList>
+            <TabsContent value="leads">
+              <LeadMagnetAnalytics />
+            </TabsContent>
+            <TabsContent value="emails">
+              <EmailAnalytics />
+            </TabsContent>
+            <TabsContent value="split-tests">
+              <SplitTestDashboard />
+            </TabsContent>
+            <TabsContent value="hub">
+              <MarketingHub />
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
+
         <TabsContent value="crm" className="pt-4">
           <CRMDashboard />
         </TabsContent>
-        
-        {/* Tab 3: Leads Analytics Content */}
-        <TabsContent value="leads" className="pt-4">
-          <LeadMagnetAnalytics />
-        </TabsContent>
-        
-        {/* Tab 4: Engagement Content */}
+
         <TabsContent value="engagement" className="pt-4">
           <EngagementDashboard />
         </TabsContent>
-        
-        {/* Tab 5: Content Content */}
+
         <TabsContent value="content" className="space-y-6">
           <Tabs defaultValue="courses" className="w-full">
             <TabsList className="mb-4">
               <TabsTrigger value="courses">📖 Cursuri</TabsTrigger>
               <TabsTrigger value="warriors-way">⚔️ Warriors Way</TabsTrigger>
             </TabsList>
-            
             <TabsContent value="courses">
               <CourseManager />
             </TabsContent>
-            
             <TabsContent value="warriors-way">
               <WarriorsWayManager />
             </TabsContent>
           </Tabs>
         </TabsContent>
-        
-        {/* Tab 4: AI Studio Content */}
+
         <TabsContent value="ai-studio" className="pt-4">
           <AdminAIStudio />
         </TabsContent>
-        
-        {/* Tab 5: Marketing Content */}
-        <TabsContent value="marketing" className="space-y-6">
-          <Tabs defaultValue="hub" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="hub">📢 Marketing Hub</TabsTrigger>
-              <TabsTrigger value="split-tests">🧪 Split Tests</TabsTrigger>
-              <TabsTrigger value="emails">📧 Email Analytics</TabsTrigger>
-              <TabsTrigger value="revenue">💰 Revenue</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="hub">
-              <MarketingHub />
-            </TabsContent>
-            
-            <TabsContent value="split-tests">
-              <SplitTestDashboard />
-            </TabsContent>
-            
-            <TabsContent value="emails">
-              <EmailAnalytics />
-            </TabsContent>
-            
-            <TabsContent value="revenue">
-              <RevenueDashboard />
-            </TabsContent>
-          </Tabs>
-        </TabsContent>
-        
-        {/* Tab 7: Coaches Content */}
-        <TabsContent value="coaches" className="pt-4">
-          <AdminCoaches />
-        </TabsContent>
-        
-        {/* Tab 8: Settings Content */}
+
+        {/* Settings Content */}
         <TabsContent value="settings" className="pt-4">
           <div className="space-y-6">
             <ApiConfig />
