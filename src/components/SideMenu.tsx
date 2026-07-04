@@ -52,6 +52,10 @@ import {
   Wrench
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Lock } from 'lucide-react';
+import { useTierAccess } from '@/hooks/useTierAccess';
+import { getRequiredTier, type Tier } from '@/config/routeTiers';
+import { UpgradeModal } from '@/components/access/UpgradeModal';
 
 interface SideMenuProps {
   isCollapsed: boolean;
@@ -81,6 +85,22 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   
   const completedDays = completedDaysCount;
   const [mindShiftDrafts, setMindShiftDrafts] = useState<number>(0);
+  const { canAccess } = useTierAccess();
+  const [upgradeState, setUpgradeState] = useState<{ open: boolean; tier: Tier; feature?: string }>({
+    open: false,
+    tier: 'basic',
+  });
+
+  const requiredTierFor = (path: string): Tier => getRequiredTier(path);
+  const isLocked = (path: string): boolean => {
+    const req = requiredTierFor(path);
+    return req !== 'free' && !canAccess(req);
+  };
+  const tierBadge = (path: string): { label: string; tier: Tier } | null => {
+    const req = requiredTierFor(path);
+    if (req === 'free' || canAccess(req)) return null;
+    return { label: req.toUpperCase(), tier: req };
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -398,20 +418,60 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                         </button>
                         {nestedOpen && (
                           <ul className="ml-5 mt-1 space-y-0.5 border-l border-border/30 pl-3">
-                            {subItem.subItems.map((leaf) => (
-                              <li key={leaf.path}>
-                                <Link
-                                  to={leaf.path}
-                                  onClick={onItemClick}
-                                  className={`sidebar-item text-xs ${isPathActive(leaf.path) ? 'active' : ''}`}
-                                >
-                                  <leaf.icon className="w-3 h-3" />
-                                  <span>{leaf.title}</span>
-                                </Link>
-                              </li>
-                            ))}
+                            {subItem.subItems.map((leaf) => {
+                              const leafBadge = tierBadge(leaf.path);
+                              if (leafBadge) {
+                                return (
+                                  <li key={leaf.path}>
+                                    <button
+                                      type="button"
+                                      onClick={() => setUpgradeState({ open: true, tier: leafBadge.tier, feature: leaf.title })}
+                                      className={`sidebar-item text-xs w-full opacity-70`}
+                                    >
+                                      <leaf.icon className="w-3 h-3" />
+                                      <span>{leaf.title}</span>
+                                      <span className="ml-auto flex items-center gap-1">
+                                        <Lock className="w-3 h-3" />
+                                        <Badge variant="outline" className="text-[10px] px-1 py-0">{leafBadge.label}</Badge>
+                                      </span>
+                                    </button>
+                                  </li>
+                                );
+                              }
+                              return (
+                                <li key={leaf.path}>
+                                  <Link
+                                    to={leaf.path}
+                                    onClick={onItemClick}
+                                    className={`sidebar-item text-xs ${isPathActive(leaf.path) ? 'active' : ''}`}
+                                  >
+                                    <leaf.icon className="w-3 h-3" />
+                                    <span>{leaf.title}</span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
                           </ul>
                         )}
+                      </li>
+                    );
+                  }
+                  const subBadge = tierBadge(subItem.path);
+                  if (subBadge) {
+                    return (
+                      <li key={subItem.path}>
+                        <button
+                          type="button"
+                          onClick={() => setUpgradeState({ open: true, tier: subBadge.tier, feature: subItem.title })}
+                          className="sidebar-item text-sm w-full opacity-70"
+                        >
+                          <subItem.icon className="w-3.5 h-3.5" />
+                          <span>{subItem.title}</span>
+                          <span className="ml-auto flex items-center gap-1">
+                            <Lock className="w-3 h-3" />
+                            <Badge variant="outline" className="text-[10px] px-1 py-0">{subBadge.label}</Badge>
+                          </span>
+                        </button>
                       </li>
                     );
                   }
@@ -431,32 +491,55 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
               </ul>
             )}
           </div>
-        ) : (
-          <Link
-            to={item.path}
-            onClick={onItemClick}
-            className={`sidebar-item ${isPathActive(item.path) ? 'active' : ''} ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
-          >
-            <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-            {!isCollapsed && (
-              <>
-                <span className="text-sm font-medium">{item.title}</span>
-                {item.badge && (
-                  <Badge variant="secondary" className="ml-2 text-xs px-1.5 py-0.5">
-                    {item.badge}
-                  </Badge>
+        ) : (() => {
+          const topBadge = tierBadge(item.path);
+          if (topBadge) {
+            return (
+              <button
+                type="button"
+                onClick={() => setUpgradeState({ open: true, tier: topBadge.tier, feature: item.title })}
+                className={`sidebar-item w-full opacity-70 ${isCollapsed ? 'justify-center' : ''}`}
+              >
+                <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                {!isCollapsed && (
+                  <>
+                    <span className="text-sm font-medium">{item.title}</span>
+                    <span className="ml-auto flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      <Badge variant="outline" className="text-[10px] px-1 py-0">{topBadge.label}</Badge>
+                    </span>
+                  </>
                 )}
-              </>
-            )}
-            {!isCollapsed && item.notification && (
-              <div className="ml-auto bg-primary text-primary-foreground text-xs py-0.5 px-2 rounded-full">
-                {item.notification > 99 ? '99+' : item.notification}
-              </div>
-            )}
-          </Link>
-        )}
+              </button>
+            );
+          }
+          return (
+            <Link
+              to={item.path}
+              onClick={onItemClick}
+              className={`sidebar-item ${isPathActive(item.path) ? 'active' : ''} ${
+                isCollapsed ? 'justify-center' : ''
+              }`}
+            >
+              <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+              {!isCollapsed && (
+                <>
+                  <span className="text-sm font-medium">{item.title}</span>
+                  {item.badge && (
+                    <Badge variant="secondary" className="ml-2 text-xs px-1.5 py-0.5">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </>
+              )}
+              {!isCollapsed && item.notification && (
+                <div className="ml-auto bg-primary text-primary-foreground text-xs py-0.5 px-2 rounded-full">
+                  {item.notification > 99 ? '99+' : item.notification}
+                </div>
+              )}
+            </Link>
+          );
+        })()}
       </li>
     );
   };
@@ -508,6 +591,13 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
           </button>
         )}
       </div>
+
+      <UpgradeModal
+        open={upgradeState.open}
+        onOpenChange={(o) => setUpgradeState((s) => ({ ...s, open: o }))}
+        requiredTier={upgradeState.tier}
+        featureName={upgradeState.feature}
+      />
     </div>
   );
 };
