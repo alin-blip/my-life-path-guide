@@ -19,18 +19,21 @@ interface ProtectedRouteProps {
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading, subscribed, subscriptionLoading, subscriptionTier, subscriptionEnd, trialExpired } = useAuth();
+  const { user, loading, subscribed, subscriptionLoading, subscriptionInitialized, subscriptionTier, subscriptionEnd, trialExpired } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showRecovery, setShowRecovery] = useState(false);
 
-  // Block on auth AND subscription so paid users aren't briefly treated as free tier
-  // and bounced to /pricing during the check-subscription round-trip.
-  const isLoading = loading || subscriptionLoading;
-  // But only the auth stage should ever trigger the alarming "connection blocked"
+  // Block rendering only until auth is resolved AND we've completed the
+  // FIRST subscription check. After that, subsequent re-checks (tab focus,
+  // periodic silent refresh) must NOT re-gate the UI or the user sees a
+  // stuck "Loading..." screen every time the tab regains focus.
+  const isLoading = loading || (!subscriptionInitialized && subscriptionLoading);
+  // Only the auth stage should ever trigger the alarming "connection blocked"
   // recovery screen — a slow subscription check is not a broken session.
   const isAuthBlocked = loading;
+
 
   useEffect(() => {
     if (!isAuthBlocked) {

@@ -10,6 +10,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean; // auth loading
   subscriptionLoading: boolean;
+  subscriptionInitialized: boolean;
   subscribed: boolean;
   subscriptionTier: string | null;
   subscriptionEnd: string | null;
@@ -21,6 +22,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -28,6 +30,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true); // auth loading
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [subscriptionInitialized, setSubscriptionInitialized] = useState(false);
+
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
@@ -171,6 +175,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setSubscriptionEnd(null);
             setEarlyBirdExpiresAt(null);
             setSubscriptionLoading(false);
+            setSubscriptionInitialized(true);
+
           }
         }, 0);
 
@@ -211,8 +217,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscriptionEnd(null);
       setEarlyBirdExpiresAt(null);
       if (!silent) setSubscriptionLoading(false);
+      setSubscriptionInitialized(true);
       return;
     }
+
 
     // Hard safety timeout: never leave subscriptionLoading true if the edge
     // function hangs. After 8s we release the loading flag and keep the last
@@ -220,7 +228,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // users to /pricing).
     const releaseLoadingTimer = setTimeout(() => {
       if (!silent) setSubscriptionLoading(false);
+      setSubscriptionInitialized(true);
     }, 8000);
+
 
     try {
       if (!silent) setSubscriptionLoading(true);
@@ -273,7 +283,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       clearTimeout(releaseLoadingTimer);
       if (!silent) setSubscriptionLoading(false);
+      setSubscriptionInitialized(true);
     }
+
   };
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -285,6 +297,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     loading,
     subscriptionLoading,
+    subscriptionInitialized,
+
     subscribed,
     subscriptionTier,
     subscriptionEnd,
