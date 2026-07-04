@@ -173,11 +173,11 @@ export const BlogArticle = ({ post }: BlogArticleProps) => {
                 {idx < post.sections.length - 1 && (
                   <div className="mt-8 p-6 rounded-xl bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/10">
                     <p className="text-sm font-medium text-foreground mb-3">
-                      🚀 Vrei să implementezi asta chiar azi?
+                      {t.inlineCtaTitle}
                     </p>
                     <Link to="/challenge-7-zile">
                       <Button variant="gradient" size="sm">
-                        Încearcă CEO Mind OS gratuit 5 zile
+                        {t.inlineCtaButton}
                       </Button>
                     </Link>
                   </div>
@@ -187,16 +187,17 @@ export const BlogArticle = ({ post }: BlogArticleProps) => {
                 {idx === post.sections.length - 1 && (
                   <div className="mt-10 p-8 rounded-2xl bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 border border-primary/20 text-center">
                     <h3 className="text-2xl font-bold text-foreground mb-3">
-                      Ești pregătit să-ți transformi dimineața?
+                      {t.finalCtaTitle}
                     </h3>
                     <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
-                      Încearcă CEO Mind OS gratuit 5 zile — Rutina Războinicului, AI Mind Coach, CORE 4 și Domino Door.
+                      {t.finalCtaBody}
                     </p>
                     <Link to="/challenge-7-zile">
                       <Button variant="gradient" size="lg">
-                        Începe Gratuit Acum ⚔️
+                        {t.finalCtaButton}
                       </Button>
                     </Link>
+
                   </div>
                 )}
               </section>
