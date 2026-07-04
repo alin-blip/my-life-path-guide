@@ -247,7 +247,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscribed(subscribed);
       setSubscriptionTier(subscribed ? tier : null);
       setSubscriptionEnd(endIso);
+      setTrialExpired(Boolean(d?.trial_expired) && !subscribed);
       setEarlyBirdExpiresAt((d?.early_bird_expires_at ?? null));
+
     } catch (e) {
       console.error('Error checking subscription (keeping last known state)', e);
       // Same as above — preserve last known subscription state on network errors.
