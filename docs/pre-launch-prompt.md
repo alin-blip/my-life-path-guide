@@ -372,3 +372,40 @@ Lovable păstrează versiunile publicate. În Publish settings:
 
 ### Semafor final
 🟡 **GO cu 3 acțiuni manuale înainte de T-0**: LIVE Stripe test, SEO rescan, spot-check localStorage pentru chei sensibile.
+
+## Spot-check localStorage — 2026-07-04
+
+**Total apariții `localStorage.setItem`:** 188 în `src/`
+
+### 🔴 Chei critice fără backup DB clar (necesită migrare)
+| Cheie | Fișier | Notă |
+|---|---|---|
+| `journalEntries`, `journal-entries` | `components/journal/JournalEntry.tsx`, `JournalList.tsx` | Nu există tabel `journal_entries` — jurnalul e doar local |
+| `dailyChallenges_${today}` | `components/gamification/DailyChallenges.tsx` | Provocări zilnice claim-uite doar local; pierd la switch device |
+| `lifeScoreData` | `components/life-score/LifeScoreQuiz.tsx` | Rezultat quiz Life Score doar local |
+| `coreData`, `dailyFourData`, `progressData` | `context/ProgressContext.tsx` | Există `user_progress` DB dar contextul scrie și local — verificat că `userProgressService` face upsert paralel: ✅ mirror, dar cheia `progressData` (linia 367) NU are echivalent DB |
+| `powerStackSessions` | `components/Stack.tsx` | Există `stack_sessions` DB via `stackSessionsService` — de verificat că componenta îl folosește; momentan scrie doar local |
+| `beingFactAnswers`, `bodyRealityAnswer`, `annualGoalKeys.*` | `components/FactMapSimplified.tsx` | Există `fact_maps` DB via `factMapService` — de verificat că salvările din FactMapSimplified merg și în DB, nu doar local |
+
+### ⚠️ De investigat (posibil mirror OK, dar nu confirmat în audit)
+- `napoleon-hill-game-plans-simplified` / `napoleon-hill-game-plans` (`components/game/*`) — există `napoleonHillProjectService` DB; probabil draft, dar cheia principală (`gameData` complet) pare source-of-truth
+- `monthlyMissions`, `factMaps` (`GameContent.tsx`) — legacy; suprapus cu `missionsService` + `factMapService` DB — de curățat referințele legacy
+
+### ✅ Chei OK (drafts / cache / UI prefs)
+- `*-draft-*`, `weekly-planning-draft-*`, `napoleon-hill-draft-*` — TTL drafts
+- `pending_challenge_plan`, `pending_return_path` — funnel state
+- `door-week-*`, `door-hot-list` (backup) — mirror `user_tasks`
+- `sound-settings`, `theme`, `language`, `voice-language`, `vision_voice_id` — UI prefs
+- `onboarding-tour-*`, `onboarding-wizard-shown-today`, `membership_modal_last_shown` — modal state
+- `persistent-session-id`, `warriorReferralCode`, `warriorCoachCode` — anonymous / referral tracking
+- `sb-*-auth-token`, `stripeConnected` — auth session / OAuth flags
+
+### Acțiuni recomandate (P1, post-launch imediat)
+1. **Journal → DB**: creează tabel `journal_entries` + migrează `useJournal` la DB-first
+2. **DailyChallenges → DB**: extinde `user_progress` sau tabel dedicat pentru claim-uri zilnice
+3. **LifeScore → DB**: salvează în `user_preferences.life_score_scores` (jsonb) similar cu `vision_quiz_scores`
+4. **ProgressContext**: elimină cheia `progressData` sau confirmă mirror în `user_progress`
+5. **FactMapSimplified**: adaugă `factMapService.save()` la salvările `being/body/annual`
+6. **Stack.tsx `powerStackSessions`**: refactor la `stackSessionsService`
+
+Toate sunt **P1** (nu blochează launch — funcționează pe același device), dar creează probleme la multi-device și pierdere de date la clear cache.
