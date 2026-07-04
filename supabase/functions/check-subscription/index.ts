@@ -84,11 +84,14 @@ serve(async (req) => {
       subscribed: false,
       subscription_tier: null,
       subscription_end: null,
+      subscription_status: null,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
     
     return new Response(JSON.stringify({ 
       subscribed: false,
+      tier: null,
+      subscription_end: null,
       early_bird_expires_at: earlyBirdExpiresAt,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

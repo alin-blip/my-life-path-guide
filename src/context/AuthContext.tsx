@@ -177,6 +177,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  // Periodic silent re-check every 5 minutes so lapsed/canceled subscriptions
+  // reflect on the client without requiring a full page reload.
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(() => {
+      refreshSubscription({ silent: true });
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user]);
+
 
   const refreshSubscription = async (opts?: { silent?: boolean }) => {
     const silent = Boolean(opts?.silent);
@@ -221,11 +231,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      const subscribed = Boolean((data as any)?.subscribed);
+      const d = data as any;
+      const endIso: string | null = d?.subscription_end ?? null;
+      const endValid = endIso ? new Date(endIso).getTime() > Date.now() : true;
+      // Client-side enforcement: if Stripe end date has passed but the webhook
+      // hasn't downgraded yet, treat as unsubscribed. Prevents lapsed users
+      // from keeping access after subscription_end.
+      const subscribed = Boolean(d?.subscribed) && endValid;
+      // Response uses `tier` (not `subscription_tier`) — earlier bug left tier=null for paid users.
+      const tier = d?.tier ?? d?.subscription_tier ?? null;
       setSubscribed(subscribed);
-      setSubscriptionTier(((data as any)?.subscription_tier ?? null));
-      setSubscriptionEnd(((data as any)?.subscription_end ?? null));
-      setEarlyBirdExpiresAt(((data as any)?.early_bird_expires_at ?? null));
+      setSubscriptionTier(subscribed ? tier : null);
+      setSubscriptionEnd(endIso);
+      setEarlyBirdExpiresAt((d?.early_bird_expires_at ?? null));
     } catch (e) {
       console.error('Error checking subscription (keeping last known state)', e);
       // Same as above — preserve last known subscription state on network errors.
