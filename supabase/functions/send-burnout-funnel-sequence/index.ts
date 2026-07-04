@@ -145,9 +145,47 @@ Deno.serve(async (req) => {
     }
   }
 
-  const result = { ok: true, sequence: SEQUENCE_TYPE, stats, perDay, timestamp: new Date().toISOString() }
+  // === CHALLENGE UPSELL (bought ebook, didn't upgrade to challenge) — legacy ===
+  const { data: purchases } = await supabase
+    .from('ebook_purchases')
+    .select('id, email, name, language, purchased_at, upsell_purchased_at, upsell_email_1_sent_at, upsell_email_2_sent_at')
+    .is('upsell_purchased_at', null)
+    .gte('purchased_at', new Date(now - 7 * DAY_MS).toISOString())
+
+  const upsellStats = { upsell1: 0, upsell2: 0, upsell_skipped: 0 }
+  for (const p of purchases || []) {
+    const email = (p.email || '').toLowerCase()
+    if (stopSet.has(email)) { upsellStats.upsell_skipped += 1; continue }
+    const ageHours = (now - new Date(p.purchased_at).getTime()) / 3600000
+    const sendUpsell = async (template: string, dayNumber: number, fieldName: string) => {
+      const trackingId = crypto.randomUUID()
+      try {
+        await supabase.functions.invoke('send-transactional-email', {
+          body: {
+            templateName: template,
+            recipientEmail: p.email,
+            idempotencyKey: `${template}-${p.id}`,
+            templateData: { name: p.name || '', language: p.language, trackingId },
+          },
+        })
+        await supabase.from('ebook_purchases').update({ [fieldName]: new Date().toISOString() }).eq('id', p.id)
+        await supabase.from('email_sequence_log').insert({
+          email, sequence_type: 'challenge_upsell', day_number: dayNumber, tracking_id: trackingId,
+        })
+        return true
+      } catch (e) { console.error('upsell send fail', e); return false }
+    }
+    if (ageHours >= 24 && ageHours < 72 && !p.upsell_email_1_sent_at) {
+      if (await sendUpsell('challenge-upsell-1', 1, 'upsell_email_1_sent_at')) upsellStats.upsell1 += 1
+    } else if (ageHours >= 72 && !p.upsell_email_2_sent_at) {
+      if (await sendUpsell('challenge-upsell-2', 2, 'upsell_email_2_sent_at')) upsellStats.upsell2 += 1
+    }
+  }
+
+  const result = { ok: true, sequence: SEQUENCE_TYPE, stats, perDay, upsellStats, timestamp: new Date().toISOString() }
   console.log('burnout-story stats', JSON.stringify(result))
   return new Response(JSON.stringify(result), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
 })
+
