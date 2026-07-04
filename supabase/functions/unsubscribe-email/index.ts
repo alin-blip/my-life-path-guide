@@ -20,73 +20,75 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    
+
     const url = new URL(req.url);
-    const trackingId = url.searchParams.get('id');
-    
-    // Also support POST with body
-    let email: string | null = null;
+    // Accept tracking id via query string (?id=... or ?token=...) or POST body { token }.
+    let trackingId: string | null = url.searchParams.get("id") || url.searchParams.get("token");
+
     if (req.method === "POST") {
-      const body = await req.json();
-      email = body.email;
-    }
-
-    if (!trackingId && !email) {
-      throw new Error("Missing tracking ID or email");
-    }
-
-    if (trackingId) {
-      // Find the email from tracking log
-      const { data: logData, error: logError } = await supabase
-        .from('email_sequence_log')
-        .select('email')
-        .eq('tracking_id', trackingId)
-        .maybeSingle();
-
-      if (logError) {
-        throw new Error(`Error finding tracking record: ${logError.message}`);
-      }
-
-      if (logData) {
-        email = logData.email;
-        
-        // Mark as unsubscribed in log
-        await supabase
-          .from('email_sequence_log')
-          .update({ unsubscribed_at: new Date().toISOString() })
-          .eq('tracking_id', trackingId);
+      try {
+        const body = await req.json();
+        if (typeof body?.token === "string") trackingId = body.token;
+        else if (typeof body?.id === "string") trackingId = body.id;
+        // Intentionally IGNORE any raw `email` in the body. Unauthenticated
+        // unsubscribe by raw email is disabled; use handle-email-unsubscribe with a token.
+      } catch {
+        // ignore malformed JSON
       }
     }
 
-    if (email) {
-      // Update email_leads to unsubscribe
-      const { error: updateError } = await supabase
-        .from('email_leads')
-        .update({ subscribed: false })
-        .eq('email', email);
-
-      if (updateError) {
-        throw new Error(`Error updating subscription: ${updateError.message}`);
-      }
-
-      console.log(`Unsubscribed: ${email}`);
+    if (!trackingId) {
+      return new Response(
+        JSON.stringify({ error: "A valid unsubscribe token is required." }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } },
+      );
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Successfully unsubscribed' 
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
+    // Resolve email from tracking log
+    const { data: logData, error: logError } = await supabase
+      .from("email_sequence_log")
+      .select("email")
+      .eq("tracking_id", trackingId)
+      .maybeSingle();
+
+    if (logError) {
+      throw new Error(`Error finding tracking record: ${logError.message}`);
+    }
+
+    if (!logData?.email) {
+      return new Response(
+        JSON.stringify({ error: "Token not found." }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } },
+      );
+    }
+
+    const email = logData.email;
+
+    await supabase
+      .from("email_sequence_log")
+      .update({ unsubscribed_at: new Date().toISOString() })
+      .eq("tracking_id", trackingId);
+
+    const { error: updateError } = await supabase
+      .from("email_leads")
+      .update({ subscribed: false })
+      .eq("email", email);
+
+    if (updateError) {
+      throw new Error(`Error updating subscription: ${updateError.message}`);
+    }
+
+    console.log(`Unsubscribed via token: ${email}`);
+
+    return new Response(
+      JSON.stringify({ success: true, message: "Successfully unsubscribed" }),
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } },
+    );
   } catch (error: any) {
     console.error("Error in unsubscribe-email:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } },
     );
   }
 };

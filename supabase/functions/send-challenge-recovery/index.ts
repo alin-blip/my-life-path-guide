@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 import { resolveLeadLanguage, type EmailLang } from "../_shared/resolve-lead-language.ts";
+import { requireCronOrAdmin } from "../_shared/require-cron-or-admin.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -86,6 +87,9 @@ function generateRecoveryEmail(name: string, day: number, lang: EmailLang): { su
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const authFail = await requireCronOrAdmin(req, corsHeaders);
+  if (authFail) return authFail;
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

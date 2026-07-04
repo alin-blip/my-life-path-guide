@@ -1,5 +1,29 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
+// Only redirect to trusted destinations. Everything else falls back to home.
+const ALLOWED_HOSTS = new Set<string>([
+  'ceomindos.com',
+  'www.ceomindos.com',
+  'warriorsos.com',
+  'www.warriorsos.com',
+  'my-life-path-guide.lovable.app',
+  'id-preview--1b85e6e6-2e97-41b8-bd1d-ef174e3bfcde.lovable.app',
+])
+
+const FALLBACK = 'https://ceomindos.com'
+
+function safeTarget(dest: string | null): string {
+  if (!dest) return FALLBACK
+  try {
+    const url = new URL(dest)
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return FALLBACK
+    if (!ALLOWED_HOSTS.has(url.hostname.toLowerCase())) return FALLBACK
+    return url.toString()
+  } catch {
+    return FALLBACK
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const url = new URL(req.url)
@@ -19,10 +43,10 @@ Deno.serve(async (req) => {
       console.log(`Email click: ${trackingId} -> ${dest}`)
     }
 
-    const target = dest && /^https?:\/\//.test(dest) ? dest : 'https://ceomindos.com'
+    const target = safeTarget(dest)
     return new Response(null, { status: 302, headers: { Location: target, 'Cache-Control': 'no-store' } })
   } catch (e) {
     console.error('track-email-click error', e)
-    return new Response(null, { status: 302, headers: { Location: 'https://ceomindos.com' } })
+    return new Response(null, { status: 302, headers: { Location: FALLBACK } })
   }
 })

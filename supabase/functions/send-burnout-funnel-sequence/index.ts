@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { requireCronOrAdmin } from '../_shared/require-cron-or-admin.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,6 +22,9 @@ const DAY_MS = 24 * 60 * 60 * 1000
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
+
+  const authFail = await requireCronOrAdmin(req, corsHeaders)
+  if (authFail) return authFail
 
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
