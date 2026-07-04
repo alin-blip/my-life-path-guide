@@ -271,6 +271,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Same as above — preserve last known subscription state on network errors.
 
     } finally {
+      clearTimeout(releaseLoadingTimer);
       if (!silent) setSubscriptionLoading(false);
     }
   };
