@@ -556,7 +556,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
             className={`${isCollapsed ? 'h-7 w-auto' : 'h-10 w-auto'} drop-shadow`}
           />
           {!isCollapsed && (
-            <h1 className="font-display font-bold text-xl gradient-text">CEO Mind OS</h1>
+            <span className="font-display font-bold text-xl gradient-text">CEO Mind OS</span>
           )}
         </Link>
       </div>
