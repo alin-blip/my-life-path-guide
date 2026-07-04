@@ -10,6 +10,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean; // auth loading
   subscriptionLoading: boolean;
+  subscriptionInitialized: boolean;
   subscribed: boolean;
   subscriptionTier: string | null;
   subscriptionEnd: string | null;
@@ -20,6 +21,7 @@ interface AuthContextType {
   refreshSubscription: (opts?: { silent?: boolean }) => Promise<void>;
   signOut: () => Promise<void>;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
