@@ -19,7 +19,7 @@ interface ProtectedRouteProps {
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading, subscribed, subscriptionLoading, subscriptionTier, subscriptionEnd } = useAuth();
+  const { user, loading, subscribed, subscriptionLoading, subscriptionTier, subscriptionEnd, trialExpired } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
