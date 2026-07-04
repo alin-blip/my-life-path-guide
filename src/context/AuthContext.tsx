@@ -295,6 +295,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     loading,
     subscriptionLoading,
+    subscriptionInitialized,
+
     subscribed,
     subscriptionTier,
     subscriptionEnd,
