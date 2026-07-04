@@ -175,6 +175,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setSubscriptionEnd(null);
             setEarlyBirdExpiresAt(null);
             setSubscriptionLoading(false);
+            setSubscriptionInitialized(true);
+
           }
         }, 0);
 
