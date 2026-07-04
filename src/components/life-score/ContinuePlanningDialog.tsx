@@ -59,7 +59,7 @@ export const ContinuePlanningDialog: React.FC<ContinuePlanningDialogProps> = ({
 
       {/* Category Status */}
       <Card className="bg-white/5 border-white/10 p-4 space-y-3">
-        <p className="text-xs text-white/50 uppercase tracking-wider mb-2">
+        <p className="text-xs text-white/70 uppercase tracking-wider mb-2">
           {language === 'en' ? 'Your Progress' : 'Progresul Tău'}
         </p>
         
@@ -86,13 +86,13 @@ export const ContinuePlanningDialog: React.FC<ContinuePlanningDialogProps> = ({
                   {isCompleted ? (
                     <Check className="w-4 h-4 text-white" />
                   ) : (
-                    <CategoryIcon className="w-4 h-4 text-white/50" />
+                    <CategoryIcon className="w-4 h-4 text-white/70" />
                   )}
                 </div>
                 
                 <span className={cn(
                   "font-medium text-sm",
-                  isCompleted ? "text-white" : "text-white/50"
+                  isCompleted ? "text-white" : "text-white/70"
                 )}>
                   {language === 'en' ? info.en : info.ro}
                 </span>
@@ -112,7 +112,7 @@ export const ContinuePlanningDialog: React.FC<ContinuePlanningDialogProps> = ({
       <div className="space-y-3">
         {remainingCategories.length > 0 && (
           <div className="space-y-2">
-            <p className="text-white/50 text-xs text-center">
+            <p className="text-white/70 text-xs text-center">
               {language === 'en' ? 'Continue planning:' : 'Continuă planificarea:'}
             </p>
             <div className="grid grid-cols-2 gap-2">

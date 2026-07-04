@@ -36,25 +36,25 @@ export const ValueStack: React.FC<ValueStackProps> = ({ language }) => {
               <Check className="w-5 h-5 text-amber-400 flex-shrink-0" />
               <span className="text-white/80 text-sm">{item.name}</span>
             </div>
-            <span className="text-white/50 text-sm line-through">{item.value}</span>
+            <span className="text-white/70 text-sm line-through">{item.value}</span>
           </div>
         ))}
       </div>
 
       <div className="flex items-center justify-between py-3 border-b-2 border-amber-400/50 mb-8">
         <span className="text-amber-400 font-bold uppercase tracking-wider text-sm">{t.total}</span>
-        <span className="text-white/50 line-through font-bold">{language === 'ro' ? '594 lei' : '$146'}</span>
+        <span className="text-white/70 line-through font-bold">{language === 'ro' ? '594 lei' : '$146'}</span>
       </div>
 
       <div className="text-center mb-4">
         <p className="text-white/60 text-sm mb-2">{t.price}</p>
         <div className="flex items-baseline justify-center gap-3">
-          <span className="text-white/40 line-through text-2xl">{language === 'ro' ? '594 lei' : '$146'}</span>
+          <span className="text-white/70 line-through text-2xl">{language === 'ro' ? '594 lei' : '$146'}</span>
           <span className="text-5xl font-bold text-amber-400">{language === 'ro' ? '99 lei' : '$29'}</span>
         </div>
       </div>
 
-      <p className="text-center text-white/40 text-xs">{t.save}</p>
+      <p className="text-center text-white/70 text-xs">{t.save}</p>
     </div>
   );
 };

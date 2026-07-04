@@ -233,9 +233,9 @@ export function QuickSettingsPanel({ open, onOpenChange }: QuickSettingsPanelPro
                 Pași Extra ({extraSteps.filter(([id]) => activeSteps.includes(id)).length})
               </span>
               {expandedSection === 'steps' ? (
-                <ChevronUp className="h-4 w-4 text-white/40" />
+                <ChevronUp className="h-4 w-4 text-white/70" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-white/40" />
+                <ChevronDown className="h-4 w-4 text-white/70" />
               )}
             </button>
             
@@ -256,7 +256,7 @@ export function QuickSettingsPanel({ open, onOpenChange }: QuickSettingsPanelPro
                           "flex items-center gap-2 p-2.5 rounded-lg text-left text-sm transition-all",
                           activeSteps.includes(stepId)
                             ? "bg-white/20 text-white border border-white/30"
-                            : "bg-white/5 text-white/50 border border-white/5 hover:bg-white/10"
+                            : "bg-white/5 text-white/70 border border-white/5 hover:bg-white/10"
                         )}
                       >
                         {info.icon}
@@ -279,9 +279,9 @@ export function QuickSettingsPanel({ open, onOpenChange }: QuickSettingsPanelPro
                 Habits Tracking
               </span>
               {expandedSection === 'habits' ? (
-                <ChevronUp className="h-4 w-4 text-white/40" />
+                <ChevronUp className="h-4 w-4 text-white/70" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-white/40" />
+                <ChevronDown className="h-4 w-4 text-white/70" />
               )}
             </button>
             
@@ -316,7 +316,7 @@ export function QuickSettingsPanel({ open, onOpenChange }: QuickSettingsPanelPro
                     <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 mt-3">
                       <div className="space-y-0.5">
                         <Label className="text-white text-sm">Sarcinile de Azi</Label>
-                        <p className="text-xs text-white/50">Include review sarcinilor</p>
+                        <p className="text-xs text-white/70">Include review sarcinilor</p>
                       </div>
                       <Switch
                         checked={includeDailyTasks}

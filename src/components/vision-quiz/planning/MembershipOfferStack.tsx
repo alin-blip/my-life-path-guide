@@ -181,7 +181,7 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
 
       {/* What You Created */}
       <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-        <p className="text-xs text-white/50 uppercase tracking-wider mb-3 text-center">
+        <p className="text-xs text-white/70 uppercase tracking-wider mb-3 text-center">
           {language === 'en' ? "What you've created:" : 'Ce ai creat:'}
         </p>
         <div className="grid grid-cols-2 gap-2">
@@ -193,7 +193,7 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
           ].map((item, idx) => (
             <div key={idx} className="flex items-center gap-2 text-sm">
               <Check className="w-4 h-4 text-green-400" />
-              <item.icon className="w-4 h-4 text-white/40" />
+              <item.icon className="w-4 h-4 text-white/70" />
               <span className="text-white/70">{item.label}</span>
             </div>
           ))}
@@ -245,7 +245,7 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
                 </div>
                 
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white/40 line-through text-sm">
+                  <span className="text-white/70 line-through text-sm">
                     {plan.currency}{plan.originalPrice}
                   </span>
                 </div>
@@ -257,7 +257,7 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
                   )}>
                     {plan.currency}{plan.price}
                   </span>
-                  <span className="text-white/50 text-sm">
+                  <span className="text-white/70 text-sm">
                     {language === 'en' ? plan.periodEn : plan.period}
                   </span>
                 </div>
@@ -318,7 +318,7 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
         <Button
           variant="ghost"
           onClick={handleContinueFree}
-          className="gap-2 text-white/50 hover:text-white hover:bg-white/10 text-sm"
+          className="gap-2 text-white/70 hover:text-white hover:bg-white/10 text-sm"
         >
           {language === 'en' 
             ? 'Continue with Free Plan (limited features)' 
@@ -328,7 +328,7 @@ export const MembershipOfferStack: React.FC<MembershipOfferStackProps> = ({
       </div>
 
       {/* Trust indicators */}
-      <div className="flex items-center justify-center gap-4 text-white/40 text-xs">
+      <div className="flex items-center justify-center gap-4 text-white/70 text-xs">
         <span>🔒 {language === 'en' ? 'Secure Payment' : 'Plată Securizată'}</span>
         <span>•</span>
         <span>💳 {language === 'en' ? 'Cancel Anytime' : 'Anulează Oricând'}</span>

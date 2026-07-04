@@ -106,7 +106,7 @@ export const EbookContent: React.FC<EbookContentProps> = ({ language }) => {
             <p>{t.storyP3}</p>
             <p className="text-amber-400">{t.storyP4}</p>
           </div>
-          <p className="text-white/40 mt-4 italic">{t.storyAuthor}</p>
+          <p className="text-white/70 mt-4 italic">{t.storyAuthor}</p>
         </section>
 
         {/* Chapters */}
@@ -118,7 +118,7 @@ export const EbookContent: React.FC<EbookContentProps> = ({ language }) => {
               <div key={idx} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6 hover:border-amber-400/20 transition-colors">
                 <ch.icon className="w-6 h-6 text-amber-400 mb-3" />
                 <h3 className="text-white font-bold text-lg mb-2">{ch.title}</h3>
-                <p className="text-white/50 text-sm">{ch.desc}</p>
+                <p className="text-white/70 text-sm">{ch.desc}</p>
               </div>
             ))}
           </div>
@@ -141,7 +141,7 @@ export const EbookContent: React.FC<EbookContentProps> = ({ language }) => {
             {t.notItems.map((item, idx) => (
               <div key={idx} className="flex items-start gap-3">
                 <span className="text-red-400 mt-1">✕</span>
-                <span className="text-white/40">{item}</span>
+                <span className="text-white/70">{item}</span>
               </div>
             ))}
           </div>

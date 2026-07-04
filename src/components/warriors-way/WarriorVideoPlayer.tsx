@@ -118,7 +118,7 @@ export const WarriorVideoPlayer: React.FC<WarriorVideoPlayerProps> = ({
               <div className="text-center text-white/70 p-8">
                 <Play className="h-16 w-16 mx-auto mb-4 opacity-50" />
                 <p className="text-lg mb-2">Video în curs de adăugare</p>
-                <p className="text-sm text-white/50">Acest modul va fi disponibil în curând.</p>
+                <p className="text-sm text-white/70">Acest modul va fi disponibil în curând.</p>
               </div>
             )}
           </div>

@@ -126,12 +126,12 @@ export const CanvasProjectsDialog: React.FC<CanvasProjectsDialogProps> = ({
           {/* Search and New Project */}
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
               <Input
                 placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/70"
               />
             </div>
             <Button
@@ -153,7 +153,7 @@ export const CanvasProjectsDialog: React.FC<CanvasProjectsDialogProps> = ({
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : filteredProjects.length === 0 ? (
-              <div className="text-center py-12 text-white/40">
+              <div className="text-center py-12 text-white/70">
                 {searchQuery ? 'No projects found' : 'No projects yet. Create your first one!'}
               </div>
             ) : (
@@ -190,7 +190,7 @@ export const CanvasProjectsDialog: React.FC<CanvasProjectsDialogProps> = ({
                         <h3 className="font-medium text-white truncate">
                           {project.title || 'Untitled'}
                         </h3>
-                        <div className="flex items-center gap-1 text-xs text-white/40 mt-1">
+                        <div className="flex items-center gap-1 text-xs text-white/70 mt-1">
                           <Clock className="h-3 w-3" />
                           {format(new Date(project.updated_at), 'MMM d, yyyy')}
                         </div>

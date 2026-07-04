@@ -93,7 +93,7 @@ export function RoutineTimeline({
                         <SkipForward className="w-3 h-3 text-white" />
                       )}
                       {status === 'locked' && (
-                        <Lock className="w-2 h-2 text-white/50" />
+                        <Lock className="w-2 h-2 text-white/70" />
                       )}
                       {status === 'current' && (
                         <motion.div

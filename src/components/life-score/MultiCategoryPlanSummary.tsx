@@ -106,7 +106,7 @@ export const MultiCategoryPlanSummary: React.FC<MultiCategoryPlanSummaryProps> =
                       <div className="flex items-start gap-2">
                         <Target className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
                         <div>
-                          <span className="text-white/50 text-xs">
+                          <span className="text-white/70 text-xs">
                             {language === 'en' ? 'Annual:' : 'Anual:'}
                           </span>
                           <p className="text-white">{plan.annual}</p>
@@ -118,7 +118,7 @@ export const MultiCategoryPlanSummary: React.FC<MultiCategoryPlanSummaryProps> =
                       <div className="flex items-start gap-2">
                         <Rocket className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
                         <div>
-                          <span className="text-white/50 text-xs">
+                          <span className="text-white/70 text-xs">
                             {language === 'en' ? '90-Day:' : '90 Zile:'}
                           </span>
                           <p className="text-white">{plan.quarterly}</p>
@@ -130,7 +130,7 @@ export const MultiCategoryPlanSummary: React.FC<MultiCategoryPlanSummaryProps> =
                       <div className="flex items-start gap-2">
                         <Calendar className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
                         <div>
-                          <span className="text-white/50 text-xs">
+                          <span className="text-white/70 text-xs">
                             {language === 'en' ? 'Monthly:' : 'Lunar:'}
                           </span>
                           <p className="text-white">{plan.monthly}</p>
@@ -142,7 +142,7 @@ export const MultiCategoryPlanSummary: React.FC<MultiCategoryPlanSummaryProps> =
                       <div className="flex items-start gap-2">
                         <Map className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
                         <div>
-                          <span className="text-white/50 text-xs">
+                          <span className="text-white/70 text-xs">
                             {language === 'en' ? 'Week 1:' : 'Săptămâna 1:'}
                           </span>
                           <p className="text-white">{plan.weekly}</p>
@@ -169,7 +169,7 @@ export const MultiCategoryPlanSummary: React.FC<MultiCategoryPlanSummaryProps> =
             <div key={idx}>
               <stat.icon className="w-5 h-5 mx-auto mb-1 text-amber-400" />
               <p className="text-xl font-bold text-white">{stat.count}</p>
-              <p className="text-[10px] text-white/50">{stat.label}</p>
+              <p className="text-[10px] text-white/70">{stat.label}</p>
             </div>
           ))}
         </div>

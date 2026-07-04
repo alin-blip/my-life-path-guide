@@ -109,7 +109,7 @@ export const CategoryMultiSelector: React.FC<CategoryMultiSelectorProps> = ({
                       <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                         <div className="h-full rounded-full" style={{ width: `${(score / 4) * 100}%`, backgroundColor: category.color }} />
                       </div>
-                      <span className="text-xs text-white/50">{score}/4</span>
+                      <span className="text-xs text-white/70">{score}/4</span>
                     </div>
                   </div>
                 </div>

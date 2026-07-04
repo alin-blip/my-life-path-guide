@@ -21,7 +21,7 @@ export const EbookNav: React.FC<EbookNavProps> = ({ language }) => {
         </span>
       </div>
       <div className="flex items-center gap-4">
-        <span className="hidden lg:block text-xs tracking-[0.2em] text-white/40 uppercase">
+        <span className="hidden lg:block text-xs tracking-[0.2em] text-white/70 uppercase">
           {tagline}
         </span>
         <Link

@@ -69,7 +69,7 @@ const EbookPaymentSuccess = () => {
             <div key={idx} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6 text-center">
               <card.icon className="w-8 h-8 text-amber-400 mx-auto mb-3" />
               <h3 className="text-white font-bold mb-1">{card.title}</h3>
-              <p className="text-white/50 text-sm">{card.desc}</p>
+              <p className="text-white/70 text-sm">{card.desc}</p>
             </div>
           ))}
         </div>
@@ -102,7 +102,7 @@ const EbookPaymentSuccess = () => {
         >
           {language === 'ro' ? 'Continuă spre Challenge ▶' : 'Continue to Challenge ▶'}
         </button>
-        <p className="text-white/40 text-xs mt-3">
+        <p className="text-white/70 text-xs mt-3">
           {language === 'ro' ? 'Te redirecționăm automat în 8 secunde…' : 'Redirecting automatically in 8 seconds…'}
         </p>
       </section>

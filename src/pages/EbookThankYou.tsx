@@ -90,7 +90,7 @@ const EbookThankYou = () => {
             <div key={idx} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6 text-center">
               <step.icon className="w-8 h-8 text-amber-400 mx-auto mb-3" />
               <h3 className="text-white font-bold mb-1">{step.title}</h3>
-              <p className="text-white/50 text-sm">{step.desc}</p>
+              <p className="text-white/70 text-sm">{step.desc}</p>
             </div>
           ))}
         </div>

@@ -32,7 +32,7 @@ export const EbookTestimonials: React.FC<EbookTestimonialsProps> = ({ language }
             <div key={idx} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6">
               <span className="text-amber-400 text-3xl leading-none">"</span>
               <p className="text-white/70 text-sm mt-2 mb-4 italic">{item.quote}</p>
-              <p className="text-white/40 text-xs">— {item.author}</p>
+              <p className="text-white/70 text-xs">— {item.author}</p>
             </div>
           ))}
         </div>

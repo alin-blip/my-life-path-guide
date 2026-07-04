@@ -206,7 +206,7 @@ const LifeScore = () => {
                     <benefit.icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-white font-semibold mb-1">{benefit.text}</h3>
-                  <p className="text-white/50 text-sm">{benefit.subtext}</p>
+                  <p className="text-white/70 text-sm">{benefit.subtext}</p>
                 </div>
               ))}
             </motion.div>
@@ -220,7 +220,7 @@ const LifeScore = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
         >
-          <div className="flex flex-col items-center gap-2 text-white/40">
+          <div className="flex flex-col items-center gap-2 text-white/70">
             <span className="text-xs uppercase tracking-widest">
               {language === 'en' ? 'Learn more' : 'Află mai mult'}
             </span>
@@ -312,17 +312,17 @@ const LifeScore = () => {
           >
             <div className="text-center">
               <div className="text-4xl font-bold text-white mb-1">5,000+</div>
-              <div className="text-white/50 text-sm">{language === 'en' ? 'Quizzes taken' : 'Quiz-uri completate'}</div>
+              <div className="text-white/70 text-sm">{language === 'en' ? 'Quizzes taken' : 'Quiz-uri completate'}</div>
             </div>
             <div className="w-px h-12 bg-white/20 hidden md:block" />
             <div className="text-center">
               <div className="text-4xl font-bold text-white mb-1">60s</div>
-              <div className="text-white/50 text-sm">{language === 'en' ? 'Average time' : 'Timp mediu'}</div>
+              <div className="text-white/70 text-sm">{language === 'en' ? 'Average time' : 'Timp mediu'}</div>
             </div>
             <div className="w-px h-12 bg-white/20 hidden md:block" />
             <div className="text-center">
               <div className="text-4xl font-bold text-white mb-1">4.9★</div>
-              <div className="text-white/50 text-sm">{language === 'en' ? 'User rating' : 'Rating utilizatori'}</div>
+              <div className="text-white/70 text-sm">{language === 'en' ? 'User rating' : 'Rating utilizatori'}</div>
             </div>
           </motion.div>
         </div>
@@ -368,7 +368,7 @@ const LifeScore = () => {
                   {language === 'en' ? 'Start My Life Score' : 'Începe Scorul Meu'}
                 </Button>
 
-                <div className="flex flex-wrap justify-center gap-4 text-sm text-white/50">
+                <div className="flex flex-wrap justify-center gap-4 text-sm text-white/70">
                   <div className="flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <span>{language === 'en' ? 'Free forever' : 'Gratuit mereu'}</span>
