@@ -48,8 +48,8 @@ const Pricing: React.FC = () => {
       ? "CEO Mind OS memberships: Free 3-day trial, Basic (€49) with full platform, Pro (€97) with 7-day trial & Live Coaching."
       : "Membership CEO Mind OS: Trial gratuit 3 zile, Basic (€49) cu platformă completă, Pro (€97) cu trial 7 zile & Coaching LIVE.",
     heroTitle: language === 'en'
-      ? "Choose Your Path"
-      : "Alege Drumul Tău",
+      ? "CEO Mind OS Membership Plans and Pricing"
+      : "Planuri și Prețuri Membership CEO Mind OS",
     heroSubtitle: language === 'en'
       ? "3 simple plans. Clear value. Transform your life in all 4 dimensions."
       : "3 planuri simple. Valoare clară. Transformă-ți viața în toate cele 4 dimensiuni.",
