@@ -491,32 +491,55 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
               </ul>
             )}
           </div>
-        ) : (
-          <Link
-            to={item.path}
-            onClick={onItemClick}
-            className={`sidebar-item ${isPathActive(item.path) ? 'active' : ''} ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
-          >
-            <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-            {!isCollapsed && (
-              <>
-                <span className="text-sm font-medium">{item.title}</span>
-                {item.badge && (
-                  <Badge variant="secondary" className="ml-2 text-xs px-1.5 py-0.5">
-                    {item.badge}
-                  </Badge>
+        ) : (() => {
+          const topBadge = tierBadge(item.path);
+          if (topBadge) {
+            return (
+              <button
+                type="button"
+                onClick={() => setUpgradeState({ open: true, tier: topBadge.tier, feature: item.title })}
+                className={`sidebar-item w-full opacity-70 ${isCollapsed ? 'justify-center' : ''}`}
+              >
+                <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                {!isCollapsed && (
+                  <>
+                    <span className="text-sm font-medium">{item.title}</span>
+                    <span className="ml-auto flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      <Badge variant="outline" className="text-[10px] px-1 py-0">{topBadge.label}</Badge>
+                    </span>
+                  </>
                 )}
-              </>
-            )}
-            {!isCollapsed && item.notification && (
-              <div className="ml-auto bg-primary text-primary-foreground text-xs py-0.5 px-2 rounded-full">
-                {item.notification > 99 ? '99+' : item.notification}
-              </div>
-            )}
-          </Link>
-        )}
+              </button>
+            );
+          }
+          return (
+            <Link
+              to={item.path}
+              onClick={onItemClick}
+              className={`sidebar-item ${isPathActive(item.path) ? 'active' : ''} ${
+                isCollapsed ? 'justify-center' : ''
+              }`}
+            >
+              <item.icon className={`${isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+              {!isCollapsed && (
+                <>
+                  <span className="text-sm font-medium">{item.title}</span>
+                  {item.badge && (
+                    <Badge variant="secondary" className="ml-2 text-xs px-1.5 py-0.5">
+                      {item.badge}
+                    </Badge>
+                  )}
+                </>
+              )}
+              {!isCollapsed && item.notification && (
+                <div className="ml-auto bg-primary text-primary-foreground text-xs py-0.5 px-2 rounded-full">
+                  {item.notification > 99 ? '99+' : item.notification}
+                </div>
+              )}
+            </Link>
+          );
+        })()}
       </li>
     );
   };
