@@ -11,6 +11,17 @@ interface BlogArticleProps {
 
 export const BlogArticle = ({ post }: BlogArticleProps) => {
   const [activeSection, setActiveSection] = useState('');
+  const lang: 'ro' | 'en' = post.language ?? 'ro';
+  const t = {
+    inlineCtaTitle: lang === 'en' ? '🚀 Want to implement this today?' : '🚀 Vrei să implementezi asta chiar azi?',
+    inlineCtaButton: lang === 'en' ? 'Try CEO Mind OS free for 5 days' : 'Încearcă CEO Mind OS gratuit 5 zile',
+    finalCtaTitle: lang === 'en' ? 'Ready to transform your mornings?' : 'Ești pregătit să-ți transformi dimineața?',
+    finalCtaBody: lang === 'en'
+      ? 'Try CEO Mind OS free for 5 days — Warrior Routine, AI Mind Coach, CORE 4 and Domino Door.'
+      : 'Încearcă CEO Mind OS gratuit 5 zile — Rutina Războinicului, AI Mind Coach, CORE 4 și Domino Door.',
+    finalCtaButton: lang === 'en' ? 'Start Free Now ⚔️' : 'Începe Gratuit Acum ⚔️',
+  };
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
