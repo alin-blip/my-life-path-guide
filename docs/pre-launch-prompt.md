@@ -351,3 +351,24 @@ Lovable păstrează versiunile publicate. În Publish settings:
 ---
 
 **Owner document**: Alin F. Radu · **Ultima actualizare**: 2026-07-04 · **Următoare revizie**: T-14 înainte de lansare.
+
+---
+
+## Audit 2026-07-04 — Rezultate execuție
+
+### ✅ Rezolvat
+- **Pas 1a** — Revoke `EXECUTE` pe `get_user_language_by_email` de la `authenticated`/`anon` (păstrat doar `service_role`). Migration aplicată.
+- **Pas 2** — Verificat `subscribers`: 0 rânduri `expired_still_active`, 0 `unsubbed_with_tier`. Stare curată.
+- **Pas 4** — UTM propagat end-to-end: `useUtmCapture` (client) → `create-checkout` acceptă `utm` în body → salvat în `session.metadata` Stripe (7 câmpuri: source/medium/campaign/content/term/landing_page/referrer). Aplicat în `Pricing`, `ChallengeLanding`, `Challenge7ZileLanding`, `ChallengeUpsell`.
+
+### 🟡 Acceptat cu warning (nu blochează lansarea)
+- **Pas 1b** — `pg_net` în schema `public`: Postgres refuză `ALTER EXTENSION pg_net SET SCHEMA extensions` (`0A000: pg_net does not support SET SCHEMA`). Warning-ul rămâne; funcțiile pg_net sunt deja apelate din schema `net` (nu `public`), risc real minim.
+- **Pas 1c** — 5 warning-uri `SECURITY DEFINER` rămase: `has_role`, `is_tribe_member`, `is_tribe_owner`, `archive_user_tasks`, `clear_user_task_history`. Toate au check-uri interne de autorizare (`auth.uid()` sau `has_role`) și sunt necesare pentru RLS/policies — pattern standard Supabase, nu se pot revoca.
+
+### 🔴 De făcut manual (necesită acțiunea userului)
+- **Pas 3** — Test LIVE Stripe: 1 checkout Basic + 1 refund + verificare `stripe-webhook` logs. Nu poate fi automatizat fără card real.
+- **Pas 5** — Trigger SEO scan din tab-ul **SEO & AI search** (buton Rescan) pentru rezultat proaspăt înainte de T-0.
+- **Pas 6** — Audit `localStorage` cu date critice: `rg` returnează ~73 apeluri `localStorage.setItem` cu chei potențial critice. Migrarea în DB este un task de scope mediu, nu blochează lansarea (majoritatea sunt drafturi/UI prefs; standardul DB-first este documentat în `docs/data-persistence-audit.md`).
+
+### Semafor final
+🟡 **GO cu 3 acțiuni manuale înainte de T-0**: LIVE Stripe test, SEO rescan, spot-check localStorage pentru chei sensibile.
