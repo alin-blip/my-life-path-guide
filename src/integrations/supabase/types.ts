@@ -2459,6 +2459,30 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_challenge_claims: {
+        Row: {
+          challenge_id: string
+          claim_date: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          claim_date?: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          claim_date?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_checkins: {
         Row: {
           created_at: string
@@ -3461,6 +3485,39 @@ export type Database = {
           status?: string | null
           text?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journal_entries: {
+        Row: {
+          content: string
+          created_at: string
+          entry_date: string
+          id: string
+          lesson: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          entry_date?: string
+          id?: string
+          lesson?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          entry_date?: string
+          id?: string
+          lesson?: string | null
+          title?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -6826,6 +6883,7 @@ export type Database = {
           id: string
           language: string | null
           last_mind_test_at: string | null
+          life_score_data: Json | null
           mind_test_skip_count: number
           onboarding_completed: Json | null
           preferred_tts_voice: string | null
@@ -6841,6 +6899,7 @@ export type Database = {
           id?: string
           language?: string | null
           last_mind_test_at?: string | null
+          life_score_data?: Json | null
           mind_test_skip_count?: number
           onboarding_completed?: Json | null
           preferred_tts_voice?: string | null
@@ -6856,6 +6915,7 @@ export type Database = {
           id?: string
           language?: string | null
           last_mind_test_at?: string | null
+          life_score_data?: Json | null
           mind_test_skip_count?: number
           onboarding_completed?: Json | null
           preferred_tts_voice?: string | null

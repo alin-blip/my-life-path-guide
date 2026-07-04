@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useXPSystem, XP_REWARDS } from '@/hooks/useXPSystem';
+import { supabase } from '@/integrations/supabase/client';
 import { Zap, Target, BookOpen, Flame, Users, Brain, Dumbbell, Clock, CheckCircle2, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
 
 interface DailyChallenge {
   id: string;
@@ -155,14 +157,25 @@ export const DailyChallenges: React.FC<DailyChallengesProps> = ({
     });
   }, [stackCompleted, core4Score, biz4Score, pagesReadToday, actionsCompletedToday]);
 
-  // Load claimed challenges from localStorage
+  // Load claimed challenges from database
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const stored = localStorage.getItem(`dailyChallenges_${today}`);
-    if (stored) {
-      setClaimedChallenges(JSON.parse(stored));
-    }
+    let cancelled = false;
+    (async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+      const { data, error } = await supabase
+        .from('daily_challenge_claims')
+        .select('challenge_id')
+        .eq('user_id', session.user.id)
+        .eq('claim_date', today);
+      if (!error && data && !cancelled) {
+        setClaimedChallenges(data.map(r => r.challenge_id));
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
+
 
   // Update time left
   useEffect(() => {
@@ -187,15 +200,25 @@ export const DailyChallenges: React.FC<DailyChallengesProps> = ({
   const claimReward = async (challenge: DailyChallenge) => {
     if (claimedChallenges.includes(challenge.id)) return;
     if (challenge.current < challenge.target) return;
-    
+
     await addXP(challenge.xpReward, `Daily Challenge: ${challenge.title.en}`);
-    
+
     const newClaimed = [...claimedChallenges, challenge.id];
     setClaimedChallenges(newClaimed);
-    
+
     const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem(`dailyChallenges_${today}`, JSON.stringify(newClaimed));
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase
+        .from('daily_challenge_claims')
+        .upsert({
+          user_id: session.user.id,
+          claim_date: today,
+          challenge_id: challenge.id,
+        }, { onConflict: 'user_id,claim_date,challenge_id' });
+    }
   };
+
 
   const allCompleted = todaysChallenges.every(c => c.current >= c.target && claimedChallenges.includes(c.id));
 

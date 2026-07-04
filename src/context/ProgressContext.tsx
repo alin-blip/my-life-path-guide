@@ -265,17 +265,26 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         }
 
-        // Load progress data from localStorage
-        const savedProgress = localStorage.getItem('progressData');
-        if (savedProgress) {
-          try {
-            setProgress(JSON.parse(savedProgress));
-          } catch (e) {
-            if (import.meta.env.DEV) {
-              console.error("Error parsing saved progress data:", e);
+        // Load generic progress data from Supabase (fallback to localStorage)
+        const dbProgress = await userProgressService.loadGenericProgress<any>();
+        if (dbProgress) {
+          setProgress(dbProgress);
+        } else {
+          const savedProgress = localStorage.getItem('progressData');
+          if (savedProgress) {
+            try {
+              const parsed = JSON.parse(savedProgress);
+              setProgress(parsed);
+              // Migrate to Supabase
+              await userProgressService.saveGenericProgress(parsed);
+            } catch (e) {
+              if (import.meta.env.DEV) {
+                console.error("Error parsing saved progress data:", e);
+              }
             }
           }
         }
+
       } catch (error) {
         console.error('Error loading initial data:', error);
         // Fallback to localStorage on error
@@ -362,10 +371,15 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, [dailyFourData, saveToSupabase]);
   
-  // Save progress data
+  // Save progress data (DB + local cache)
   useEffect(() => {
     localStorage.setItem('progressData', JSON.stringify(progress));
+    if (!dataLoaded.current) return;
+    userProgressService.saveGenericProgress(progress).catch(err =>
+      console.error('Failed to persist generic progress:', err)
+    );
   }, [progress]);
+
 
   // Emergency save before unload
   useEffect(() => {

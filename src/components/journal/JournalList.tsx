@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,66 +33,41 @@ export const JournalList: React.FC<JournalListProps> = ({ onSelectEntry }) => {
   const fetchEntries = async () => {
     setIsLoading(true);
     try {
-      // Check if user is logged in
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        // Try to get entries from Supabase
-        // TODO: Implement proper database loading with authentication
-        // For now, using local storage until authentication is implemented
-        const savedJournalEntries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
-        const data = savedJournalEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        const error = null;
 
-        if (error) {
-          console.error("Error fetching from Supabase:", error);
-          throw error;
-        }
-
-        // Map to our format
-        const journalEntries = data.map(item => ({
-          id: item.id,
-          title: item.title,
-          content: item.content,
-          lesson: item.lesson || '',
-          date: item.date,
-          timestamp: item.created_at
-        }));
-
-        setEntries(journalEntries);
-        if (import.meta.env.DEV) {
-          console.log("Loaded journal entries from Supabase:", journalEntries.length);
-        }
-      } else {
-        // User not logged in, load from localStorage
-        loadEntriesFromLocalStorage();
+      if (!session?.user) {
+        setEntries([]);
+        return;
       }
+
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('id, title, content, lesson, entry_date, created_at')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const journalEntries: JournalEntry[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        lesson: item.lesson || '',
+        date: item.entry_date,
+        timestamp: item.created_at,
+      }));
+
+      setEntries(journalEntries);
     } catch (error) {
       console.error("Exception fetching entries:", error);
       toast({
         title: "Eroare la încărcarea datelor",
-        description: "Am întâmpinat o problemă la încărcarea intrărilor din jurnal. Se încearcă încărcarea datelor locale.",
+        description: "Nu am putut încărca intrările din jurnal.",
         variant: "destructive"
       });
-      loadEntriesFromLocalStorage();
+      setEntries([]);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const loadEntriesFromLocalStorage = () => {
-    try {
-      const storedEntries = localStorage.getItem('journal-entries') || '[]';
-      const parsedEntries = JSON.parse(storedEntries);
-      setEntries(parsedEntries.sort((a: JournalEntry, b: JournalEntry) => 
-        new Date(b.timestamp || "").getTime() - new Date(a.timestamp || "").getTime()
-      ));
-      if (import.meta.env.DEV) {
-        console.log("Loaded journal entries from localStorage:", parsedEntries.length);
-      }
-    } catch (error) {
-      console.error("Error loading from localStorage:", error);
-      setEntries([]);
     }
   };
 
