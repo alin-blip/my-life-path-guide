@@ -20,6 +20,40 @@ export interface DailyFourData {
 
 export const userProgressService = {
   /**
+   * Save generic progress data (miscellaneous) to Supabase
+   */
+  async saveGenericProgress(progress: unknown): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { error } = await supabase
+      .from('user_progress')
+      .upsert({
+        user_id: user.id,
+        activity_type: 'progress_misc',
+        activity_data: progress as any,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,activity_type' });
+    if (error) logger.error('❌ Error saving generic progress:', error);
+  },
+
+  /**
+   * Load generic progress data (miscellaneous) from Supabase
+   */
+  async loadGenericProgress<T = unknown>(): Promise<T | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('activity_data')
+      .eq('user_id', user.id)
+      .eq('activity_type', 'progress_misc')
+      .maybeSingle();
+    if (error || !data) return null;
+    return data.activity_data as T;
+  },
+
+
+  /**
    * Save Core 4 progress to Supabase
    */
   async saveCoreProgress(date: string, coreData: CoreDataByDay): Promise<void> {
