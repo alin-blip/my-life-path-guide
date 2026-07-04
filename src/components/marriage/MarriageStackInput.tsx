@@ -245,7 +245,7 @@ export const MarriageStackInput: React.FC<Props> = ({ onAttachmentsChange, attac
                   <X className="h-3 w-3" />
                 </button>
                 {att.type === 'image' && att.url ? (
-                  <img src={att.url} alt={att.name} className="w-full h-24 object-cover rounded" />
+                  <img src={att.url} alt={`Marriage stack attachment preview${att.name ? `: ${att.name.replace(/\.[^.]+$/, '')}` : ''}`} className="w-full h-24 object-cover rounded" />
                 ) : (
                   <div className="flex items-start gap-2 text-xs">
                     {att.type === 'audio' && <FileAudio className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />}
