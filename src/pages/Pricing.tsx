@@ -155,8 +155,17 @@ const Pricing: React.FC = () => {
       toast({ title: texts.checkoutCanceled, description: texts.tryAgain });
     }
     const activeReason = reason || stateReason;
-    if (activeReason === 'membership_required') {
+    if (activeReason === 'trial_expired') {
+      toast({
+        title: language === 'en' ? 'Your trial has expired' : 'Trialul tău a expirat',
+        description: language === 'en'
+          ? 'Choose a plan to continue using the platform.'
+          : 'Alege un plan pentru a continua să folosești platforma.',
+      });
+      setTimeout(() => document.getElementById('plan-pro')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+    } else if (activeReason === 'membership_required') {
       toast({ title: texts.membershipRequired, description: texts.choosePlan });
+
     } else if (activeReason === 'pro_required') {
       toast({
         title: language === 'en' ? 'Pro plan required' : 'Necesită planul Pro',
