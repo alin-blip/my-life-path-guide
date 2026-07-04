@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -42,100 +41,50 @@ export const JournalEntry: React.FC<JournalEntryProps> = ({ onEntrySaved }) => {
     setIsSaving(true);
 
     try {
-      // Check if user is logged in
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        // Try to save to Supabase
-        // TODO: Implement proper database insertion with authentication
-        // For now, using local storage until authentication is implemented
-        const journalEntries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
-        const newEntry = {
-          id: crypto.randomUUID(),
-          title,
-          content,
-          lesson: lesson.trim() || null,
-          user_id: 'temp-user',
-          date: new Date().toISOString().split('T')[0],
-          created_at: new Date().toISOString()
-        };
-        journalEntries.push(newEntry);
-        localStorage.setItem('journalEntries', JSON.stringify(journalEntries));
-        const error = null;
 
-        if (error) {
-          console.error("Error saving to Supabase:", error);
-          throw error;
-        }
-
+      if (!session?.user) {
         toast({
-          title: "Intrare salvată",
-          description: "Intrarea din jurnal a fost salvată cu succes în cloud.",
+          title: "Autentificare necesară",
+          description: "Conectează-te pentru a salva intrări în jurnal.",
+          variant: "destructive",
         });
-      } else {
-        // Not logged in, save to localStorage
-        saveToLocalStorage(title, content, lesson);
-        toast({
-          title: "Intrare salvată local",
-          description: "Intrarea din jurnal a fost salvată local. Conectează-te pentru a o salva în cloud.",
-        });
+        setIsSaving(false);
+        return;
       }
-      
-      // Update daily progress when journal entry is saved
-      console.log("Updating daily progress for journal");
+
+      const { error } = await supabase
+        .from('journal_entries')
+        .insert({
+          user_id: session.user.id,
+          title: title.trim(),
+          content: content.trim(),
+          lesson: lesson.trim() || null,
+          entry_date: new Date().toISOString().split('T')[0],
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Intrare salvată",
+        description: "Intrarea din jurnal a fost salvată cu succes.",
+      });
+
       await updateDailyProgress('journal', { title });
-      
-      // Reset form after save
+
       setTitle('');
       setContent('');
       setLesson('');
       onEntrySaved();
     } catch (error) {
       console.error("Error saving journal entry:", error);
-      saveToLocalStorage(title, content, lesson);
-      toast({
-        title: "Eroare la salvare în cloud",
-        description: "Intrarea din jurnal a fost salvată local ca backup.",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const saveToLocalStorage = (title: string, content: string, lesson: string) => {
-    try {
-      const now = new Date();
-      const entryDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-      const entryId = `journal-${Date.now()}`;
-      
-      // Get existing journal entries
-      const storedEntries = localStorage.getItem('journal-entries') || '[]';
-      const entries = JSON.parse(storedEntries);
-      
-      // Add new entry
-      entries.push({
-        id: entryId,
-        title,
-        content,
-        lesson,
-        date: entryDate,
-        timestamp: now.toISOString()
-      });
-      
-      // Save back to localStorage
-      localStorage.setItem('journal-entries', JSON.stringify(entries));
-      
-      toast({
-        title: "Intrare salvată local",
-        description: "Intrarea din jurnal a fost salvată local.",
-      });
-    } catch (error) {
-      console.error("Error saving to localStorage:", error);
       toast({
         title: "Eroare la salvare",
         description: "Nu am putut salva intrarea. Te rugăm să încerci din nou.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
