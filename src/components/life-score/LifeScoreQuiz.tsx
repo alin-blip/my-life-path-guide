@@ -249,7 +249,20 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
           early_bird_expires_at: trialEnd.toISOString(),
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
+
+        // Persist Life Score results on the user profile (cross-device)
+        await supabase.from('user_preferences').upsert({
+          user_id: userId,
+          life_score_data: {
+            totalScore,
+            categoryScores,
+            answers,
+            completed_at: new Date().toISOString(),
+          } as any,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' });
       }
+
 
       // Track account creation for funnel analytics
       trackAccountCreated('life_score_quiz');
