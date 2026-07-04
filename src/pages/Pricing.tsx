@@ -154,10 +154,27 @@ const Pricing: React.FC = () => {
     if (canceled) {
       toast({ title: texts.checkoutCanceled, description: texts.tryAgain });
     }
-    if (reason === 'membership_required' || stateReason === 'membership_required') {
+    const activeReason = reason || stateReason;
+    if (activeReason === 'membership_required') {
       toast({ title: texts.membershipRequired, description: texts.choosePlan });
-      if (stateReason) navigate('/pricing', { replace: true });
+    } else if (activeReason === 'pro_required') {
+      toast({
+        title: language === 'en' ? 'Pro plan required' : 'Necesită planul Pro',
+        description: language === 'en'
+          ? 'This feature is available on the Pro plan. Upgrade to unlock LIVE coaching and the VIP community.'
+          : 'Această funcție este disponibilă în planul Pro. Fă upgrade pentru coaching LIVE și comunitatea VIP.',
+      });
+      setTimeout(() => document.getElementById('plan-pro')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+    } else if (activeReason === 'elite_required') {
+      toast({
+        title: language === 'en' ? 'Elite plan required' : 'Necesită planul Elite',
+        description: language === 'en'
+          ? 'This feature is available on the Elite plan. Upgrade for Warrior Launch Accelerator and 1:1 sessions.'
+          : 'Această funcție este disponibilă în planul Elite. Fă upgrade pentru Warrior Launch Accelerator și sesiuni 1:1.',
+      });
+      setTimeout(() => document.getElementById('plan-elite')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
     }
+    if (stateReason) navigate('/pricing', { replace: true });
   }, [searchParams, location.state, toast, refreshSubscription, navigate, language]);
 
   const handleCheckout = async (planId: string) => {
