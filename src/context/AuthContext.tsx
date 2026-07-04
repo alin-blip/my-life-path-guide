@@ -271,6 +271,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     subscribed,
     subscriptionTier,
     subscriptionEnd,
+    trialExpired,
+
     earlyBirdExpiresAt,
     isEarlyBirdActive,
     refreshSubscription,
