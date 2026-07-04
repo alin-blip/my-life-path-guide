@@ -571,7 +571,7 @@ export const AuthForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white" aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -595,7 +595,7 @@ export const AuthForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={toggleConfirmPasswordVisibility}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white" aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
                 >
                   {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -623,7 +623,7 @@ export const AuthForm: React.FC = () => {
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white" aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -661,7 +661,7 @@ export const AuthForm: React.FC = () => {
               <button
                 type="button"
                 onClick={toggleConfirmPasswordVisibility}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-white" aria-label={showConfirmPassword ? "Hide confirmation password" : "Show confirmation password"}
               >
                 {showConfirmPassword ? (
                   <EyeOff className="h-4 w-4" />
