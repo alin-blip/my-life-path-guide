@@ -22,12 +22,14 @@ import { template as welcome } from './welcome.tsx'
 import { template as trialReminder } from './trial-reminder.tsx'
 import { template as subscriptionUpgraded } from './subscription-upgraded.tsx'
 import { template as retentionWinback } from './retention-winback.tsx'
+import { template as burnoutStory } from './burnout-story.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'burnout-results': burnoutResults,
   'burnout-recovery-1': burnoutRecovery1,
   'burnout-recovery-2': burnoutRecovery2,
   'burnout-recovery-3': burnoutRecovery3,
+  'burnout-story': burnoutStory,
   'ebook-delivery': ebookDelivery,
   'challenge-upsell-1': challengeUpsell1,
   'challenge-upsell-2': challengeUpsell2,
