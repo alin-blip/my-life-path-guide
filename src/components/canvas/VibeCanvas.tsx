@@ -292,7 +292,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
     if (!fabricCanvas) return;
 
     let shape: FabricObject;
-    const center = fabricCanvas.getCenter();
+    const center = fabricCanvas.getVpCenter();
 
     switch (shapeType) {
       case 'rectangle':
@@ -380,7 +380,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
   const addText = useCallback(() => {
     if (!fabricCanvas) return;
 
-    const center = fabricCanvas.getCenter();
+    const center = fabricCanvas.getVpCenter();
     const text = new IText('Tap to edit', {
       left: center.left - 60,
       top: center.top - 15,
@@ -401,7 +401,7 @@ export const VibeCanvas: React.FC<VibeCanvasProps> = ({
   const addStickyNote = useCallback(() => {
     if (!fabricCanvas) return;
 
-    const center = fabricCanvas.getCenter();
+    const center = fabricCanvas.getVpCenter();
     const colors = ['#fff740', '#ff7eb9', '#7afcff', '#98fb98', '#ffa07a'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
