@@ -371,10 +371,15 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, [dailyFourData, saveToSupabase]);
   
-  // Save progress data
+  // Save progress data (DB + local cache)
   useEffect(() => {
     localStorage.setItem('progressData', JSON.stringify(progress));
+    if (!dataLoaded.current) return;
+    userProgressService.saveGenericProgress(progress).catch(err =>
+      console.error('Failed to persist generic progress:', err)
+    );
   }, [progress]);
+
 
   // Emergency save before unload
   useEffect(() => {
