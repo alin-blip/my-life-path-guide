@@ -23,7 +23,7 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("Stripe secret key not configured");
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
-    const { plan, source, guest_email, guest_name } = await req.json();
+    const { plan, source, guest_email, guest_name, utm } = await req.json();
     if (!plan) throw new Error("Missing plan in request body");
 
     const isEarlyBird = source === 'early-bird';
@@ -357,7 +357,24 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       mode: paymentMode,
       line_items: lineItems,
-      metadata: { plan_id: plan, user_id: user.id || "", guest_email: user.id ? "" : user.email, guest_name: guest_name || "", tier, coaching_included: tier === "pro" || tier === "elite" ? "true" : "false", has_trial: trialDays ? "true" : "false", source: source || "direct" },
+      metadata: {
+        plan_id: plan,
+        user_id: user.id || "",
+        guest_email: user.id ? "" : user.email,
+        guest_name: guest_name || "",
+        tier,
+        coaching_included: tier === "pro" || tier === "elite" ? "true" : "false",
+        has_trial: trialDays ? "true" : "false",
+        source: source || "direct",
+        // UTM attribution (truncated to Stripe's 500-char metadata limit)
+        utm_source: (utm?.utm_source || "").toString().slice(0, 500),
+        utm_medium: (utm?.utm_medium || "").toString().slice(0, 500),
+        utm_campaign: (utm?.utm_campaign || "").toString().slice(0, 500),
+        utm_content: (utm?.utm_content || "").toString().slice(0, 500),
+        utm_term: (utm?.utm_term || "").toString().slice(0, 500),
+        landing_page: (utm?.landing_page || "").toString().slice(0, 500),
+        referrer: (utm?.referrer || "").toString().slice(0, 500),
+      },
       success_url: successUrl,
       cancel_url: cancelUrl,
     };

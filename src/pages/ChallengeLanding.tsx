@@ -1,3 +1,4 @@
+import { getStoredUtm } from '@/hooks/useUtmCapture';
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -151,7 +152,7 @@ export default function ChallengeLanding() {
       }
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId, source: 'challenge-landing' }
+        body: { plan: planId, source: 'challenge-landing', utm: getStoredUtm() || undefined }
       });
 
       if (error) throw error;

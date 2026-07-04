@@ -1,3 +1,4 @@
+import { getStoredUtm } from '@/hooks/useUtmCapture';
 import React, { useEffect, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -203,7 +204,7 @@ const Pricing: React.FC = () => {
       trackCheckoutInitiated(planId, priceMap[planId] || 0, 'EUR');
       
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { plan: planId },
+        body: { plan: planId, utm: getStoredUtm() || undefined },
       });
       if (error) {
         if (preOpened) preOpened.close();

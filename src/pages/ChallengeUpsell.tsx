@@ -1,3 +1,4 @@
+import { getStoredUtm } from '@/hooks/useUtmCapture';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -58,7 +59,7 @@ const ChallengeUpsell = () => {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId, source: 'challenge-upsell' },
+        body: { plan: planId, source: 'challenge-upsell', utm: getStoredUtm() || undefined },
         headers: { Authorization: `Bearer ${sessionData.session?.access_token}` }
       });
 
