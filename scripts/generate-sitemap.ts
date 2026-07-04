@@ -28,6 +28,10 @@ const entries: SitemapEntry[] = [
   { path: "/referral-program", changefreq: "monthly", priority: "0.5" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+  // Intentionally excluded from sitemap (auth-gated / not for crawlers):
+  //   /auth — login page
+  //   /dashboard, /dashboard/settings — protected user area
+  //   /stack, /stack-library — behind ProtectedRoute
 ]
 
 function generateSitemap(entries: SitemapEntry[]) {

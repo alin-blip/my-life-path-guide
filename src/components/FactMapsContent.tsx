@@ -751,7 +751,7 @@ export const FactMapsContent: React.FC<FactMapsContentProps> = ({
             <span className="ml-2 text-gray-300">April 6th 2025</span>
           </div>
           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-            <img src="/lovable-uploads/561095a8-076a-45bc-9bc2-a92402aa267a.png" alt="Profile" className="w-full h-full object-cover" />
+            <img src="/lovable-uploads/561095a8-076a-45bc-9bc2-a92402aa267a.png" alt="Founder profile avatar" className="w-full h-full object-cover" />
           </div>
         </div>
       </header>
