@@ -353,7 +353,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
                 placeholder={t.namePlaceholder}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
+                className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/70 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
               />
             </div>
             <div>
@@ -363,11 +363,11 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
+                className="h-14 bg-white/10 border-white/20 text-white placeholder:text-white/70 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
               />
             </div>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70" />
               <Input
                 type={showPassword ? 'text' : 'password'}
                 placeholder={t.passwordPlaceholder}
@@ -375,12 +375,12 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="h-14 pl-12 pr-12 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
+                className="h-14 pl-12 pr-12 bg-white/10 border-white/20 text-white placeholder:text-white/70 rounded-xl focus:border-amber-400 focus:ring-amber-400/20"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white/60"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -401,11 +401,11 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
           </form>
 
           <div className="mt-6 space-y-3">
-            <p className="text-center text-sm text-white/40 flex items-center justify-center gap-2">
+            <p className="text-center text-sm text-white/70 flex items-center justify-center gap-2">
               <span>🔒</span>
               {t.trialBadge}
             </p>
-            <div className="flex items-center justify-center gap-4 text-xs text-white/30">
+            <div className="flex items-center justify-center gap-4 text-xs text-white/60">
               <span>✓ {t.featureWizard}</span>
               <span>✓ {t.featureGoals}</span>
               <span>✓ {t.featurePlan}</span>
@@ -509,7 +509,7 @@ export const LifeScoreQuiz: React.FC<LifeScoreQuizProps> = ({ language }) => {
             {t.back}
           </Button>
           
-          <div className="text-sm text-white/40 flex items-center gap-2">
+          <div className="text-sm text-white/70 flex items-center gap-2">
             <span>⏱️</span>
             {t.timeLeft}
           </div>

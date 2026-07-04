@@ -165,7 +165,7 @@ const BurnoutTest = () => {
                     <b.icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-white font-semibold mb-1">{b.text}</h3>
-                  <p className="text-white/50 text-sm">{b.subtext}</p>
+                  <p className="text-white/70 text-sm">{b.subtext}</p>
                 </div>
               ))}
             </motion.div>
@@ -197,7 +197,7 @@ const BurnoutTest = () => {
                 <Flame className="w-5 h-5 mr-2" />
                 {language === 'en' ? 'Start Burnout Test' : 'Începe Testul de Burnout'}
               </Button>
-              <div className="flex flex-wrap justify-center gap-4 text-sm text-white/50 mt-6">
+              <div className="flex flex-wrap justify-center gap-4 text-sm text-white/70 mt-6">
                 <div className="flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>{language === 'en' ? 'Free quiz' : 'Quiz gratuit'}</span>

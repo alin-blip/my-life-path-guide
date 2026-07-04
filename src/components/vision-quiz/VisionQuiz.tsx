@@ -211,7 +211,7 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
               placeholder={language === 'en' ? 'Your name (optional)' : 'Numele tău (opțional)'}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-amber-500/50 focus:ring-amber-500/20"
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/70 focus:border-amber-500/50 focus:ring-amber-500/20"
             />
             <Input
               type="email"
@@ -219,7 +219,7 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-amber-500/50 focus:ring-amber-500/20"
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/70 focus:border-amber-500/50 focus:ring-amber-500/20"
             />
             <Button 
               type="submit" 
@@ -237,7 +237,7 @@ export const VisionQuiz: React.FC<VisionQuizProps> = ({ language }) => {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-white/50 mt-6">
+          <p className="text-center text-xs text-white/70 mt-6">
             {language === 'en' 
               ? 'We respect your privacy. No spam, ever.'
               : 'Respectăm confidențialitatea ta. Fără spam, niciodată.'}

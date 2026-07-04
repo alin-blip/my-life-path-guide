@@ -934,7 +934,7 @@ export const CanvasTemplatesDialog: React.FC<CanvasTemplatesDialogProps> = ({
                 />
               </div>
               <h3 className="font-semibold text-white mb-1">{template.name}</h3>
-              <p className="text-sm text-white/50">{template.description}</p>
+              <p className="text-sm text-white/70">{template.description}</p>
             </motion.button>
           ))}
         </div>

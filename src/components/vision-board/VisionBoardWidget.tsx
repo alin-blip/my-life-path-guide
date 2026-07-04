@@ -177,7 +177,7 @@ export const VisionBoardWidget: React.FC<VisionBoardWidgetProps> = ({
                     "w-full h-full flex items-center justify-center bg-gradient-to-br",
                     categoryColors[category]
                   )}>
-                    <div className="text-white/50 scale-150">{categoryIcons[category]}</div>
+                    <div className="text-white/70 scale-150">{categoryIcons[category]}</div>
                   </div>
                 )}
                 

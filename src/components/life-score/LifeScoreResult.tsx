@@ -124,7 +124,7 @@ export const LifeScoreResult: React.FC<LifeScoreResultProps> = ({
             >
               {percentage}%
             </motion.span>
-            <span className="text-white/50 text-[10px] sm:text-xs font-medium">
+            <span className="text-white/70 text-[10px] sm:text-xs font-medium">
               {t.lifeScore}
             </span>
           </div>

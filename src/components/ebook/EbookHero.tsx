@@ -148,7 +148,7 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t.namePh}
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-amber-400/50 transition-colors"
+              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-amber-400/50 transition-colors"
             />
             <input
               type="email"
@@ -156,7 +156,7 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t.emailPh}
               required
-              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-amber-400/50 transition-colors"
+              className="w-full px-4 py-3.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/60 focus:outline-none focus:border-amber-400/50 transition-colors"
             />
 
             {/* Order bump */}
@@ -180,7 +180,7 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
                   <Headphones className="w-4 h-4 text-amber-400" />
                   {t.bumpTitle}
                 </div>
-                <p className="text-white/50 text-xs mt-1">{t.bumpDesc}</p>
+                <p className="text-white/70 text-xs mt-1">{t.bumpDesc}</p>
               </div>
               <img
                 src={ebookBundle}
@@ -205,7 +205,7 @@ export const EbookHero: React.FC<EbookHeroProps> = ({ language }) => {
               )}
             </button>
           </form>
-          <p className="text-white/30 text-xs mt-3">{t.spam}</p>
+          <p className="text-white/60 text-xs mt-3">{t.spam}</p>
         </div>
 
         {/* Right - Book image */}

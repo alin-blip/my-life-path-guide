@@ -31,7 +31,7 @@ export const VibeCanvasFooter: React.FC<VibeCanvasFooterProps> = ({
       >
         {/* Left - Page indicator */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-white/40">Page 1 of 1</span>
+          <span className="text-xs text-white/70">Page 1 of 1</span>
         </div>
 
         {/* Center - Zoom controls */}
@@ -98,7 +98,7 @@ export const VibeCanvasFooter: React.FC<VibeCanvasFooterProps> = ({
 
         {/* Right - Keyboard shortcuts hint */}
         <div className="flex items-center gap-4">
-          <span className="text-xs text-white/30">
+          <span className="text-xs text-white/60">
             Ctrl+Z: Undo • Ctrl+Shift+Z: Redo • Delete: Remove
           </span>
         </div>

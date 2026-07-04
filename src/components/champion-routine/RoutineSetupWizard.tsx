@@ -183,7 +183,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
               <div className="flex items-center gap-2 mb-3">
                 <Icon className={cn("h-5 w-5", category.iconColor)} />
                 <span className="font-bold text-white text-sm">{category.label}</span>
-                <Lock className="h-3 w-3 text-white/40 ml-auto" />
+                <Lock className="h-3 w-3 text-white/70 ml-auto" />
               </div>
               <div className="space-y-2">
                 {category.tasks.map((task) => (
@@ -191,7 +191,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
                     <Check className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />
                     <div>
                       <p className="text-white text-sm font-medium">{task.label}</p>
-                      <p className="text-white/50 text-xs">{task.description}</p>
+                      <p className="text-white/70 text-xs">{task.description}</p>
                     </div>
                   </div>
                 ))}
@@ -260,7 +260,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
         })}
       </div>
 
-      <p className="text-center text-white/40 text-sm">
+      <p className="text-center text-white/70 text-sm">
         Poți sări acest pas - Core 4 e deja configurat
       </p>
     </motion.div>
@@ -306,7 +306,7 @@ export function RoutineSetupWizard({ onComplete, onSkip }: RoutineSetupWizardPro
             <Button
               variant="ghost"
               onClick={onSkip}
-              className="text-white/40 hover:text-white/60"
+              className="text-white/70 hover:text-white/60"
             >
               Configurez mai târziu
             </Button>

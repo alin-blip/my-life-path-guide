@@ -108,7 +108,7 @@ export const VibeCanvasToolbar: React.FC<VibeCanvasToolbarProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" className="bg-[#2a2a3e] border-white/10">
-              <p>{tool.label} {tool.shortcut && <span className="text-white/40 ml-1">({tool.shortcut})</span>}</p>
+              <p>{tool.label} {tool.shortcut && <span className="text-white/70 ml-1">({tool.shortcut})</span>}</p>
             </TooltipContent>
           </Tooltip>
         ))}
@@ -204,7 +204,7 @@ export const VibeCanvasToolbar: React.FC<VibeCanvasToolbarProps> = ({
                 ))}
               </div>
               <div className="flex items-center gap-2">
-                <Palette className="h-4 w-4 text-white/40" />
+                <Palette className="h-4 w-4 text-white/70" />
                 <input
                   type="color"
                   value={activeColor}

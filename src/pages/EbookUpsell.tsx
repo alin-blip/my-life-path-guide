@@ -319,7 +319,7 @@ const EbookUpsell = () => {
 
             <button
               onClick={() => navigate('/dashboard')}
-              className="block w-full mt-4 py-3 text-white/40 hover:text-white/60 text-sm transition-colors"
+              className="block w-full mt-4 py-3 text-white/70 hover:text-white/60 text-sm transition-colors"
             >
               {isRo ? 'Nu, mulțumesc. Doar cartea pentru acum.' : 'No thanks. Just the book for now.'}
             </button>
@@ -331,7 +331,7 @@ const EbookUpsell = () => {
             <h3 className="font-bold text-lg mb-2">
               {isRo ? 'Garanție 30 de zile — fără risc' : '30-day guarantee — zero risk'}
             </h3>
-            <p className="text-white/50 text-sm">
+            <p className="text-white/70 text-sm">
               {isRo
                 ? 'Dacă în primele 30 de zile nu vezi o transformare reală, îți returnez banii integral. Fără întrebări.'
                 : "If you don't see a real transformation in the first 30 days, I'll refund your money in full. No questions asked."}

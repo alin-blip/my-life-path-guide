@@ -64,7 +64,7 @@ export const AnnualVisionStep: React.FC<AnnualVisionStepProps> = ({
               value={answers[question.key] || ''}
               onChange={(e) => handleChange(question.key, e.target.value)}
               placeholder={getQuestionPlaceholder(question, language)}
-              className="min-h-[80px] bg-white/5 border-white/20 text-white placeholder:text-white/30 focus:border-amber-500/50"
+              className="min-h-[80px] bg-white/5 border-white/20 text-white placeholder:text-white/60 focus:border-amber-500/50"
             />
           </div>
         ))}
@@ -81,7 +81,7 @@ export const AnnualVisionStep: React.FC<AnnualVisionStepProps> = ({
         <ArrowRight className="w-5 h-5" />
       </Button>
 
-      <p className="text-center text-white/40 text-xs">
+      <p className="text-center text-white/70 text-xs">
         {language === 'en' 
           ? 'Your answers are saved automatically to your account'
           : 'Răspunsurile tale sunt salvate automat în cont'}

@@ -231,7 +231,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           </Button>
 
           {/* What you'll get */}
-          <div className="flex flex-wrap justify-center gap-4 text-white/50 text-xs">
+          <div className="flex flex-wrap justify-center gap-4 text-white/70 text-xs">
             <span className="flex items-center gap-1">
               <Target className="w-3 h-3" />
               {language === 'en' ? 'Annual Vision' : 'Viziune Anuală'}
@@ -247,7 +247,7 @@ export const QuizResults: React.FC<QuizResultsProps> = ({
           </div>
         </div>
 
-        <p className="text-white/40 text-xs text-center pt-4">
+        <p className="text-white/70 text-xs text-center pt-4">
           {language === 'en' 
             ? '✓ Your results have been saved and sent to your email' 
             : '✓ Rezultatele tale au fost salvate și trimise pe email'}

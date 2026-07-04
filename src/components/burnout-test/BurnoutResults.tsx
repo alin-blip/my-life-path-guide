@@ -222,7 +222,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
             onChange={(e) => setName(e.target.value)}
             placeholder={language === 'en' ? 'Your first name (optional)' : 'Prenumele tău (opțional)'}
             disabled={loading || submitted}
-            className="w-full px-4 py-3.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-amber-400/60 transition-colors"
+            className="w-full px-4 py-3.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/70 focus:outline-none focus:border-amber-400/60 transition-colors"
           />
           <input
             type="email"
@@ -231,7 +231,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
             placeholder={language === 'en' ? 'Your email address' : 'Adresa ta de email'}
             required
             disabled={loading || submitted}
-            className="w-full px-4 py-3.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-amber-400/60 transition-colors"
+            className="w-full px-4 py-3.5 bg-white/5 border border-white/20 rounded-lg text-white placeholder:text-white/70 focus:outline-none focus:border-amber-400/60 transition-colors"
           />
           <Button
             type="submit"
@@ -254,7 +254,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
               </>
             )}
           </Button>
-              <p className="text-white/40 text-xs text-center flex items-center justify-center gap-1">
+              <p className="text-white/70 text-xs text-center flex items-center justify-center gap-1">
                 <Lock className="w-3 h-3" />
                 {language === 'en' ? 'No spam. Unsubscribe anytime.' : 'Fără spam. Te dezabonezi oricând.'}
               </p>

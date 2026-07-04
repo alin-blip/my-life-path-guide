@@ -138,7 +138,7 @@ export function PillarProgressBar({
                 </div>
                 <div className={cn(
                   "text-[10px] font-mono",
-                  isComplete ? "text-amber-900/80" : "text-white/50"
+                  isComplete ? "text-amber-900/80" : "text-white/70"
                 )}>
                   {done}/{total}
                 </div>

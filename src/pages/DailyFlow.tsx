@@ -52,7 +52,7 @@ const DailyFlow = () => {
         <div
           className={cn(
             "flex flex-col items-center gap-2 select-none",
-            theme === 'dark' ? "text-white/50" : "text-muted-foreground"
+            theme === 'dark' ? "text-white/70" : "text-muted-foreground"
           )}
           style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
         >
