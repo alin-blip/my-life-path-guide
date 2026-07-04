@@ -11,6 +11,8 @@ interface AuthContextType {
   subscribed: boolean;
   subscriptionTier: string | null;
   subscriptionEnd: string | null;
+  trialExpired: boolean;
+
   earlyBirdExpiresAt: string | null;
   isEarlyBirdActive: boolean;
   refreshSubscription: (opts?: { silent?: boolean }) => Promise<void>;
@@ -27,6 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
+  const [trialExpired, setTrialExpired] = useState(false);
+
   const [earlyBirdExpiresAt, setEarlyBirdExpiresAt] = useState<string | null>(null);
   
   // Compute isEarlyBirdActive
@@ -243,7 +247,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscribed(subscribed);
       setSubscriptionTier(subscribed ? tier : null);
       setSubscriptionEnd(endIso);
+      setTrialExpired(Boolean(d?.trial_expired) && !subscribed);
       setEarlyBirdExpiresAt((d?.early_bird_expires_at ?? null));
+
     } catch (e) {
       console.error('Error checking subscription (keeping last known state)', e);
       // Same as above — preserve last known subscription state on network errors.
@@ -265,6 +271,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     subscribed,
     subscriptionTier,
     subscriptionEnd,
+    trialExpired,
+
     earlyBirdExpiresAt,
     isEarlyBirdActive,
     refreshSubscription,

@@ -143,6 +143,15 @@ serve(async (req) => {
     // Get subscription status (trialing or active)
     const subscriptionStatus = activeOrTrial?.status || null;
 
+    // Detect trial-expired case: user has NO active/trialing sub, but Stripe shows
+    // a previous subscription that ended after a trial (canceled/incomplete_expired
+    // with a trial_end timestamp). Used to show a specific "trial expired" toast.
+    const trialExpired = !isSubscribed && subsList.data.some((s: any) => {
+      const hadTrial = Boolean(s.trial_end);
+      const endedStatus = ["canceled", "incomplete_expired", "unpaid", "past_due"].includes(s.status);
+      return hadTrial && endedStatus;
+    });
+
     // Get existing early_bird_expires_at from database
     const { data: existingSubscriber } = await supabaseService
       .from("subscribers")
@@ -167,7 +176,9 @@ serve(async (req) => {
       subscribed: isSubscribed,
       tier,
       subscription_end: endIso,
+      trial_expired: trialExpired,
       early_bird_expires_at: earlyBirdExpiresAt,
+
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

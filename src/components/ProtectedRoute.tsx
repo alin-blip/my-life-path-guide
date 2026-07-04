@@ -19,7 +19,7 @@ interface ProtectedRouteProps {
 const LOADING_TIMEOUT_MS = 10000; // 10 seconds
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading, subscribed, subscriptionLoading, subscriptionTier, subscriptionEnd } = useAuth();
+  const { user, loading, subscribed, subscriptionLoading, subscriptionTier, subscriptionEnd, trialExpired } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -161,8 +161,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     
     // Free users trying to access any paid features
     if (userTier === 'free' || !subscribed) {
-      return <Navigate to="/pricing" state={{ from: location, reason: 'membership_required' }} replace />;
+      const reason = trialExpired ? 'trial_expired' : 'membership_required';
+      return <Navigate to="/pricing" state={{ from: location, reason }} replace />;
     }
+
     
     // Basic users trying to access Pro features (LIVE coaching, VIP community)
     if (userTier === 'basic' && PRO_REQUIRED_ROUTES.some(route => path.startsWith(route))) {
