@@ -52,6 +52,10 @@ import {
   Wrench
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Lock } from 'lucide-react';
+import { useTierAccess } from '@/hooks/useTierAccess';
+import { getRequiredTier, type Tier } from '@/config/routeTiers';
+import { UpgradeModal } from '@/components/access/UpgradeModal';
 
 interface SideMenuProps {
   isCollapsed: boolean;
