@@ -200,15 +200,25 @@ export const DailyChallenges: React.FC<DailyChallengesProps> = ({
   const claimReward = async (challenge: DailyChallenge) => {
     if (claimedChallenges.includes(challenge.id)) return;
     if (challenge.current < challenge.target) return;
-    
+
     await addXP(challenge.xpReward, `Daily Challenge: ${challenge.title.en}`);
-    
+
     const newClaimed = [...claimedChallenges, challenge.id];
     setClaimedChallenges(newClaimed);
-    
+
     const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem(`dailyChallenges_${today}`, JSON.stringify(newClaimed));
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase
+        .from('daily_challenge_claims')
+        .upsert({
+          user_id: session.user.id,
+          claim_date: today,
+          challenge_id: challenge.id,
+        }, { onConflict: 'user_id,claim_date,challenge_id' });
+    }
   };
+
 
   const allCompleted = todaysChallenges.every(c => c.current >= c.target && claimedChallenges.includes(c.id));
 
