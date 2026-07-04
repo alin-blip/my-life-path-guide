@@ -22,7 +22,10 @@ export interface BlogPost {
   sections: BlogPostSection[];
   metaDescription: string;
   metaKeywords: string[];
+  /** Content language. Defaults to 'ro' when omitted. Drives inline CTA copy. */
+  language?: 'ro' | 'en';
 }
+
 
 export const blogPosts: BlogPost[] = [
   {
@@ -433,6 +436,8 @@ Rezultatul? Luni dimineață știi exact ce faci. Nu mai pierzi 2 ore „gândin
   },
   {
     slug: 'startup-burnout-prevention',
+    language: 'en',
+
     titleRo: 'Startup Burnout Prevention: Checklist-ul Founderului pentru 2026',
     titleEn: 'Startup Burnout Prevention: The Founder\'s Checklist for 2026',
     excerpt: 'Startup burnout nu apare peste noapte — se instalează în tăcere. Descoperă 8 semne timpurii și un checklist zilnic în 5 pași pentru a-l preveni fără să încetinești execuția.',
@@ -519,6 +524,8 @@ Inside CEO Mind OS, the Warrior Routine, Domino Door, and AI Mind Coach are buil
   },
   {
     slug: 'entrepreneur-morning-routine-guide',
+    language: 'en',
+
     titleRo: 'Entrepreneur Morning Routine: The CEO Warrior Protocol',
     titleEn: 'Entrepreneur Morning Routine: The CEO Warrior Protocol',
     excerpt: 'A step-by-step morning routine engineered for founders — transition from operator to CEO, escape the burnout trap, and lock focus in under 45 minutes.',
