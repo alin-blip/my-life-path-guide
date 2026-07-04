@@ -328,14 +328,12 @@ export function MealPlanningStep({
 
         {/* Add options */}
         <div className="grid grid-cols-2 gap-2">
+          <Button variant="outline" className="gap-2 border-primary/50 text-primary hover:bg-primary/10" onClick={() => setShowFoodPicker(true)}>
+            <Search className="h-4 w-4" />
+            Selectează din Baza de Date
+          </Button>
+
           <ResponsiveModal open={showFoodPicker} onOpenChange={setShowFoodPicker} className="max-w-2xl max-h-[80vh]">
-            
-              <Button variant="outline" className="gap-2 border-primary/50 text-primary hover:bg-primary/10" onClick={() => setShowFoodPicker(true)}>
-                <Search className="h-4 w-4" />
-                Selectează din Baza de Date
-              </Button>
-            
-            
               <ResponsiveModalHeader>
                 <ResponsiveModalTitle className="flex items-center gap-2">
                   <UtensilsCrossed className="h-5 w-5" />
@@ -410,8 +408,8 @@ export function MealPlanningStep({
                   </div>
                 </ScrollArea>
               </div>
-            
           </ResponsiveModal>
+
 
           <Button 
             variant="outline" 

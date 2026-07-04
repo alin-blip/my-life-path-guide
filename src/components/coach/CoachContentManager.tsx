@@ -137,14 +137,11 @@ export const CoachContentManager: React.FC<CoachContentManagerProps> = ({ coachP
               Create and sell resources to your clients. You earn 70% of each sale.
             </CardDescription>
           </div>
+          <Button onClick={() => setIsCreateOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Content
+          </Button>
           <ResponsiveModal open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            
-              <Button onClick={() => setIsCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Content
-              </Button>
-            
-            
               <ResponsiveModalHeader>
                 <ResponsiveModalTitle>Create New Content</ResponsiveModalTitle>
                 <ResponsiveModalDescription>
@@ -226,8 +223,8 @@ export const CoachContentManager: React.FC<CoachContentManagerProps> = ({ coachP
                   )}
                 </Button>
               </div>
-            
           </ResponsiveModal>
+
         </CardHeader>
         <CardContent>
           {content.length === 0 ? (

@@ -130,11 +130,9 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
 
         <TabsContent value="leaderboard" className="mt-4 space-y-4">
           {isOwner && (
-            <ResponsiveModal open={pointsDialog} onOpenChange={setPointsDialog} className="max-w-sm">
-              
-                <Button className="gap-2" onClick={() => setPointsDialog(true)}><Plus className="h-4 w-4" />{t.awardPoints}</Button>
-              
-              
+            <>
+              <Button className="gap-2" onClick={() => setPointsDialog(true)}><Plus className="h-4 w-4" />{t.awardPoints}</Button>
+              <ResponsiveModal open={pointsDialog} onOpenChange={setPointsDialog} className="max-w-sm">
                 <ResponsiveModalHeader><ResponsiveModalTitle>{t.awardPoints}</ResponsiveModalTitle></ResponsiveModalHeader>
                 <div className="space-y-3">
                   <select
@@ -163,9 +161,10 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
                     <Button onClick={handleAwardPoints}>{t.award}</Button>
                   </div>
                 </div>
-              
-            </ResponsiveModal>
+              </ResponsiveModal>
+            </>
           )}
+
 
           {leaderboard.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">{t.noPoints}</p>
@@ -198,11 +197,9 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
 
         <TabsContent value="badges" className="mt-4 space-y-4">
           {isOwner && (
-            <ResponsiveModal open={badgeDialog} onOpenChange={setBadgeDialog} className="max-w-sm">
-              
-                <Button className="gap-2" onClick={() => setBadgeDialog(true)}><Plus className="h-4 w-4" />{t.newBadge}</Button>
-              
-              
+            <>
+              <Button className="gap-2" onClick={() => setBadgeDialog(true)}><Plus className="h-4 w-4" />{t.newBadge}</Button>
+              <ResponsiveModal open={badgeDialog} onOpenChange={setBadgeDialog} className="max-w-sm">
                 <ResponsiveModalHeader><ResponsiveModalTitle>{t.newBadge}</ResponsiveModalTitle></ResponsiveModalHeader>
                 <div className="space-y-3">
                   <Input
@@ -232,9 +229,10 @@ export const CoachTribeGamification: React.FC<Props> = ({ tribeId, userId, isOwn
                     <Button onClick={handleCreateBadge}>{t.create}</Button>
                   </div>
                 </div>
-              
-            </ResponsiveModal>
+              </ResponsiveModal>
+            </>
           )}
+
 
           {badges.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">{t.noBadges}</p>
