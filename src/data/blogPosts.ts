@@ -436,6 +436,8 @@ Rezultatul? Luni dimineață știi exact ce faci. Nu mai pierzi 2 ore „gândin
   },
   {
     slug: 'startup-burnout-prevention',
+    language: 'en',
+
     titleRo: 'Startup Burnout Prevention: Checklist-ul Founderului pentru 2026',
     titleEn: 'Startup Burnout Prevention: The Founder\'s Checklist for 2026',
     excerpt: 'Startup burnout nu apare peste noapte — se instalează în tăcere. Descoperă 8 semne timpurii și un checklist zilnic în 5 pași pentru a-l preveni fără să încetinești execuția.',
