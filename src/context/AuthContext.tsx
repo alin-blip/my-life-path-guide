@@ -29,6 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [subscribed, setSubscribed] = useState(false);
   const [subscriptionTier, setSubscriptionTier] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
+  const [trialExpired, setTrialExpired] = useState(false);
+
   const [earlyBirdExpiresAt, setEarlyBirdExpiresAt] = useState<string | null>(null);
   
   // Compute isEarlyBirdActive
