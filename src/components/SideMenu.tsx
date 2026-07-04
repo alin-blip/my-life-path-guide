@@ -591,6 +591,13 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
           </button>
         )}
       </div>
+
+      <UpgradeModal
+        open={upgradeState.open}
+        onOpenChange={(o) => setUpgradeState((s) => ({ ...s, open: o }))}
+        requiredTier={upgradeState.tier}
+        featureName={upgradeState.feature}
+      />
     </div>
   );
 };
