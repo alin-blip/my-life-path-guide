@@ -85,6 +85,22 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
   
   const completedDays = completedDaysCount;
   const [mindShiftDrafts, setMindShiftDrafts] = useState<number>(0);
+  const { canAccess } = useTierAccess();
+  const [upgradeState, setUpgradeState] = useState<{ open: boolean; tier: Tier; feature?: string }>({
+    open: false,
+    tier: 'basic',
+  });
+
+  const requiredTierFor = (path: string): Tier => getRequiredTier(path);
+  const isLocked = (path: string): boolean => {
+    const req = requiredTierFor(path);
+    return req !== 'free' && !canAccess(req);
+  };
+  const tierBadge = (path: string): { label: string; tier: Tier } | null => {
+    const req = requiredTierFor(path);
+    if (req === 'free' || canAccess(req)) return null;
+    return { label: req.toUpperCase(), tier: req };
+  };
 
   useEffect(() => {
     let mounted = true;
