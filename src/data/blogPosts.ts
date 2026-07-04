@@ -516,6 +516,93 @@ Then rebuild the daily checklist above. Slowly. Startup burnout prevention is a 
 Inside CEO Mind OS, the Warrior Routine, Domino Door, and AI Mind Coach are built exactly for this: to make burnout prevention automatic instead of heroic.`
       }
     ]
+  },
+  {
+    slug: 'entrepreneur-morning-routine-guide',
+    titleRo: 'Entrepreneur Morning Routine: The CEO Warrior Protocol',
+    titleEn: 'Entrepreneur Morning Routine: The CEO Warrior Protocol',
+    excerpt: 'A step-by-step morning routine engineered for founders — transition from operator to CEO, escape the burnout trap, and lock focus in under 45 minutes.',
+    author: 'Alin Florin Radu',
+    authorBio: 'Founder of CEO Mind OS — the operating system for founders and CEOs. Helps entrepreneurs upgrade their body, being, balance, and business through daily rituals.',
+    publishedAt: '2026-07-04',
+    updatedAt: '2026-07-04',
+    categories: ['Training', 'Mindset', 'Productivity'],
+    readingTime: '10 min',
+    metaDescription: 'The entrepreneur morning routine used by high-performing founders inside CEO Mind OS. Body activation, deep breathing, vision priming, and the Domino move — in under 45 minutes.',
+    metaKeywords: ['entrepreneur morning routine', 'CEO morning routine', 'founder morning routine', 'warrior routine', 'CEO Mind OS', 'burnout trap', 'high performance habits'],
+    sections: [
+      {
+        id: 'why-most-founder-mornings-fail',
+        title: '1. Why Most Founder Mornings Fail',
+        content: `Most entrepreneurs don't have a morning — they have an ambush. Phone in hand before their feet hit the floor, Slack open before their nervous system is online, three fires reported before the first breath. That is not a morning routine. That is being *operated by* the day instead of operating it.
+
+This is the **Burnout Trap** we describe on the CEO Mind OS home page: high output, zero recovery, decisions made from cortisol instead of clarity. A calendar full of urgency but empty of direction. And the cost is not just productivity — it's your body, your relationships, your judgment.
+
+The fix is not another productivity hack. The fix is a **protocol** — the exact sequence a founder runs every morning to arrive at the desk *already in CEO mode* instead of scrambling into it.`
+      },
+      {
+        id: 'operator-vs-ceo',
+        title: '2. Operator vs. CEO: The Identity Shift Your Routine Must Enforce',
+        content: `An **operator** wakes up and asks: *"What do I have to do today?"*
+A **CEO** wakes up and asks: *"Who do I have to be today, so that the right things happen?"*
+
+The morning routine is where that shift is either locked in or lost. If your first 60 minutes are reactive, you'll spend the next 12 hours as an operator no matter how expensive your title is. If your first 60 minutes are intentional, you become the CEO by 8 AM — the person your team, your family, and your future self actually need.
+
+The Warrior Protocol below is built around this identity shift. Every block has one job: pull you out of operator mode and install you as the CEO of your own life before anyone else claims your attention.`
+      },
+      {
+        id: 'the-warrior-protocol',
+        title: '3. The Warrior Protocol: A 40-Minute Entrepreneur Morning Routine',
+        content: `This is the exact sequence we teach inside CEO Mind OS. Four blocks, roughly 40 minutes, in this order.
+
+**Block 1 — Body Activation (10 min).** Sunlight in your eyes within 30 minutes of waking. 500 ml of water before caffeine. 10 minutes of movement — brisk walk, mobility flow, or 50 bodyweight reps. This regulates cortisol, sets your circadian clock, and tells your nervous system: *the day is safe, we're online now*. Skip this and every decision that follows is made by a stressed animal.
+
+**Block 2 — Deep Breathing & State Reset (5 min).** Box breathing: 4 seconds in, 4 hold, 4 out, 4 hold — for 5 minutes. This shifts you from sympathetic (fight/flight) to parasympathetic (clarity/focus). It is the single cheapest performance upgrade a founder can install, and it takes less time than a Twitter scroll.
+
+**Block 3 — Vision Priming (10 min).** Read your written vision declaration out loud. Not in your head — *out loud*. The founder version, drawn from Napoleon Hill's six-step method: your target for Body, Being, Balance, Business, the deadline, and what you give in return. Then journal one sentence: *"Today I will not sacrifice ___ for ___."* This is how you refuse the burnout trap in advance.
+
+**Block 4 — Lock the Domino (15 min).** Open your day and choose ONE task — the **Domino** — that, once done, makes the rest of the day easier or irrelevant. Not three. One. Block the first 90 minutes of deep work for it. Everything else — email, meetings, Slack — waits.
+
+That's it. 40 minutes. No 5 AM cult, no ice bath required. A protocol you can actually run tomorrow.`
+      },
+      {
+        id: 'why-order-matters',
+        title: '4. Why the Order Matters More Than the Ingredients',
+        content: `Most morning-routine articles give you a menu — meditation, journaling, cold plunge, gratitude, workout — and let you pick. That's why most morning routines fail. **Order is the whole game.**
+
+Body before mind. Breath before thought. Vision before task. Task before inbox. Change the order and you get a very different founder walking into the office.
+
+Journaling before body activation? You'll journal in a stressed state and reinforce the stress. Checking Slack before locking your Domino? You've handed the day to whoever emailed you last. Coffee before water and sunlight? You've spiked cortisol on top of cortisol.
+
+The Warrior Protocol works because each block *builds on the state the previous block created*. That's the difference between a checklist and a system.`
+      },
+      {
+        id: 'common-mistakes',
+        title: '5. Five Mistakes That Kill Founder Morning Routines',
+        content: `**1. Making it too long.** A 3-hour morning routine is a fantasy for founders. If you can't run it on your worst day, it's not a routine — it's a hobby. Keep it under 45 minutes.
+
+**2. Skipping it "just today".** The value compounds over weeks, not days. Miss once and the next miss is 10x easier. Treat it like brushing your teeth, not like a workout.
+
+**3. Optimizing before installing.** Don't spend 3 weeks researching the perfect breathwork app. Start with box breathing tomorrow. Optimize in month two.
+
+**4. No written vision.** Without a written vision declaration read daily, your subconscious runs on whatever your last argument, email, or news headline installed. Write it. Read it. Every morning.
+
+**5. No Domino.** A morning routine that ends with "okay, now let me check email" is theater. The routine must end with a specific, blocked, single task claimed.`
+      },
+      {
+        id: 'from-routine-to-operating-system',
+        title: '6. From Morning Routine to Full Operating System',
+        content: `A morning routine is the entry point. But the founders who compound — the ones still running the race in ten years — don't stop at the morning. They install an operating system around it: a weekly Domino Door for strategic planning, a nightly close-the-loop review, quarterly deload weeks, and an AI Mind Coach for pattern recognition when they can't see their own blind spots.
+
+That's what CEO Mind OS is: the Warrior Routine as the daily entry, wired into the four pillars — **Body, Being, Balance, Business** — with the tools, audits, and rituals that keep a founder operating at full capacity without breaking.
+
+If you want the full protocol — including the vision declaration template, the Domino Door weekly planner, and the AI Mind Coach — that's what we've built the platform to give you.
+
+> "You don't rise to the level of your ambition. You fall to the level of your morning."
+
+Start tomorrow. 40 minutes. In this order. That's the whole game.`
+      }
+    ]
   }
 ];
 

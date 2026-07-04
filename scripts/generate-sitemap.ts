@@ -17,6 +17,7 @@ const entries: SitemapEntry[] = [
   { path: "/blog", changefreq: "weekly", priority: "0.7" },
   { path: "/blog/rutina-razboinicului-ceo-mind-os", changefreq: "monthly", priority: "0.7" },
   { path: "/blog/startup-burnout-prevention", changefreq: "monthly", priority: "0.7" },
+  { path: "/blog/entrepreneur-morning-routine-guide", changefreq: "monthly", priority: "0.7" },
   { path: "/burnout-test", changefreq: "monthly", priority: "0.9" },
   { path: "/burnout-test-en", changefreq: "monthly", priority: "0.8" },
   { path: "/ebook", changefreq: "monthly", priority: "0.8" },
