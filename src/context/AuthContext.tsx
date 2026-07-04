@@ -177,6 +177,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  // Periodic silent re-check every 5 minutes so lapsed/canceled subscriptions
+  // reflect on the client without requiring a full page reload.
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(() => {
+      refreshSubscription({ silent: true });
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user]);
+
 
   const refreshSubscription = async (opts?: { silent?: boolean }) => {
     const silent = Boolean(opts?.silent);
