@@ -101,7 +101,7 @@ const WarriorLaunchAccelerator = lazy(() => import("./pages/WarriorLaunchAcceler
 const WarriorAcceleratorThankYou = lazy(() => import("./pages/WarriorAcceleratorThankYou"));
 const WarriorPower = lazy(() => import("./pages/WarriorPower"));
 const GameObjectives = lazy(() => import("./pages/GameObjectives"));
-const Brotherhood = lazy(() => import("./pages/Brotherhood"));
+
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const Business2026LeadMagnet = lazy(() => import("./pages/Business2026LeadMagnet"));
 const CoachDashboard = lazy(() => import("./pages/CoachDashboard"));
