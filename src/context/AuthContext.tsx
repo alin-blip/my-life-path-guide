@@ -215,8 +215,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSubscriptionEnd(null);
       setEarlyBirdExpiresAt(null);
       if (!silent) setSubscriptionLoading(false);
+      setSubscriptionInitialized(true);
       return;
     }
+
 
     // Hard safety timeout: never leave subscriptionLoading true if the edge
     // function hangs. After 8s we release the loading flag and keep the last
