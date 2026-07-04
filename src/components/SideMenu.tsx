@@ -456,6 +456,25 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
                       </li>
                     );
                   }
+                  const subBadge = tierBadge(subItem.path);
+                  if (subBadge) {
+                    return (
+                      <li key={subItem.path}>
+                        <button
+                          type="button"
+                          onClick={() => setUpgradeState({ open: true, tier: subBadge.tier, feature: subItem.title })}
+                          className="sidebar-item text-sm w-full opacity-70"
+                        >
+                          <subItem.icon className="w-3.5 h-3.5" />
+                          <span>{subItem.title}</span>
+                          <span className="ml-auto flex items-center gap-1">
+                            <Lock className="w-3 h-3" />
+                            <Badge variant="outline" className="text-[10px] px-1 py-0">{subBadge.label}</Badge>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  }
                   return (
                     <li key={subItem.path}>
                       <Link
