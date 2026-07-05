@@ -191,30 +191,34 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
         </div>
       )}
 
-      {/* Email Capture + Signup */}
-      <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 backdrop-blur-xl border border-amber-400/30 rounded-3xl p-6 md:p-8">
+      {/* Email Capture + Challenge CTA */}
+      <div className="bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 backdrop-blur-xl border border-emerald-400/30 rounded-3xl p-6 md:p-8">
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
-          {/* Book image */}
+          {/* Visual */}
           <div className="flex justify-center order-1 md:order-1">
-            <img
-              src={ebookBundle}
-              alt={language === 'en' ? 'From Burnout to Peak Performance — Book + Audiobook' : 'De la Burnout la Peak Performance — Carte + Audiobook'}
-              className="w-full max-w-sm drop-shadow-[0_20px_50px_rgba(251,191,36,0.25)]"
-            />
+            <div className="w-full max-w-sm aspect-square rounded-3xl bg-gradient-to-br from-emerald-500/20 via-cyan-500/10 to-transparent border border-emerald-400/30 flex flex-col items-center justify-center p-8 text-center">
+              <div className="text-7xl mb-3">🔥</div>
+              <div className="text-white font-black text-3xl mb-1">7 ZILE</div>
+              <div className="text-emerald-300 font-bold text-sm uppercase tracking-widest">Challenge</div>
+              <div className="text-white/70 text-xs mt-4">
+                {language === 'en' ? '15 min/day · Free' : '15 min/zi · Gratuit'}
+              </div>
+            </div>
           </div>
 
           {/* Form */}
           <div className="order-2 md:order-2">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
               {language === 'en'
-                ? '🚀 Get your Recovery Plan + the Book'
-                : '🚀 Primește Planul de Recuperare + Cartea'}
+                ? '🚀 Get your Recovery Plan + Start the Free Challenge'
+                : '🚀 Primește Planul de Recuperare + Intră în Challenge-ul Gratuit'}
             </h3>
             <p className="text-white/70 mb-5 text-sm">
               {language === 'en'
-                ? 'Detailed report by email + the book "From Burnout to Peak Performance" (PDF + Audiobook with the author\'s voice).'
-                : 'Raport detaliat pe email + cartea „De la Burnout la Peak Performance" (PDF + Audiobook cu vocea autorului).'}
+                ? 'Detailed report by email + free 7-day Challenge to rebuild your focus, energy and clarity — 15 minutes a day.'
+                : 'Raport detaliat pe email + Challenge-ul GRATUIT de 7 zile pentru a-ți reconstrui focusul, energia și claritatea — 15 minute pe zi.'}
             </p>
+
 
             <form onSubmit={handleSubmit} className="space-y-3">
           <input
