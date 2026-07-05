@@ -28,6 +28,8 @@ import { DivinePrayerStack } from '@/components/stack/divine-stack/DivinePrayerS
 import { KillItTodayStack } from '@/components/stack/KillItTodayStack';
 import { doorUserTasksService } from '@/services/doorUserTasksService';
 import { getActiveWeekKey } from '@/utils/weekUtils';
+import { logRoutineEvent } from '@/lib/routineTelemetry';
+
 
 interface Props {
   onComplete: () => void;
