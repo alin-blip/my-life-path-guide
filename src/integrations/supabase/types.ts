@@ -1221,6 +1221,36 @@ export type Database = {
           },
         ]
       }
+      challenge_reactivation_manual: {
+        Row: {
+          audience: string
+          completed_at: string | null
+          created_at: string
+          email: string
+          enrolled_at: string
+          source: string | null
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          audience?: string
+          completed_at?: string | null
+          created_at?: string
+          email: string
+          enrolled_at?: string
+          source?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          audience?: string
+          completed_at?: string | null
+          created_at?: string
+          email?: string
+          enrolled_at?: string
+          source?: string | null
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       challenge_recovery_emails: {
         Row: {
           clicked_at: string | null
