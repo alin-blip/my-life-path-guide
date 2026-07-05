@@ -64,9 +64,14 @@ export const AuthForm: React.FC = () => {
   
   // Where to return the user after auth. Priority:
   //   1. router state.from (in-app navigation)
-  //   2. `pending_return_path` from localStorage (survives full email round-trip)
-  //   3. /dashboard
+  //   2. `?redirect=` query param (email links, external redirects)
+  //   3. `pending_return_path` from localStorage (survives full email round-trip)
+  //   4. /dashboard
   const stateFrom: string | undefined = location.state?.from?.pathname;
+  const queryRedirect = (() => {
+    const v = searchParams.get('redirect');
+    return v && v.startsWith('/') && !v.startsWith('//') ? v : null;
+  })();
   const storedReturn = (() => {
     try {
       const v = localStorage.getItem('pending_return_path');
@@ -76,7 +81,8 @@ export const AuthForm: React.FC = () => {
       return null;
     }
   })();
-  const from = stateFrom || storedReturn || '/dashboard';
+  const from = stateFrom || queryRedirect || storedReturn || '/dashboard';
+
 
   const MAX_RATE_LIMIT = 5;
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
