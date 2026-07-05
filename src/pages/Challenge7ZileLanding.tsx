@@ -238,64 +238,83 @@ const Challenge7ZileLanding = () => {
   ];
 
   const benefits = [
-    { 
-      icon: Target, 
-      textEn: 'Break the procrastination cycle', 
-      textRo: 'Oprești ciclul procrastinării' 
+    {
+      icon: Target,
+      textEn: 'Break the procrastination cycle',
+      textRo: 'Oprești ciclul procrastinării'
     },
-    { 
-      icon: Rocket, 
-      textEn: 'Strategic burnout recovery plan', 
-      textRo: 'Ieși din burnout strategic' 
+    {
+      icon: Rocket,
+      textEn: 'Strategic burnout recovery plan',
+      textRo: 'Ieși din burnout strategic'
     },
-    { 
-      icon: Sparkles, 
-      textEn: 'Reclaim your energy & focus', 
-      textRo: 'Recapătă energia și focusul' 
+    {
+      icon: Sparkles,
+      textEn: 'Reclaim your energy & focus',
+      textRo: 'Recapătă energia și focusul'
     },
-    { 
-      icon: Star, 
-      textEn: 'Build daily momentum', 
-      textRo: 'Construiești momentum zilnic' 
+    {
+      icon: Star,
+      textEn: 'Build daily momentum',
+      textRo: 'Construiești momentum zilnic'
     },
-    { 
-      icon: Users, 
-      textEn: 'Community that holds you accountable', 
-      textRo: 'Comunitate care te ține responsabil' 
+    {
+      icon: Users,
+      textEn: 'Community that holds you accountable',
+      textRo: 'Comunitate care te ține responsabil'
     },
-    { 
-      icon: Gift, 
-      textEn: '100% FREE — no credit card', 
-      textRo: '100% GRATUIT — fără card bancar' 
+    {
+      icon: Shield,
+      textEn: '7-day free trial — cancel anytime',
+      textRo: '7 zile trial gratuit — anulezi oricând'
     }
   ];
 
   const faqItems = [
     {
-      q: language === 'en' ? "How much time does it take per day?" : "Cât timp durează pe zi?",
-      a: language === 'en' 
-        ? "Just 15 minutes per day. Each module is designed to be short but impactful. Exactly what you need when you're in burnout — small steps, big impact." 
-        : "Doar 15 minute pe zi. Fiecare modul este conceput pentru a fi scurt dar impactant. Exact ce ai nevoie când ești în burnout — pași mici, impact mare."
+      q: language === 'en' ? 'What happens after the 7 days?' : 'Ce se întâmplă după cele 7 zile?',
+      a: language === 'en'
+        ? 'If you don\'t cancel, it becomes €49/month. You can cancel anytime from your account, without explanations.'
+        : 'Dacă nu anulezi, devine 249 LEI/lună (€49). Poți anula oricând din contul tău, fără explicații.'
     },
     {
-      q: language === 'en' ? "Is this really 100% free?" : "Este cu adevărat 100% gratuit?",
-      a: language === 'en' 
-        ? "Yes! Days 1-2 are completely free with no credit card required. From Day 3, you can activate a 5-day trial to experience the full platform including Business, AI Vision, and Mind Coach." 
-        : "Da! Zilele 1-2 sunt complet gratuite, fără card bancar. Din Ziua 3, poți activa un trial de 5 zile pentru a experimenta platforma completă incluzând Business, AI Vision și Mind Coach."
+      q: language === 'en' ? 'Do I need a card to start?' : 'Trebuie card pentru a începe?',
+      a: language === 'en'
+        ? 'Yes. A card is required to start. We don\'t charge anything in the first 7 days. Charging begins automatically after 7 days, only if you don\'t cancel.'
+        : 'Da. Cardul e necesar ca să începi. Nu taxăm nimic în primele 7 zile. Taxarea începe automat după 7 zile, doar dacă nu anulezi.'
     },
     {
-      q: language === 'en' ? "What happens after the 7 days?" : "Ce se întâmplă după cele 7 zile?",
-      a: language === 'en' 
-        ? "You can continue with the free version (Days 1-2 content) or upgrade to Pro/Elite for full access to all features, live coaching and community." 
-        : "Poți continua cu versiunea gratuită (conținutul Zilelor 1-2) sau upgrade la Pro/Elite pentru acces complet la toate funcționalitățile, coaching live și comunitate."
+      q: language === 'en' ? 'When is the first charge?' : 'Când se face prima taxare?',
+      a: language === 'en'
+        ? 'After 7 days. You\'ll get an email 2 days before, so nothing is a surprise.'
+        : 'După 7 zile. Primești email cu 2 zile înainte, ca să nu fie surprinzător.'
     },
     {
-      q: language === 'en' ? "Does it work on mobile?" : "Funcționează pe mobil?",
-      a: language === 'en' 
-        ? "Yes, the platform is 100% responsive and optimized for mobile. You can do the challenge from anywhere, anytime." 
-        : "Da, platforma este 100% responsive și optimizată pentru mobil. Poți face challengeul de oriunde, oricând."
+      q: language === 'en' ? 'How do I cancel?' : 'Cum anulez?',
+      a: language === 'en'
+        ? 'From your account → Settings → Subscription → Cancel. Done. No phone calls, no explanations.'
+        : 'Din contul tău → Setări → Abonament → Anulează. Gata. Fără telefon, fără explicații.'
+    },
+    {
+      q: language === 'en' ? 'How much time does it take per day?' : 'Cât timp durează pe zi?',
+      a: language === 'en'
+        ? '30–45 minutes in the morning for the Warrior Routine. The rest of the day is normal execution.'
+        : '30-45 minute dimineața pentru Warrior Routine. Restul zilei e execuție normală.'
+    },
+    {
+      q: language === 'en' ? 'Does it work on mobile?' : 'Funcționează pe mobil?',
+      a: language === 'en'
+        ? 'Yes. Everything works on mobile, including AI Coach and meditations.'
+        : 'Da. Totul e pe mobil, inclusiv AI Coach și meditațiile.'
+    },
+    {
+      q: language === 'en' ? 'What if I\'m too busy?' : 'Ce se întâmplă dacă sunt prea ocupat?',
+      a: language === 'en'
+        ? 'Warrior Routine is built for 45 min in the morning. In a busy stretch, shrink it to 20 min. Just don\'t skip two days in a row.'
+        : 'Warrior Routine e gândită pentru 45 min dimineața. Dacă ești într-o perioadă aglomerată, redu la 20 min. Doar să nu sari 2 zile la rând.'
     }
   ];
+
 
   const stats = realMetrics.users > 0 ? [
     {
