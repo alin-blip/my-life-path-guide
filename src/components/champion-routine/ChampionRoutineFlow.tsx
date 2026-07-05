@@ -54,6 +54,8 @@ import { RoutineSetupWizard } from './RoutineSetupWizard';
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { autoCompleteHabitByName, ROUTINE_STEP_TO_HABIT } from '@/services/habitAutoComplete';
 import { autoMarkSelfCare, ROUTINE_STEP_TO_SELF_CARE } from '@/services/selfCareAutoComplete';
+import { logRoutineEvent } from '@/lib/routineTelemetry';
+
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
