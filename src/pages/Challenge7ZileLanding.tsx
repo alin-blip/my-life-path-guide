@@ -34,28 +34,46 @@ const Challenge7ZileLanding = () => {
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // Fetch real metrics from database
+  const [hasChallengeProgress, setHasChallengeProgress] = useState<boolean | null>(null);
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  // Fetch real metrics from database (no fake fallbacks)
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const [usersRes, completedRes] = await Promise.all([
-          supabase.from('subscribers').select('id', { count: 'exact', head: true }),
-          supabase.from('challenge_progress').select('id', { count: 'exact', head: true }).eq('day_number', 7).eq('completed', true)
+        const [leadsRes, startedRes, completedRes] = await Promise.all([
+          supabase.from('email_leads').select('id', { count: 'exact', head: true }).ilike('source', 'challenge%'),
+          supabase.from('challenge_progress').select('user_id', { count: 'exact', head: true }),
+          supabase.from('challenge_progress').select('id', { count: 'exact', head: true }).eq('day_number', 7).eq('completed', true),
         ]);
-        
-        const users = usersRes.count || 0;
+        const leads = leadsRes.count || 0;
+        const started = startedRes.count || 0;
         const completed = completedRes.count || 0;
-        const rate = users > 0 ? Math.round((completed / users) * 100) : 89;
-        
-        setRealMetrics({ 
-          users: users > 50 ? users : 1247, 
-          completionRate: rate > 50 ? rate : 89 
-        });
+        const rate = started > 0 ? Math.round((completed / started) * 100) : 0;
+        setRealMetrics({ users: leads, completionRate: rate });
       } catch (error) {
-        setRealMetrics({ users: 1247, completionRate: 89 });
+        // Fail silently — UI will hide the block via guards
+        setRealMetrics({ users: 0, completionRate: 0 });
       }
     };
     fetchMetrics();
+  }, []);
+
+  // Detect authenticated users without challenge progress to show a strong "continue" CTA.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      setIsAuthed(!!session);
+      if (!session?.user) { setHasChallengeProgress(false); return; }
+      const { count } = await supabase
+        .from('challenge_progress')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', session.user.id);
+      if (!cancelled) setHasChallengeProgress((count || 0) > 0);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   // Auto-trigger checkout if user just came back from auth with a pending plan
