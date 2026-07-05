@@ -20,6 +20,8 @@ import { EngagementDashboard } from './admin/EngagementDashboard';
 import { AdminHealthPanel } from './admin/AdminHealthPanel';
 import { SmsAdmin } from './admin/SmsAdmin';
 import { ChallengeFunnelDashboard } from './admin/ChallengeFunnelDashboard';
+import { RetargetingAudiences } from './admin/RetargetingAudiences';
+import { AdsRoiDashboard } from './admin/AdsRoiDashboard';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
   Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck, Activity
