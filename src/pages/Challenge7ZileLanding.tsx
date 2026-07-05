@@ -24,7 +24,7 @@ import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTime
 import { ChallengePremiumOffer } from '@/components/challenge/ChallengePremiumOffer';
 
 const Challenge7ZileLanding = () => {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
