@@ -397,8 +397,23 @@ const ChallengeDayPage = () => {
     if (!sessionStorage.getItem(sessionKey) && isUnlocked) {
       trackChallengeDayStarted(dayNumber);
       sessionStorage.setItem(sessionKey, 'true');
+
+      // Ensure a challenge_progress row exists as soon as the user LANDS on the day,
+      // so funnel analytics see the visit even if they don't interact yet.
+      if (isAuthenticated && !dayProgress) {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          if (!user?.id) return;
+          supabase.from('challenge_progress').insert({
+            user_id: user.id,
+            day_number: dayNumber,
+            video_watched: false,
+            completed: false,
+            actions_completed: [],
+          }).then(() => {});
+        });
+      }
     }
-  }, [dayProgress, dayNumber, isUnlocked]);
+  }, [dayProgress, dayNumber, isUnlocked, isAuthenticated]);
 
   // Check access for Day 3+ (requires premium or trial)
   useEffect(() => {
