@@ -23,20 +23,21 @@ serve(async (req) => {
     if (!stripeKey) throw new Error("Stripe secret key not configured");
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
-    const { plan, source, guest_email, guest_name, utm } = await req.json();
+    const { plan, source, guest_email, guest_name, language, utm } = await req.json();
     if (!plan) throw new Error("Missing plan in request body");
 
     const isEarlyBird = source === 'early-bird';
 
-    // Plans that allow guest checkout (account is created later in webhook for challenge)
+    // Plans that allow guest checkout (account is created later in webhook)
     const GUEST_ALLOWED_PLANS = new Set([
       'ebook-only', 'ebook-bundle', 'ebook-only-en', 'ebook-bundle-en',
       'ebook-accelerator', 'ebook-accelerator-en',
       'challenge-plus-trial', 'challenge-plus-trial-en',
+      'basic', // Challenge 7 zile — Stripe collects email, webhook creates account
     ]);
 
     // Resolve user (auth optional for guest-allowed plans)
-    let user: { id?: string; email: string } | null = null;
+    let user: { id?: string; email?: string } | null = null;
     const authHeader = req.headers.get("Authorization");
     if (authHeader) {
       const supabaseClient = createClient(
@@ -44,19 +45,16 @@ serve(async (req) => {
         Deno.env.get("SUPABASE_ANON_KEY") ?? ""
       );
       const token = authHeader.replace("Bearer ", "");
-      const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-      if (userError) throw new Error(`Authentication error: ${userError.message}`);
-      if (userData.user?.email) user = { id: userData.user.id, email: userData.user.email };
+      const { data: userData } = await supabaseClient.auth.getUser(token);
+      if (userData?.user?.email) user = { id: userData.user.id, email: userData.user.email };
     }
 
     if (!user) {
       if (!GUEST_ALLOWED_PLANS.has(plan)) {
         throw new Error("No authorization header provided");
       }
-      if (!guest_email || typeof guest_email !== "string") {
-        throw new Error("guest_email is required for unauthenticated checkout");
-      }
-      user = { email: guest_email.trim().toLowerCase() };
+      // guest_email is optional — if not provided, Stripe Checkout collects it on the payment page
+      user = { email: guest_email ? guest_email.trim().toLowerCase() : undefined };
     }
 
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
