@@ -52,9 +52,34 @@ type Method =
  * Step wrapper shown inside Warrior Routine.
  * Renders the chosen mentality stack inline — never navigates away.
  */
+const METHOD_STORAGE_KEY = () => `mindShifting_method_${new Date().toISOString().split('T')[0]}`;
+
+const VALID_METHODS: Method[] = [
+  'none', 'reconstruction', 'kill-it-today', 'anger', 'frustration',
+  'fear', 'anxiety', 'panic', 'sadness', 'shame', 'prayer',
+];
+
 export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, alreadyCompleted = false }) => {
-  const [method, setMethod] = useState<Method>('none');
+  // Persist selected method for today so tab switches / re-mounts don't reset
+  // the user back to the method chooser (e.g. losing an in-progress prayer stack).
+  const [method, setMethod] = useState<Method>(() => {
+    try {
+      const saved = localStorage.getItem(METHOD_STORAGE_KEY());
+      if (saved && VALID_METHODS.includes(saved as Method)) return saved as Method;
+    } catch {}
+    return 'none';
+  });
   const [showAllStacks, setShowAllStacks] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (method === 'none') {
+        localStorage.removeItem(METHOD_STORAGE_KEY());
+      } else {
+        localStorage.setItem(METHOD_STORAGE_KEY(), method);
+      }
+    } catch {}
+  }, [method]);
 
   const addActionToHitList = useCallback(async (actionText: string) => {
     if (!actionText?.trim()) return;
