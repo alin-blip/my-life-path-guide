@@ -215,7 +215,9 @@ export const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null):
       if ((log as any).mind_shift_summary) return true;
       try {
         const today = new Date().toISOString().split('T')[0];
-        return localStorage.getItem(`kill_it_today_done_${today}`) === '1';
+        if (localStorage.getItem(`kill_it_today_done_${today}`) === '1') return true;
+        if (localStorage.getItem(`mind_shift_done_${today}`) === '1') return true;
+        return false;
       } catch {
         return false;
       }
