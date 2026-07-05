@@ -442,6 +442,33 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
                 state={passwordCheck}
                 messages={passwordMessages}
               />
+
+              {/* Optional phone + SMS consent */}
+              <div className="space-y-2 pt-1">
+                <Input
+                  type="tel"
+                  placeholder={language === 'en' ? '📱 Phone (optional, e.g. +40712345678)' : '📱 Telefon (opțional, ex: +40712345678)'}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="bg-background"
+                  autoComplete="tel"
+                />
+                {phone.trim().length > 0 && (
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={smsConsent}
+                      onChange={(e) => setSmsConsent(e.target.checked)}
+                      className="mt-0.5 accent-primary"
+                    />
+                    <span>
+                      {language === 'en'
+                        ? 'I agree to receive SMS reminders and updates about my challenge. Standard rates apply. Reply STOP to unsubscribe.'
+                        : 'Sunt de acord să primesc SMS-uri cu remindere și update-uri despre challenge. Se aplică tarife standard. Răspunde STOP pentru dezabonare.'}
+                    </span>
+                  </label>
+                )}
+              </div>
             </>
           )}
 
