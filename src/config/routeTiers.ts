@@ -34,7 +34,6 @@ export const FREE_TIER_ROUTES: string[] = [
 // Routes available for BASIC tier (full platform except LIVE / VIP / Elite)
 export const BASIC_ROUTES: string[] = [
   ...FREE_TIER_ROUTES,
-  '/door',
   '/champion-routine',
   '/stacks',
   '/journal',
@@ -75,13 +74,10 @@ export const BASIC_ROUTES: string[] = [
   '/workout-history',
   '/relationships',
   '/widget-dashboard',
-  '/leaderboard',
-  '/achievements',
   '/emotional-tracker',
   '/time-tracker',
   '/accountability-coach',
   '/quick-quiz',
-  '/coach',
   '/personal-power',
   '/ultimate-you',
   '/mind-coach',
@@ -99,11 +95,16 @@ export const BASIC_ROUTES: string[] = [
   '/vision-board',
 ];
 
-// Routes that require PRO tier (LIVE coaching, VIP community)
+// Routes that require PRO tier (LIVE coaching, VIP community, Door planning, Leaderboard, Achievements, Coach Dashboard)
 export const PRO_REQUIRED_ROUTES: string[] = [
   '/brotherhood',
   '/live-coaching',
+  '/door',
+  '/leaderboard',
+  '/achievements',
+  '/coach',
 ];
+
 
 // Routes that require ELITE tier
 export const ELITE_ONLY_ROUTES: string[] = [
