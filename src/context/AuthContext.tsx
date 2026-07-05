@@ -94,11 +94,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
         // CHALLENGE OAUTH LEAD CAPTURE — only on real new sign-ins, not tab focus re-fires
-        if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
-          // One-shot migration of pre-auth localStorage journal entries
+        // One-shot journal migration — also run on INITIAL_SESSION so returning
+        // users (whose restored session emits INITIAL_SESSION, not SIGNED_IN)
+        // still get their legacy localStorage entries migrated to the DB.
+        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && !isSameUser) {
           migrateLocalJournalEntries(session.user.id).catch(err =>
             console.error('[AuthContext] journal migration failed:', err)
           );
+        }
+
+        if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
+
 
 
           // Track login activity in CRM
@@ -222,15 +228,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
 
-    // Hard safety timeout: never leave subscriptionLoading true if the edge
-    // function hangs. After 8s we release the loading flag and keep the last
-    // known subscription state (do NOT reset to free — that would boot paid
-    // users to /pricing).
-    const releaseLoadingTimer = setTimeout(() => {
-      if (!silent) setSubscriptionLoading(false);
-      setSubscriptionInitialized(true);
-    }, 8000);
-
+    // NOTE: no safety timeout that flips subscriptionInitialized / clears
+    // subscriptionLoading. The try/finally below always resolves both flags
+    // once check-subscription returns (or throws). Prematurely releasing
+    // those flags while `subscribed` still holds its default `false` would
+    // cause ProtectedRoute to redirect paid users to /pricing on slow loads.
 
     try {
       if (!silent) setSubscriptionLoading(true);
@@ -281,10 +283,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Same as above — preserve last known subscription state on network errors.
 
     } finally {
-      clearTimeout(releaseLoadingTimer);
       if (!silent) setSubscriptionLoading(false);
       setSubscriptionInitialized(true);
     }
+
 
   };
   const signOut = async () => {
