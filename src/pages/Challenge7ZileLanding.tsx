@@ -12,8 +12,9 @@ import { motion } from 'framer-motion';
 import { 
   Rocket, ArrowRight, Dumbbell, Brain, 
   Heart, Crown, Users, Sparkles, Gift,
-  Star, Target, Map, Bell, Trophy, ChevronDown
+  Star, Target, Map, Bell, Trophy, ChevronDown, Shield
 } from 'lucide-react';
+
 import { trackCheckoutInitiated, trackViewContent } from '@/lib/facebook-pixel';
 import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import { Helmet } from 'react-helmet-async';
@@ -379,10 +380,11 @@ const Challenge7ZileLanding = () => {
         <section className="relative pt-20 pb-20 px-4 md:px-8 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-muted/30 to-transparent" />
           <div className="max-w-6xl mx-auto text-center relative">
-            <Badge className="mb-6 bg-green-500/10 text-green-600 border-green-500/30 px-4 py-1.5">
-              <Gift className="h-4 w-4 mr-1.5 inline" />
-              {language === 'en' ? '🎁 100% FREE - INSTANT ACCOUNT' : '🎁 100% GRATUIT - CONT INSTANT'}
+            <Badge className="mb-6 bg-amber-500/10 text-amber-600 border-amber-500/30 px-4 py-1.5">
+              <Shield className="h-4 w-4 mr-1.5 inline" />
+              {language === 'en' ? '🎯 7 days free · no risk' : '🎯 7 zile gratuite · fără risc'}
             </Badge>
+
             
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 text-foreground leading-tight">
               {language === 'en' 
@@ -404,12 +406,17 @@ const Challenge7ZileLanding = () => {
             >
               <Users className="h-4 w-4" />
               <span>
-                {statsLoading || totalParticipants < 10
+                {statsLoading
                   ? null
-                  : (language === 'en' 
-                      ? `${totalParticipants.toLocaleString()}+ people joined` 
-                      : `${totalParticipants.toLocaleString()}+ persoane înscrise`)
+                  : totalParticipants >= 100
+                    ? (language === 'en'
+                        ? `${totalParticipants.toLocaleString()}+ founders started the journey with us`
+                        : `${totalParticipants.toLocaleString()}+ fondatori au început drumul alături de noi`)
+                    : (language === 'en'
+                        ? 'Join the first founders building the new normal'
+                        : 'Alătură-te primilor fondatori care construiesc noul normal')
                 }
+
               </span>
             </motion.div>
 
@@ -676,8 +683,8 @@ const Challenge7ZileLanding = () => {
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
               {language === 'en'
-                ? 'Break the burnout cycle. The first 2 steps are free.'
-                : 'Oprește ciclul burnout-ului. Primii 2 pași sunt gratuit.'}
+                ? '7 days free. Cancel anytime.'
+                : '7 zile gratuite. Anulezi oricând.'}
             </p>
             
             <Button 
@@ -687,9 +694,10 @@ const Challenge7ZileLanding = () => {
               }}
               className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
             >
-              {language === 'en' ? 'Choose Your Plan' : 'Alege Abonamentul'}
+              {language === 'en' ? 'Start today with my card' : 'Încep azi cu cardul meu'}
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
+
           </div>
         </section>
 
