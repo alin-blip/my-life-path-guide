@@ -242,7 +242,7 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
             type="submit"
             disabled={loading || submitted}
             size="lg"
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-base rounded-xl shadow-[0_15px_50px_rgba(251,146,60,0.3)]"
+            className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-bold text-base rounded-xl shadow-[0_15px_50px_rgba(16,185,129,0.35)]"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -254,11 +254,12 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
             ) : (
               <>
                 <Mail className="w-5 h-5 mr-2" />
-                {language === 'en' ? 'Send my report + Get the ebook' : 'Trimite raportul + Vreau ebook-ul'}
+                {language === 'en' ? 'Send my report + Start the 7-Day Challenge' : 'Trimite raportul + Intră în Challenge 7 Zile'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </>
             )}
           </Button>
+
               <p className="text-white/70 text-xs text-center flex items-center justify-center gap-1">
                 <Lock className="w-3 h-3" />
                 {language === 'en' ? 'No spam. Unsubscribe anytime.' : 'Fără spam. Te dezabonezi oricând.'}
