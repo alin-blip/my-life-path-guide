@@ -93,10 +93,29 @@ export const ChallengePremiumOffer = () => {
     setLoading(planId);
     trackCheckoutInitiated(planId, value);
 
+    // Persistent client-side telemetry — one row per checkout attempt.
+    const sessionId = sessionStorage.getItem('crm_session_id')
+      || `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    sessionStorage.setItem('crm_session_id', sessionId);
+    supabase.from('checkout_events').insert({
+      event_type: 'checkout_initiated',
+      plan_id: planId,
+      source: 'challenge-7-zile',
+      session_id: sessionId,
+      metadata: { value, path: window.location.pathname },
+    }).then(() => {});
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         if (preOpened) preOpened.close();
+        supabase.from('checkout_events').insert({
+          event_type: 'checkout_auth_required',
+          plan_id: planId,
+          source: 'challenge-7-zile',
+          session_id: sessionId,
+          metadata: { value },
+        }).then(() => {});
         // Save pending plan to localStorage so it resumes after auth
         localStorage.setItem('pending_challenge_plan', JSON.stringify({ planId, value }));
         toast.info(isRo ? 'Creează-ți contul pentru a continua' : 'Create your account to continue');
@@ -105,18 +124,36 @@ export const ChallengePremiumOffer = () => {
         return;
       }
 
+      const utmRaw = localStorage.getItem('utm_data');
+      const utm = utmRaw ? JSON.parse(utmRaw) : undefined;
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId, source: 'challenge-7-zile' }
+        body: { plan: planId, source: 'challenge-7-zile', utm }
       });
 
       if (error) { if (preOpened) preOpened.close(); throw error; }
       if (data?.url) {
+        supabase.from('checkout_events').insert({
+          event_type: 'checkout_redirected',
+          plan_id: planId,
+          source: 'challenge-7-zile',
+          session_id: sessionId,
+          user_id: session.user.id,
+          metadata: { value },
+        }).then(() => {});
         redirectExternal(data.url, preOpened);
       } else {
         if (preOpened) preOpened.close();
       }
     } catch (error) {
       console.error('Checkout error:', error);
+      supabase.from('checkout_events').insert({
+        event_type: 'checkout_error',
+        plan_id: planId,
+        source: 'challenge-7-zile',
+        session_id: sessionId,
+        error_message: (error as any)?.message?.slice(0, 500) || 'unknown',
+        metadata: { value },
+      }).then(() => {});
       toast.error(isRo ? 'Eroare la creare checkout' : 'Error creating checkout');
     } finally {
       setLoading(null);

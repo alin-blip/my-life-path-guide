@@ -34,28 +34,46 @@ const Challenge7ZileLanding = () => {
   const [realMetrics, setRealMetrics] = useState({ users: 0, completionRate: 0 });
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // Fetch real metrics from database
+  const [hasChallengeProgress, setHasChallengeProgress] = useState<boolean | null>(null);
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  // Fetch real metrics from database (no fake fallbacks)
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const [usersRes, completedRes] = await Promise.all([
-          supabase.from('subscribers').select('id', { count: 'exact', head: true }),
-          supabase.from('challenge_progress').select('id', { count: 'exact', head: true }).eq('day_number', 7).eq('completed', true)
+        const [leadsRes, startedRes, completedRes] = await Promise.all([
+          supabase.from('email_leads').select('id', { count: 'exact', head: true }).ilike('source', 'challenge%'),
+          supabase.from('challenge_progress').select('user_id', { count: 'exact', head: true }),
+          supabase.from('challenge_progress').select('id', { count: 'exact', head: true }).eq('day_number', 7).eq('completed', true),
         ]);
-        
-        const users = usersRes.count || 0;
+        const leads = leadsRes.count || 0;
+        const started = startedRes.count || 0;
         const completed = completedRes.count || 0;
-        const rate = users > 0 ? Math.round((completed / users) * 100) : 89;
-        
-        setRealMetrics({ 
-          users: users > 50 ? users : 1247, 
-          completionRate: rate > 50 ? rate : 89 
-        });
+        const rate = started > 0 ? Math.round((completed / started) * 100) : 0;
+        setRealMetrics({ users: leads, completionRate: rate });
       } catch (error) {
-        setRealMetrics({ users: 1247, completionRate: 89 });
+        // Fail silently — UI will hide the block via guards
+        setRealMetrics({ users: 0, completionRate: 0 });
       }
     };
     fetchMetrics();
+  }, []);
+
+  // Detect authenticated users without challenge progress to show a strong "continue" CTA.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      setIsAuthed(!!session);
+      if (!session?.user) { setHasChallengeProgress(false); return; }
+      const { count } = await supabase
+        .from('challenge_progress')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', session.user.id);
+      if (!cancelled) setHasChallengeProgress((count || 0) > 0);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   // Auto-trigger checkout if user just came back from auth with a pending plan
@@ -274,20 +292,20 @@ const Challenge7ZileLanding = () => {
     }
   ];
 
-  const stats = [
-    { 
-      value: `${realMetrics.users.toLocaleString()}+`, 
-      label: language === 'en' ? "Active Users" : "Utilizatori Activi" 
+  const stats = realMetrics.users > 0 ? [
+    {
+      value: `${realMetrics.users.toLocaleString()}+`,
+      label: language === 'en' ? "Signups" : "Înscrieri"
     },
-    { 
-      value: `${realMetrics.completionRate}%`, 
-      label: language === 'en' ? "Completion Rate" : "Rată de Finalizare" 
+    {
+      value: realMetrics.completionRate > 0 ? `${realMetrics.completionRate}%` : '—',
+      label: language === 'en' ? "Day 7 Completion" : "Finalizare Ziua 7"
     },
-    { 
-      value: "4.8/5", 
-      label: language === 'en' ? "Average Rating" : "Rating Mediu" 
+    {
+      value: "4.8/5",
+      label: language === 'en' ? "Average Rating" : "Rating Mediu"
     }
-  ];
+  ] : [];
 
   if (checkoutLoading) {
     return (
@@ -344,15 +362,59 @@ const Challenge7ZileLanding = () => {
             >
               <Users className="h-4 w-4" />
               <span>
-                {statsLoading 
-                  ? (language === 'en' ? 'Loading...' : 'Se încarcă...')
+                {statsLoading || totalParticipants < 10
+                  ? null
                   : (language === 'en' 
-                      ? `${Math.max(2500, totalParticipants).toLocaleString()}+ people joined` 
-                      : `${Math.max(2500, totalParticipants).toLocaleString()}+ persoane înscrise`
-                    )
+                      ? `${totalParticipants.toLocaleString()}+ people joined` 
+                      : `${totalParticipants.toLocaleString()}+ persoane înscrise`)
                 }
               </span>
             </motion.div>
+
+            {/* Continue CTA for authenticated users without progress */}
+            {isAuthed && hasChallengeProgress === false && !localStorage.getItem('pending_challenge_plan') && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl mx-auto mb-8 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-2 border-amber-500/40"
+              >
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                      {language === 'en' ? '🎯 Your challenge is waiting' : '🎯 Challenge-ul tău te așteaptă'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === 'en' ? 'You have an account but haven\'t started Day 1 yet.' : 'Ai deja cont, dar nu ai început Ziua 1.'}
+                    </p>
+                  </div>
+                  <Button
+                    size="lg"
+                    onClick={() => navigate('/challenge/1')}
+                    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 whitespace-nowrap"
+                  >
+                    {language === 'en' ? 'Continue to Day 1' : 'Continuă la Ziua 1'}
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {isAuthed && hasChallengeProgress === true && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl mx-auto mb-8"
+              >
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate('/challenge')}
+                  className="w-full border-amber-500/50"
+                >
+                  {language === 'en' ? 'Continue where you left off →' : 'Continuă de unde ai rămas →'}
+                </Button>
+              </motion.div>
+            )}
 
             {/* Early Bird Timer */}
             <div className="flex justify-center mb-6">
@@ -455,30 +517,32 @@ const Challenge7ZileLanding = () => {
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-12 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-3 gap-4">
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="text-3xl md:text-4xl font-bold text-primary">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
+        {/* Stats Section — hidden until we have real data */}
+        {stats.length > 0 && (
+          <section className="py-12 px-4 bg-muted/30">
+            <div className="max-w-4xl mx-auto">
+              <div className="grid grid-cols-3 gap-4">
+                {stats.map((stat, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="text-center"
+                  >
+                    <div className="text-3xl md:text-4xl font-bold text-primary">
+                      {stat.value}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Benefits Section */}
         <section className="py-16 px-4">

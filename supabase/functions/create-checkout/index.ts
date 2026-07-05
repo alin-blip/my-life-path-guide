@@ -391,6 +391,30 @@ serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
+    // Server-side telemetry — one row per successful checkout URL creation.
+    try {
+      const svcSupabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+      await svcSupabase.from('checkout_events').insert({
+        event_type: 'checkout_session_created',
+        plan_id: plan,
+        source: source || 'direct',
+        user_id: user.id || null,
+        session_id: session.id,
+        metadata: {
+          stripe_session_id: session.id,
+          tier,
+          currency,
+          trial_days: trialDays || 0,
+          coupon: appliedCouponId || null,
+        },
+      });
+    } catch (logErr) {
+      console.warn('checkout_events insert failed:', logErr);
+    }
+
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
@@ -398,6 +422,18 @@ serve(async (req) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("create-checkout error:", { message, error });
+    // Log failure for funnel visibility
+    try {
+      const svcSupabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+      await svcSupabase.from('checkout_events').insert({
+        event_type: 'checkout_session_failed',
+        error_message: message.slice(0, 500),
+        source: 'server',
+      });
+    } catch {}
     return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,

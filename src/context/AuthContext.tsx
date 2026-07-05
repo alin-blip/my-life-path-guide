@@ -160,10 +160,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   language: 'ro'
                 }
               }).catch(err => console.warn('[Challenge] Welcome email failed:', err));
-              
+
               if (import.meta.env.DEV) {
                 console.log('[Challenge] OAuth lead saved for:', session.user.email);
               }
+
+              // Auto-redirect OAuth users into the actual challenge instead of leaving
+              // them stranded on the marketing landing. Guarded by pending_challenge_plan
+              // so the auto-checkout resume flow on /challenge-7-zile still takes priority.
+              try {
+                const path = window.location.pathname;
+                const hasPendingPlan = !!localStorage.getItem('pending_challenge_plan');
+                if (!hasPendingPlan && (path === '/challenge-7-zile' || path === '/challenge-landing' || path === '/challenge-7-days')) {
+                  setTimeout(() => {
+                    try { window.location.assign('/challenge/1'); } catch {}
+                  }, 400);
+                }
+              } catch {}
             }
           }
         }
