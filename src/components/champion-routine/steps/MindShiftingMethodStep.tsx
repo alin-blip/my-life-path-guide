@@ -141,7 +141,7 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => { markMindShiftDone(); onComplete(); }}
+        onClick={() => { markMindShiftDone('continue_button', method); onComplete(); }}
         className="text-xs h-8 px-2"
       >
         Continuă rutina →
