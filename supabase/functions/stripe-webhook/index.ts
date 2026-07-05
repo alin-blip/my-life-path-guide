@@ -193,9 +193,11 @@ serve(async (req) => {
           metadata: session.metadata
         });
 
-        const customerEmail = session.customer_email;
+        // Stripe sets customer_email when we preset it; when Stripe collects it on the checkout page,
+        // it lands in customer_details.email. Support both.
+        const customerEmail = session.customer_email || session.customer_details?.email;
         const customerId = session.customer as string;
-        
+
         if (!customerEmail) {
           log("No customer email in session");
           break;
@@ -296,12 +298,17 @@ serve(async (req) => {
           await processCoachCommission(user.id, paymentAmountEur, session.currency || "eur", session.id);
         }
 
-        // === BURNOUT/EBOOK FUNNEL HOOKS ===
+        // === BURNOUT/EBOOK/CHALLENGE FUNNEL HOOKS ===
         try {
           const planId = session.metadata?.plan_id || "";
+          const funnelSource = session.metadata?.source || "";
           const isEbookPurchase = ["ebook-only", "ebook-bundle", "ebook-only-en", "ebook-bundle-en"].includes(planId);
           const isUpsellPurchase = ["ebook-accelerator", "ebook-accelerator-en", "challenge-plus-trial", "challenge-plus-trial-en"].includes(planId);
-          const language = planId.endsWith("-en") ? "en" : "ro";
+          // Basic plan purchased directly from the /challenge-7-zile landing page (guest checkout)
+          const isChallengeBasic = planId === "basic" && funnelSource === "challenge-7-zile";
+          const language = (session.metadata?.language === "en" || session.metadata?.language === "ro")
+            ? session.metadata.language
+            : (planId.endsWith("-en") ? "en" : "ro");
 
           const EBOOK_DOWNLOADS = {
             ro: {
