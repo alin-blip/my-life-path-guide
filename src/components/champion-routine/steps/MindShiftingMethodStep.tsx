@@ -71,18 +71,36 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
   });
   const [showAllStacks, setShowAllStacks] = useState(false);
 
+  const markMindShiftDone = useCallback(() => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`mind_shift_done_${today}`, '1');
+    } catch {}
+  }, []);
+
   useEffect(() => {
     try {
       if (method === 'none') {
         localStorage.removeItem(METHOD_STORAGE_KEY());
       } else {
         localStorage.setItem(METHOD_STORAGE_KEY(), method);
+        // Any chosen stack counts as completing the mindShifting step —
+        // marks Warrior Routine step 1/N done regardless of which stack the
+        // user picks (prayer, anger, reconstruction, kill-it-today, etc.).
+        markMindShiftDone();
       }
     } catch {}
-  }, [method]);
+  }, [method, markMindShiftDone]);
+
+  const completeAndContinue = useCallback(() => {
+    markMindShiftDone();
+    onComplete();
+  }, [markMindShiftDone, onComplete]);
 
   const addActionToHitList = useCallback(async (actionText: string) => {
     if (!actionText?.trim()) return;
+    // Adding an action from any stack also confirms the mindShifting step.
+    markMindShiftDone();
     try {
       const weekKey = getActiveWeekKey();
       await doorUserTasksService.addIdeaToWeek(weekKey, {
@@ -97,14 +115,8 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
       console.error(e);
       toast.error('Nu am putut salva acțiunea.');
     }
-  }, []);
+  }, [markMindShiftDone]);
 
-  const markMindShiftDone = useCallback(() => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      localStorage.setItem(`mind_shift_done_${today}`, '1');
-    } catch {}
-  }, []);
 
   const InlineHeader = () => (
     <div className="flex items-center justify-between mb-3">
@@ -134,7 +146,7 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
         <MentalitateStackFlow
           mode="daily"
           source="routine"
-          onComplete={onComplete}
+          onComplete={completeAndContinue}
           onSkip={onSkip}
         />
       </div>
