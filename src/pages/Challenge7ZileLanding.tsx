@@ -24,7 +24,7 @@ import { LandingEarlyBirdTimer } from '@/components/landing/LandingEarlyBirdTime
 import { ChallengePremiumOffer } from '@/components/challenge/ChallengePremiumOffer';
 
 const Challenge7ZileLanding = () => {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -332,6 +332,24 @@ const Challenge7ZileLanding = () => {
 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
 
+
+        {/* Language Toggle */}
+        <div className="absolute top-4 right-4 z-20 flex gap-1 bg-background/80 backdrop-blur border border-border rounded-full p-1">
+          <button
+            onClick={() => setLanguage('ro')}
+            className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${language === 'ro' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            aria-label="Română"
+          >
+            🇷🇴 RO
+          </button>
+          <button
+            onClick={() => setLanguage('en')}
+            className={`px-3 py-1 text-xs font-semibold rounded-full transition-colors ${language === 'en' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            aria-label="English"
+          >
+            🇬🇧 EN
+          </button>
+        </div>
 
         {/* Hero Section */}
         <section className="relative pt-20 pb-20 px-4 md:px-8 overflow-hidden">

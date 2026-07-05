@@ -19,6 +19,7 @@ import { AdminCoaches } from './admin/AdminCoaches';
 import { EngagementDashboard } from './admin/EngagementDashboard';
 import { AdminHealthPanel } from './admin/AdminHealthPanel';
 import { SmsAdmin } from './admin/SmsAdmin';
+import { ChallengeFunnelDashboard } from './admin/ChallengeFunnelDashboard';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
   Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck, Activity
@@ -149,6 +150,7 @@ export const SecureAdminPanel: React.FC = () => {
           <Tabs defaultValue="leads" className="w-full">
             <TabsList className="mb-4 flex-wrap h-auto">
               <TabsTrigger value="leads">📈 Leads</TabsTrigger>
+              <TabsTrigger value="challenge-funnel">🎯 Challenge Funnel</TabsTrigger>
               <TabsTrigger value="emails">📧 Email Analytics</TabsTrigger>
               <TabsTrigger value="split-tests">🧪 Split Tests</TabsTrigger>
               <TabsTrigger value="hub">📢 Marketing Hub</TabsTrigger>
@@ -156,6 +158,9 @@ export const SecureAdminPanel: React.FC = () => {
             </TabsList>
             <TabsContent value="leads">
               <LeadMagnetAnalytics />
+            </TabsContent>
+            <TabsContent value="challenge-funnel">
+              <ChallengeFunnelDashboard />
             </TabsContent>
             <TabsContent value="emails">
               <EmailAnalytics />

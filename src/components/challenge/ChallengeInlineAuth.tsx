@@ -36,6 +36,8 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
+  const [phone, setPhone] = useState('');
+  const [smsConsent, setSmsConsent] = useState(false);
 
   const passwordCheck = usePasswordCheck(password, mode === 'signup');
   const passwordMessages = getPasswordCheckMessages(language);
@@ -211,17 +213,48 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
         // FB Pixel - Track Lead imediat la signup (înainte de AuthContext pentru email signup)
         trackLead();
 
-        // Send welcome email (fire and forget - don't block UI)
-        supabase.auth.getUser().then(({ data: userData }) => {
-          if (userData?.user) {
-            supabase.functions.invoke('send-challenge-welcome', {
-              body: {
-                email,
-                name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name || '',
-                userId: userData.user.id,
-                language
-              }
-            }).catch(err => console.warn('Welcome email failed:', err));
+        // Send welcome email + save SMS prefs + enroll onboarding SMS (fire and forget)
+        supabase.auth.getUser().then(async ({ data: userData }) => {
+          if (!userData?.user) return;
+          const uid = userData.user.id;
+          // Welcome email
+          supabase.functions.invoke('send-challenge-welcome', {
+            body: {
+              email,
+              name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name || '',
+              userId: uid,
+              language
+            }
+          }).catch(err => console.warn('Welcome email failed:', err));
+
+          // Save phone + SMS consent
+          const normalizedPhone = phone.trim().replace(/\s+/g, '');
+          if (normalizedPhone && smsConsent) {
+            const e164 = normalizedPhone.startsWith('+') ? normalizedPhone : `+${normalizedPhone}`;
+            try {
+              await supabase.from('user_sms_preferences').upsert({
+                user_id: uid,
+                phone_e164: e164,
+                sms_consent: true,
+                onboarding_opt_in: true,
+                marketing_opt_in: true,
+                checkout_recovery_opt_in: true,
+                consent_source: 'challenge-7-zile-landing',
+                consent_at: new Date().toISOString(),
+              }, { onConflict: 'user_id' });
+
+              // Enroll in onboarding sequence
+              supabase.functions.invoke('sms-enroll', {
+                body: {
+                  user_id: uid,
+                  sequence_key: language === 'en' ? 'onboarding_en' : 'onboarding_ro',
+                  phone_e164: e164,
+                  metadata: { source: 'challenge-7-zile-landing' }
+                }
+              }).catch(err => console.warn('SMS enroll failed:', err));
+            } catch (err) {
+              console.warn('SMS prefs save failed:', err);
+            }
           }
         });
 
@@ -409,6 +442,33 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
                 state={passwordCheck}
                 messages={passwordMessages}
               />
+
+              {/* Optional phone + SMS consent */}
+              <div className="space-y-2 pt-1">
+                <Input
+                  type="tel"
+                  placeholder={language === 'en' ? '📱 Phone (optional, e.g. +40712345678)' : '📱 Telefon (opțional, ex: +40712345678)'}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="bg-background"
+                  autoComplete="tel"
+                />
+                {phone.trim().length > 0 && (
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={smsConsent}
+                      onChange={(e) => setSmsConsent(e.target.checked)}
+                      className="mt-0.5 accent-primary"
+                    />
+                    <span>
+                      {language === 'en'
+                        ? 'I agree to receive SMS reminders and updates about my challenge. Standard rates apply. Reply STOP to unsubscribe.'
+                        : 'Sunt de acord să primesc SMS-uri cu remindere și update-uri despre challenge. Se aplică tarife standard. Răspunde STOP pentru dezabonare.'}
+                    </span>
+                  </label>
+                )}
+              </div>
             </>
           )}
 
