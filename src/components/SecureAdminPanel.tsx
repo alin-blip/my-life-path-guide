@@ -152,6 +152,7 @@ export const SecureAdminPanel: React.FC = () => {
               <TabsTrigger value="emails">📧 Email Analytics</TabsTrigger>
               <TabsTrigger value="split-tests">🧪 Split Tests</TabsTrigger>
               <TabsTrigger value="hub">📢 Marketing Hub</TabsTrigger>
+              <TabsTrigger value="sms">📱 SMS Twilio</TabsTrigger>
             </TabsList>
             <TabsContent value="leads">
               <LeadMagnetAnalytics />
@@ -164,6 +165,9 @@ export const SecureAdminPanel: React.FC = () => {
             </TabsContent>
             <TabsContent value="hub">
               <MarketingHub />
+            </TabsContent>
+            <TabsContent value="sms">
+              <SmsAdmin />
             </TabsContent>
           </Tabs>
         </TabsContent>
