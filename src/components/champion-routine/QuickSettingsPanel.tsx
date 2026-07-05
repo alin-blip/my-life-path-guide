@@ -43,7 +43,7 @@ const STEP_INFO: Record<string, { label: string; icon: React.ReactNode; category
   exercise: { label: 'Exerciții', icon: <Dumbbell className="h-4 w-4" />, category: 'body', isCore4: true },
   mealPlanning: { label: 'Meal Planning', icon: <Dumbbell className="h-4 w-4" />, category: 'body', isCore4: true },
   meditation: { label: 'Meditație', icon: <Sparkles className="h-4 w-4" />, category: 'being', isCore4: true },
-  journaling: { label: 'Journaling', icon: <Sparkles className="h-4 w-4" />, category: 'being', isCore4: true },
+  journaling: { label: 'Journaling', icon: <Sparkles className="h-4 w-4" />, category: 'being', isCore4: false },
   relationships: { label: 'Relații', icon: <Heart className="h-4 w-4" />, category: 'balance', isCore4: true },
   learn: { label: 'Învață', icon: <Briefcase className="h-4 w-4" />, category: 'business', isCore4: true },
   apply: { label: 'Aplică/Predă', icon: <Briefcase className="h-4 w-4" />, category: 'business', isCore4: true },
