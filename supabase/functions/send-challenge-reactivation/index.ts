@@ -202,7 +202,7 @@ const handler = async (req: Request): Promise<Response> => {
           email: c.email,
           sequence_type: 'challenge_reactivation',
           tracking_id: trackingId,
-          step_number: stepNumber,
+          day_number: stepNumber,
           sent_at: new Date().toISOString(),
           metadata: { user_id: authUser?.id || null, language: lang, has_account: hasAccount, is_manual: c.isManual }
         });
