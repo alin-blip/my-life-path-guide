@@ -186,7 +186,7 @@ const handler = async (req: Request): Promise<Response> => {
         const name = authUser?.user_metadata?.full_name || authUser?.user_metadata?.name || c.name || '';
         const lang = await resolveLeadLanguage(supabase, c.email);
         const content = getReactivationContent(stepNumber, name, lang);
-        const trackingId = generateTrackingId(stepNumber);
+        const trackingId = generateTrackingId();
         const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}`;
         const unsubscribeUrl = `${SUPABASE_URL}/functions/v1/unsubscribe-email?id=${trackingId}`;
         const html = buildEmail(content, trackingPixelUrl, unsubscribeUrl, lang, hasAccount);
