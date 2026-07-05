@@ -59,6 +59,11 @@ const Challenge7ZileLanding = () => {
     fetchMetrics();
   }, []);
 
+  // Meta Pixel ViewContent on landing mount
+  useEffect(() => {
+    trackViewContent('challenge_7_zile_landing', 'lead_magnet');
+  }, []);
+
   // Detect authenticated users without challenge progress to show a strong "continue" CTA.
   useEffect(() => {
     let cancelled = false;
