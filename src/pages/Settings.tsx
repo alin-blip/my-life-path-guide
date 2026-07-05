@@ -61,6 +61,7 @@ export const Settings: React.FC = () => {
             </CardContent>
           </Card>
           <SoundSettings />
+          <SmsPreferencesCard />
         </TabsContent>
 
         <TabsContent value="migration">
