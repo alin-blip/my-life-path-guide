@@ -162,7 +162,16 @@ export const SecureAdminPanel: React.FC = () => {
               <LeadMagnetAnalytics />
             </TabsContent>
             <TabsContent value="challenge-funnel">
-              <ChallengeFunnelDashboard />
+              <Tabs defaultValue="funnel" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="funnel">Funnel</TabsTrigger>
+                  <TabsTrigger value="retargeting">Retargeting</TabsTrigger>
+                  <TabsTrigger value="ads-roi">Ads ROI</TabsTrigger>
+                </TabsList>
+                <TabsContent value="funnel"><ChallengeFunnelDashboard /></TabsContent>
+                <TabsContent value="retargeting"><RetargetingAudiences /></TabsContent>
+                <TabsContent value="ads-roi"><AdsRoiDashboard /></TabsContent>
+              </Tabs>
             </TabsContent>
             <TabsContent value="emails">
               <EmailAnalytics />
