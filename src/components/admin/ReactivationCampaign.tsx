@@ -30,16 +30,16 @@ export const ReactivationCampaign: React.FC = () => {
       const [leadsRes, manualRes, logRes] = await Promise.all([
         supabase.from('email_leads').select('email', { count: 'exact', head: true }).like('source', 'challenge%').eq('subscribed', true),
         supabase.from('challenge_reactivation_manual' as any).select('email, completed_at'),
-        supabase.from('email_sequence_log').select('step_number, sent_at').eq('sequence_type', 'challenge_reactivation'),
+        supabase.from('email_sequence_log').select('day_number, sent_at').eq('sequence_type', 'challenge_reactivation'),
       ]);
 
       const manual = (manualRes.data as any[]) || [];
-      const logs = logRes.data || [];
+      const logs = (logRes.data as any[]) || [];
       const today = new Date(); today.setHours(0, 0, 0, 0);
       const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
       const bySteps: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
       for (const l of logs) {
-        if (l.step_number && bySteps[l.step_number] !== undefined) bySteps[l.step_number]++;
+        if (l.day_number && bySteps[l.day_number] !== undefined) bySteps[l.day_number]++;
       }
 
       setStats({
@@ -47,8 +47,8 @@ export const ReactivationCampaign: React.FC = () => {
         enrolledManual: manual.length,
         active: manual.filter(m => !m.completed_at).length,
         completed: manual.filter(m => !!m.completed_at).length,
-        sentToday: logs.filter(l => new Date(l.sent_at) >= today).length,
-        sentLast7: logs.filter(l => new Date(l.sent_at) >= sevenDaysAgo).length,
+        sentToday: logs.filter((l: any) => new Date(l.sent_at) >= today).length,
+        sentLast7: logs.filter((l: any) => new Date(l.sent_at) >= sevenDaysAgo).length,
         bySteps,
       });
     } finally {
