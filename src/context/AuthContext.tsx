@@ -228,16 +228,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
 
-    // Hard safety timeout: release the loading flag if the edge function
-    // hangs, so the UI is not permanently stuck. But do NOT flip
-    // `subscriptionInitialized` here — otherwise ProtectedRoute treats the
-    // (still-default `subscribed=false`) state as authoritative and redirects
-    // paid users to /pricing on slow first loads.
-    const releaseLoadingTimer = setTimeout(() => {
-      if (!silent) setSubscriptionLoading(false);
-    }, 8000);
-
-
+    // NOTE: no safety timeout that flips subscriptionInitialized / clears
+    // subscriptionLoading. The try/finally below always resolves both flags
+    // once check-subscription returns (or throws). Prematurely releasing
+    // those flags while `subscribed` still holds its default `false` would
+    // cause ProtectedRoute to redirect paid users to /pricing on slow loads.
 
     try {
       if (!silent) setSubscriptionLoading(true);
@@ -288,10 +283,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Same as above — preserve last known subscription state on network errors.
 
     } finally {
-      clearTimeout(releaseLoadingTimer);
       if (!silent) setSubscriptionLoading(false);
       setSubscriptionInitialized(true);
     }
+
 
   };
   const signOut = async () => {
