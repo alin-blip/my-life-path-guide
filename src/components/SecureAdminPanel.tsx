@@ -18,6 +18,7 @@ import { LeadMagnetAnalytics } from './admin/LeadMagnetAnalytics';
 import { AdminCoaches } from './admin/AdminCoaches';
 import { EngagementDashboard } from './admin/EngagementDashboard';
 import { AdminHealthPanel } from './admin/AdminHealthPanel';
+import { SmsAdmin } from './admin/SmsAdmin';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
   Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck, Activity
