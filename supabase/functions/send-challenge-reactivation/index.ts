@@ -39,7 +39,7 @@ const getReactivationContent = (stepNumber: number, name: string, lang: EmailLan
   return steps[stepNumber] || steps[1];
 };
 
-const generateTrackingId = (stepNumber: number) => `challenge-reactivation-s${stepNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+const generateTrackingId = () => crypto.randomUUID();
 
 // Step cadence in DAYS since enrollment/signup: 1, 3, 6, 10, 14
 const getStepForDaysElapsed = (daysSince: number): number | null => {
