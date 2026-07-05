@@ -105,10 +105,11 @@ export const BurnoutResults: React.FC<BurnoutResultsProps> = ({
       } catch {/* ignore */}
 
       setSubmitted(true);
-      // Redirect to paid ebook page
+      // Redirect to 7-day challenge landing
       setTimeout(() => {
-        navigate(language === 'en' ? '/ebook-en' : '/ebook');
+        navigate(language === 'en' ? '/challenge-en?source=burnout-test' : '/challenge-7-zile?source=burnout-test');
       }, 800);
+
     } catch (err) {
       console.error('Burnout result submit error:', err);
       toast.error(language === 'en' ? 'Something went wrong. Try again.' : 'Eroare. Încearcă din nou.');
