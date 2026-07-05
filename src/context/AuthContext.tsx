@@ -228,14 +228,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
 
-    // Hard safety timeout: never leave subscriptionLoading true if the edge
-    // function hangs. After 8s we release the loading flag and keep the last
-    // known subscription state (do NOT reset to free — that would boot paid
-    // users to /pricing).
+    // Hard safety timeout: release the loading flag if the edge function
+    // hangs, so the UI is not permanently stuck. But do NOT flip
+    // `subscriptionInitialized` here — otherwise ProtectedRoute treats the
+    // (still-default `subscribed=false`) state as authoritative and redirects
+    // paid users to /pricing on slow first loads.
     const releaseLoadingTimer = setTimeout(() => {
       if (!silent) setSubscriptionLoading(false);
-      setSubscriptionInitialized(true);
     }, 8000);
+
 
 
     try {
