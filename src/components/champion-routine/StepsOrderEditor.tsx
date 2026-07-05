@@ -40,7 +40,7 @@ export const ALL_STEPS = [
   { id: 'visualization', label: 'Vizualizare', icon: Eye, category: 'being', hasConfig: true, isCore4: false },
   { id: 'autosuggestion', label: 'Autosugestie', icon: Brain, category: 'being', hasConfig: false, isCore4: false },
   { id: 'visionDeclaration', label: 'Declarație Viziune', icon: ScrollText, category: 'being', hasConfig: false, isCore4: false },
-  { id: 'journaling', label: 'Journaling', icon: PenTool, category: 'being', hasConfig: true, isCore4: true },
+  { id: 'journaling', label: 'Journaling', icon: PenTool, category: 'being', hasConfig: true, isCore4: false },
   { id: 'reading', label: 'Citit', icon: FileText, category: 'being', hasConfig: true, isCore4: false },
   { id: 'exercise', label: 'Exerciții', icon: Dumbbell, category: 'body', hasConfig: true, isCore4: true },
   { id: 'mealPlanning', label: 'Meal Planning', icon: Utensils, category: 'body', hasConfig: false, isCore4: true },
