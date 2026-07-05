@@ -73,10 +73,17 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
   });
   const [showAllStacks, setShowAllStacks] = useState(false);
 
-  const markMindShiftDone = useCallback(() => {
+  const markMindShiftDone = useCallback((reason: 'stack_selected' | 'stack_action_saved' | 'stack_flow_complete' | 'continue_button', sub?: string) => {
     try {
       const today = new Date().toISOString().split('T')[0];
+      const wasAlreadyDone = localStorage.getItem(`mind_shift_done_${today}`) === '1';
       localStorage.setItem(`mind_shift_done_${today}`, '1');
+      logRoutineEvent({
+        step: 'mindShifting',
+        reason,
+        sub,
+        meta: { wasAlreadyDone },
+      });
     } catch {}
   }, []);
 
@@ -89,20 +96,20 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
         // Any chosen stack counts as completing the mindShifting step —
         // marks Warrior Routine step 1/N done regardless of which stack the
         // user picks (prayer, anger, reconstruction, kill-it-today, etc.).
-        markMindShiftDone();
+        markMindShiftDone('stack_selected', method);
       }
     } catch {}
   }, [method, markMindShiftDone]);
 
   const completeAndContinue = useCallback(() => {
-    markMindShiftDone();
+    markMindShiftDone('stack_flow_complete', method);
     onComplete();
-  }, [markMindShiftDone, onComplete]);
+  }, [markMindShiftDone, onComplete, method]);
 
   const addActionToHitList = useCallback(async (actionText: string) => {
     if (!actionText?.trim()) return;
     // Adding an action from any stack also confirms the mindShifting step.
-    markMindShiftDone();
+    markMindShiftDone('stack_action_saved', method);
     try {
       const weekKey = getActiveWeekKey();
       await doorUserTasksService.addIdeaToWeek(weekKey, {
@@ -117,7 +124,8 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
       console.error(e);
       toast.error('Nu am putut salva acțiunea.');
     }
-  }, [markMindShiftDone]);
+  }, [markMindShiftDone, method]);
+
 
 
   const InlineHeader = () => (
