@@ -94,11 +94,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
         // CHALLENGE OAUTH LEAD CAPTURE — only on real new sign-ins, not tab focus re-fires
-        if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
-          // One-shot migration of pre-auth localStorage journal entries
+        // One-shot journal migration — also run on INITIAL_SESSION so returning
+        // users (whose restored session emits INITIAL_SESSION, not SIGNED_IN)
+        // still get their legacy localStorage entries migrated to the DB.
+        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user && !isSameUser) {
           migrateLocalJournalEntries(session.user.id).catch(err =>
             console.error('[AuthContext] journal migration failed:', err)
           );
+        }
+
+        if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
+
 
 
           // Track login activity in CRM
