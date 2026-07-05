@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { trackLead } from '@/lib/facebook-pixel';
 import { migrateLocalJournalEntries } from '@/services/journalMigrationService';
+import { getStoredUtm } from '@/hooks/useUtmCapture';
 
 
 interface AuthContextType {
