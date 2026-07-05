@@ -694,7 +694,7 @@ const Challenge7ZileLanding = () => {
               }}
               className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-lg px-8 py-6"
             >
-              {language === 'en' ? 'Start today with my card' : 'Încep azi cu cardul meu'}
+              {language === 'en' ? 'Turn burnout into opportunity!' : 'Transformă burnout-ul în oportunitate!'}
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
 

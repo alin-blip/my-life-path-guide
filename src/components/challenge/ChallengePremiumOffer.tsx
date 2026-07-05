@@ -138,7 +138,7 @@ export const ChallengePremiumOffer = () => {
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <>
-              {isRo ? 'Încep azi cu cardul meu' : 'Start today with my card'}
+              {isRo ? 'Transformă burnout-ul în oportunitate!' : 'Turn burnout into opportunity!'}
               <ArrowRight className="h-5 w-5 ml-2" />
             </>
           )}
