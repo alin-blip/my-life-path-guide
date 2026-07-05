@@ -5949,6 +5949,278 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_send_log: {
+        Row: {
+          cost_usd: number | null
+          created_at: string
+          delivered_at: string | null
+          enrollment_id: string | null
+          error_code: string | null
+          error_message: string | null
+          id: string
+          message_body: string
+          metadata: Json | null
+          phone_e164: string
+          sent_at: string | null
+          sequence_id: string | null
+          status: string
+          step_id: string | null
+          twilio_message_sid: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_usd?: number | null
+          created_at?: string
+          delivered_at?: string | null
+          enrollment_id?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          message_body: string
+          metadata?: Json | null
+          phone_e164: string
+          sent_at?: string | null
+          sequence_id?: string | null
+          status?: string
+          step_id?: string | null
+          twilio_message_sid?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_usd?: number | null
+          created_at?: string
+          delivered_at?: string | null
+          enrollment_id?: string | null
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          message_body?: string
+          metadata?: Json | null
+          phone_e164?: string
+          sent_at?: string | null
+          sequence_id?: string | null
+          status?: string
+          step_id?: string | null
+          twilio_message_sid?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_send_log_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "sms_sequence_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_send_log_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sms_sequences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_send_log_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "sms_sequence_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_sequence_enrollments: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          enrolled_at: string
+          id: string
+          last_sent_at: string | null
+          metadata: Json | null
+          next_send_at: string | null
+          phone_e164: string
+          sequence_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          enrolled_at?: string
+          id?: string
+          last_sent_at?: string | null
+          metadata?: Json | null
+          next_send_at?: string | null
+          phone_e164: string
+          sequence_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          enrolled_at?: string
+          id?: string
+          last_sent_at?: string | null
+          metadata?: Json | null
+          next_send_at?: string | null
+          phone_e164?: string
+          sequence_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_sequence_enrollments_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sms_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_sequence_steps: {
+        Row: {
+          created_at: string
+          day_number: number
+          delay_hours: number
+          id: string
+          is_active: boolean
+          message_en: string | null
+          message_ro: string
+          sequence_id: string
+          step_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_number?: number
+          delay_hours?: number
+          id?: string
+          is_active?: boolean
+          message_en?: string | null
+          message_ro: string
+          sequence_id: string
+          step_order: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          delay_hours?: number
+          id?: string
+          is_active?: boolean
+          message_en?: string | null
+          message_ro?: string
+          sequence_id?: string
+          step_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_sequence_steps_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sms_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_sequences: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          key: string
+          language: string
+          name: string
+          requires_consent_type: string
+          sequence_type: string
+          trigger_event: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key: string
+          language?: string
+          name: string
+          requires_consent_type?: string
+          sequence_type: string
+          trigger_event?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key?: string
+          language?: string
+          name?: string
+          requires_consent_type?: string
+          sequence_type?: string
+          trigger_event?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sms_settings: {
+        Row: {
+          daily_send_cap: number
+          from_number: string | null
+          id: number
+          messaging_service_sid: string | null
+          updated_at: string
+        }
+        Insert: {
+          daily_send_cap?: number
+          from_number?: string | null
+          id?: number
+          messaging_service_sid?: string | null
+          updated_at?: string
+        }
+        Update: {
+          daily_send_cap?: number
+          from_number?: string | null
+          id?: number
+          messaging_service_sid?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sms_suppression: {
+        Row: {
+          metadata: Json | null
+          phone_e164: string
+          reason: string
+          suppressed_at: string
+        }
+        Insert: {
+          metadata?: Json | null
+          phone_e164: string
+          reason?: string
+          suppressed_at?: string
+        }
+        Update: {
+          metadata?: Json | null
+          phone_e164?: string
+          reason?: string
+          suppressed_at?: string
+        }
+        Relationships: []
+      }
       stack_library: {
         Row: {
           content: Json | null
@@ -7015,6 +7287,57 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sms_preferences: {
+        Row: {
+          checkout_recovery_opt_in: boolean
+          created_at: string
+          language: string
+          marketing_opt_in: boolean
+          onboarding_opt_in: boolean
+          phone_e164: string | null
+          phone_verified: boolean
+          routine_reminder_opt_in: boolean
+          sms_consent: boolean
+          sms_consent_at: string | null
+          sms_consent_ip: string | null
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checkout_recovery_opt_in?: boolean
+          created_at?: string
+          language?: string
+          marketing_opt_in?: boolean
+          onboarding_opt_in?: boolean
+          phone_e164?: string | null
+          phone_verified?: boolean
+          routine_reminder_opt_in?: boolean
+          sms_consent?: boolean
+          sms_consent_at?: string | null
+          sms_consent_ip?: string | null
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checkout_recovery_opt_in?: boolean
+          created_at?: string
+          language?: string
+          marketing_opt_in?: boolean
+          onboarding_opt_in?: boolean
+          phone_e164?: string | null
+          phone_verified?: boolean
+          routine_reminder_opt_in?: boolean
+          sms_consent?: boolean
+          sms_consent_at?: string | null
+          sms_consent_ip?: string | null
+          timezone?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
