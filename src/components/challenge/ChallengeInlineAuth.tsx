@@ -36,6 +36,8 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
+  const [phone, setPhone] = useState('');
+  const [smsConsent, setSmsConsent] = useState(false);
 
   const passwordCheck = usePasswordCheck(password, mode === 'signup');
   const passwordMessages = getPasswordCheckMessages(language);
