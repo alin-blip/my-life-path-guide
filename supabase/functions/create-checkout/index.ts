@@ -57,16 +57,18 @@ serve(async (req) => {
       user = { email: guest_email ? guest_email.trim().toLowerCase() : undefined };
     }
 
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string | undefined;
     let existingCurrency: string | undefined;
-    
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      const subscriptions = await stripe.subscriptions.list({ customer: customerId, limit: 1 });
-      if (subscriptions.data.length > 0) {
-        existingCurrency = subscriptions.data[0].currency;
-        console.log(`Customer ${customerId} has existing currency: ${existingCurrency}`);
+
+    if (user.email) {
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        const subscriptions = await stripe.subscriptions.list({ customer: customerId, limit: 1 });
+        if (subscriptions.data.length > 0) {
+          existingCurrency = subscriptions.data[0].currency;
+          console.log(`Customer ${customerId} has existing currency: ${existingCurrency}`);
+        }
       }
     }
 
@@ -352,14 +354,16 @@ serve(async (req) => {
 
     const sessionConfig: any = {
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
+      // Only set customer_email when we already know it; otherwise Stripe collects it on the checkout page
+      customer_email: customerId ? undefined : (user.email || undefined),
       mode: paymentMode,
       line_items: lineItems,
       metadata: {
         plan_id: plan,
         user_id: user.id || "",
-        guest_email: user.id ? "" : user.email,
+        guest_email: user.id ? "" : (user.email || ""),
         guest_name: guest_name || "",
+        language: (language === "en" || language === "ro") ? language : (plan.endsWith("-en") ? "en" : "ro"),
         tier,
         coaching_included: tier === "pro" || tier === "elite" ? "true" : "false",
         has_trial: trialDays ? "true" : "false",
