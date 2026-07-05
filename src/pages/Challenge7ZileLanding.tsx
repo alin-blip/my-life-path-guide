@@ -517,30 +517,32 @@ const Challenge7ZileLanding = () => {
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-12 px-4 bg-muted/30">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-3 gap-4">
-              {stats.map((stat, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="text-3xl md:text-4xl font-bold text-primary">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
+        {/* Stats Section — hidden until we have real data */}
+        {stats.length > 0 && (
+          <section className="py-12 px-4 bg-muted/30">
+            <div className="max-w-4xl mx-auto">
+              <div className="grid grid-cols-3 gap-4">
+                {stats.map((stat, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="text-center"
+                  >
+                    <div className="text-3xl md:text-4xl font-bold text-primary">
+                      {stat.value}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Benefits Section */}
         <section className="py-16 px-4">
