@@ -149,9 +149,27 @@ serve(async (req) => {
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
+    // Also don't spam anyone we've already recovered on day 1 in the past 30 days.
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const { data: recentDay1 } = await supabase
+      .from("challenge_recovery_emails")
+      .select("email")
+      .eq("stuck_on_day", 1)
+      .gte("sent_at", thirtyDaysAgo.toISOString());
+    const recentDay1Set = new Set((recentDay1 || []).map((r: any) => r.email));
+
+    // Build a set of emails that already have any challenge_progress row.
+    const emailsWithProgress = new Set<string>();
+    for (const userId of userProgress.keys()) {
+      const em = userEmailMap.get(userId)?.email;
+      if (em) emailsWithProgress.add(em);
+    }
+
     for (const lead of challengeLeads || []) {
-      const hasProgress = [...userProgress.values()].some(p => userEmailMap.get(p.createdAt)?.email === lead.email);
-      if (hasProgress) continue;
+      if (!lead.email) continue;
+      if (emailsWithProgress.has(lead.email)) continue;
+      if (recentDay1Set.has(lead.email)) continue;
       const leadDate = new Date(lead.created_at);
       if (leadDate > twoDaysAgo) continue;
       const key = `${lead.email}-1`;
@@ -162,6 +180,14 @@ serve(async (req) => {
         const { subject, html } = generateRecoveryEmail(lead.name || '', 1, lang);
         await sendEmail(lead.email, subject, html);
         await supabase.from("challenge_recovery_emails").insert({ email: lead.email, stuck_on_day: 1, sent_at: new Date().toISOString() });
+        // Mirror into email_send_log so the dashboard reflects it.
+        await supabase.from('email_send_log').insert({
+          message_id: `challenge-recovery-day1-${lead.email}-${Date.now()}`,
+          template_name: 'challenge-recovery',
+          recipient_email: lead.email,
+          status: 'sent',
+          metadata: { stuck_on_day: 1, language: lang },
+        });
         results.push({ email: lead.email, day: 1, success: true });
       } catch (emailError) {
         results.push({ email: lead.email, day: 1, success: false, error: emailError instanceof Error ? emailError.message : 'Unknown' });
