@@ -179,7 +179,7 @@ const handler = async (req: Request): Promise<Response> => {
           .select('id')
           .eq('email', c.email)
           .eq('sequence_type', 'challenge_reactivation')
-          .eq('step_number', stepNumber)
+          .eq('day_number', stepNumber)
           .maybeSingle();
         if (existingLog) { skipped.already_sent++; continue; }
 
