@@ -129,12 +129,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   .maybeSingle();
                 const hasAttribution = existing?.attribution_utm && Object.keys(existing.attribution_utm as any).length > 0;
                 if (!hasAttribution) {
-                  await supabase.from('subscribers').upsert({
+                  await supabase.from('subscribers').upsert([{
                     user_id: session.user.id,
-                    email: session.user.email,
-                    attribution_utm: utm,
+                    email: session.user.email!,
+                    attribution_utm: utm as any,
                     attribution_first_touch: new Date().toISOString(),
-                  }, { onConflict: 'user_id' });
+                  }], { onConflict: 'user_id' });
                 }
               } catch (err) {
                 console.warn('[AuthContext] UTM attribution save failed:', err);
