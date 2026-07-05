@@ -362,15 +362,59 @@ const Challenge7ZileLanding = () => {
             >
               <Users className="h-4 w-4" />
               <span>
-                {statsLoading 
-                  ? (language === 'en' ? 'Loading...' : 'Se încarcă...')
+                {statsLoading || totalParticipants < 10
+                  ? null
                   : (language === 'en' 
-                      ? `${Math.max(2500, totalParticipants).toLocaleString()}+ people joined` 
-                      : `${Math.max(2500, totalParticipants).toLocaleString()}+ persoane înscrise`
-                    )
+                      ? `${totalParticipants.toLocaleString()}+ people joined` 
+                      : `${totalParticipants.toLocaleString()}+ persoane înscrise`)
                 }
               </span>
             </motion.div>
+
+            {/* Continue CTA for authenticated users without progress */}
+            {isAuthed && hasChallengeProgress === false && !localStorage.getItem('pending_challenge_plan') && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl mx-auto mb-8 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-2 border-amber-500/40"
+              >
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                      {language === 'en' ? '🎯 Your challenge is waiting' : '🎯 Challenge-ul tău te așteaptă'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === 'en' ? 'You have an account but haven\'t started Day 1 yet.' : 'Ai deja cont, dar nu ai început Ziua 1.'}
+                    </p>
+                  </div>
+                  <Button
+                    size="lg"
+                    onClick={() => navigate('/challenge/1')}
+                    className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 whitespace-nowrap"
+                  >
+                    {language === 'en' ? 'Continue to Day 1' : 'Continuă la Ziua 1'}
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {isAuthed && hasChallengeProgress === true && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl mx-auto mb-8"
+              >
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate('/challenge')}
+                  className="w-full border-amber-500/50"
+                >
+                  {language === 'en' ? 'Continue where you left off →' : 'Continuă de unde ai rămas →'}
+                </Button>
+              </motion.div>
+            )}
 
             {/* Early Bird Timer */}
             <div className="flex justify-center mb-6">
