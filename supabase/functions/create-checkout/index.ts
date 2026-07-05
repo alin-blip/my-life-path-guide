@@ -283,7 +283,12 @@ serve(async (req) => {
       successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=warrior-power`;
       cancelUrl = `${origin}/warrior-power?canceled=true`;
     } else if (source === 'challenge-7-zile' || source === 'life-score') {
-      successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=${source}`;
+      // Basic guest checkout from /challenge-7-zile — show "check your email" message on the landing
+      if (plan === 'basic' && source === 'challenge-7-zile') {
+        successUrl = `${origin}/challenge-7-zile?checkout=success&plan=basic`;
+      } else {
+        successUrl = `${origin}/challenge?checkout=success&plan=${plan}&source=${source}`;
+      }
       cancelUrl = `${origin}/challenge-7-zile?canceled=true`;
     } else if (plan === 'ebook-accelerator') {
       successUrl = `${origin}/ebook-plata-reusita?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
