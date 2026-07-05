@@ -31,16 +31,17 @@ interface RoutineSetupWizardProps {
   onSkip?: () => void;
 }
 
-// Core 4 - OBLIGATORII (nu pot fi eliminate) - 2 per categorie, aliniați cu Warrior Core 4
+// Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniați cu Warrior Core 4
+// NOTE: `journaling` este OPȚIONAL — poate fi dezactivat din setări.
 export const CORE4_STEPS = [
   'exercise',      // Body: Fitness (30 min exercițiu)
   'mealPlanning',  // Body: Fuel (alimentație)
   'meditation',    // Being: Meditation (autosugestie & credință)
-  'journaling',    // Being: Jurnal (programare subconștient)
   'relationships', // Balance: Person 1 + Person 2 (Legea Servirii)
   'learn',         // Business: Discover (cunoștințe specializate)
   'apply',         // Business: Declare (planificare organizată)
 ] as const;
+
 
 // Core 4 grouped by category for display
 const CORE4_CATEGORIES = [
