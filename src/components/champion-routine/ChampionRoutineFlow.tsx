@@ -54,6 +54,8 @@ import { RoutineSetupWizard } from './RoutineSetupWizard';
 import { QuickSettingsPanel } from './QuickSettingsPanel';
 import { autoCompleteHabitByName, ROUTINE_STEP_TO_HABIT } from '@/services/habitAutoComplete';
 import { autoMarkSelfCare, ROUTINE_STEP_TO_SELF_CARE } from '@/services/selfCareAutoComplete';
+import { logRoutineEvent } from '@/lib/routineTelemetry';
+
 
 // Setup UI components
 import { Card } from '@/components/ui/card';
@@ -648,9 +650,23 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   const goToNextStep = () => {
     // Auto-complete matching habit for the step we're leaving
     const leavingStepId = routineSteps[currentStepIndex];
+    logRoutineEvent({
+      step: leavingStepId,
+      reason: 'next',
+      meta: {
+        wasCompleted: isStepCompleted(leavingStepId, todayLog),
+        index: currentStepIndex,
+        total: routineSteps.length,
+      },
+    });
     const habitNames = ROUTINE_STEP_TO_HABIT[leavingStepId as string];
     if (habitNames && habitNames.length > 0) {
       autoCompleteHabitByName(habitNames);
+      logRoutineEvent({
+        step: leavingStepId,
+        reason: 'habit_completed',
+        sub: habitNames.join(','),
+      });
     }
     // Auto-mark matching Self Care indicator
     const selfCareFields = ROUTINE_STEP_TO_SELF_CARE[leavingStepId as string];
@@ -674,10 +690,16 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
   };
   
   const confirmSkip = () => {
+    logRoutineEvent({
+      step: currentStepId,
+      reason: 'skip',
+      meta: { index: currentStepIndex, total: routineSteps.length },
+    });
     addSkippedStep(currentStepId);
     setShowSkipDialog(false);
     goToNextStep();
   };
+
 
   // Show wizard for new users
   useEffect(() => {
