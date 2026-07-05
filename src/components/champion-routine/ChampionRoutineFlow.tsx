@@ -95,16 +95,18 @@ export type RoutineStepId =
   | 'completion';
 
 // Core 4 - OBLIGATORII (nu pot fi eliminate) - aliniate cu Warrior Core 4
+// NOTE: `journaling` este OPȚIONAL (nu obligatoriu). `mindShifting` rămâne
+// obligatoriu — poate fi completat prin ORICE stack (rugăciune, furie, etc.).
 export const CORE4_REQUIRED_STEPS: RoutineStepId[] = [
   'mindShifting',
   'exercise',
   'mealPlanning',
   'meditation',
-  'journaling',
   'relationships',
   'learn',
   'apply',
 ];
+
 
 // Default order — grouped by pillar, left-to-right: Mentalitate → Spiritualitate → Corp → Familie → Business
 // Progresia e strict pas-cu-pas în interiorul fiecărui pilon, apoi trece la următorul.
