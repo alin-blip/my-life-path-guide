@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { getUtmMetadata } from '@/hooks/useUtmCapture';
-import ebookBundle from '@/assets/ebook-bundle.png';
+
 
 interface BurnoutResultsProps {
   categoryScores: Record<BurnoutCategory, number>;
