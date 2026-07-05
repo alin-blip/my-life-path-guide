@@ -332,6 +332,44 @@ const Challenge7ZileLanding = () => {
     }
   ] : [];
 
+  // Post-checkout success (guest paid via Stripe on this funnel) → show inline message instead of the landing
+  const isCheckoutSuccess = searchParams.get('checkout') === 'success';
+  if (isCheckoutSuccess) {
+    const isRo = language === 'ro';
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-amber-500/10 p-4">
+        <div className="max-w-lg w-full text-center bg-card border border-amber-500/30 rounded-2xl p-8 md:p-10 shadow-xl">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-amber-500/15 flex items-center justify-center">
+            <Sparkles className="h-8 w-8 text-amber-500" />
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+            {isRo ? 'Plata a fost confirmată! 🎉' : 'Payment confirmed! 🎉'}
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground mb-6 leading-relaxed">
+            {isRo
+              ? 'Ți-am trimis un email cu linkul pentru a-ți seta parola și a intra în platformă. Verifică-ți inbox-ul (și folderul spam) — ajunge în câteva minute.'
+              : "We've sent you an email with a link to set your password and enter the platform. Check your inbox (and spam folder) — it arrives in a few minutes."}
+          </p>
+          <div className="text-sm text-muted-foreground bg-muted/30 rounded-lg p-4 mb-6 text-left">
+            <p className="font-semibold text-foreground mb-2">
+              {isRo ? 'Ce urmează:' : 'What\'s next:'}
+            </p>
+            <ol className="space-y-1.5 list-decimal list-inside">
+              <li>{isRo ? 'Deschide email-ul de la CEO Mind OS' : 'Open the email from CEO Mind OS'}</li>
+              <li>{isRo ? 'Apasă butonul "Setează parola & Accesează"' : 'Click "Set password & Access"'}</li>
+              <li>{isRo ? 'Începe Challenge-ul de 7 zile' : 'Start the 7-day Challenge'}</li>
+            </ol>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {isRo
+              ? 'Nu ai primit email-ul? Verifică folderul spam sau contactează-ne la contact@ceomindos.com'
+              : "Didn't get the email? Check spam or contact us at contact@ceomindos.com"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (checkoutLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
