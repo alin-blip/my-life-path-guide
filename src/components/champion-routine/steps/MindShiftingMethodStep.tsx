@@ -99,6 +99,13 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
     }
   }, []);
 
+  const markMindShiftDone = useCallback(() => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem(`mind_shift_done_${today}`, '1');
+    } catch {}
+  }, []);
+
   const InlineHeader = () => (
     <div className="flex items-center justify-between mb-3">
       <Button
@@ -112,7 +119,7 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
       <Button
         variant="ghost"
         size="sm"
-        onClick={onComplete}
+        onClick={() => { markMindShiftDone(); onComplete(); }}
         className="text-xs h-8 px-2"
       >
         Continuă rutina →
