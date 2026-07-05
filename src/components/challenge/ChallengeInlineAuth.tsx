@@ -213,17 +213,48 @@ export const ChallengeInlineAuth: React.FC<ChallengeInlineAuthProps> = ({
         // FB Pixel - Track Lead imediat la signup (înainte de AuthContext pentru email signup)
         trackLead();
 
-        // Send welcome email (fire and forget - don't block UI)
-        supabase.auth.getUser().then(({ data: userData }) => {
-          if (userData?.user) {
-            supabase.functions.invoke('send-challenge-welcome', {
-              body: {
-                email,
-                name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name || '',
-                userId: userData.user.id,
-                language
-              }
-            }).catch(err => console.warn('Welcome email failed:', err));
+        // Send welcome email + save SMS prefs + enroll onboarding SMS (fire and forget)
+        supabase.auth.getUser().then(async ({ data: userData }) => {
+          if (!userData?.user) return;
+          const uid = userData.user.id;
+          // Welcome email
+          supabase.functions.invoke('send-challenge-welcome', {
+            body: {
+              email,
+              name: userData.user.user_metadata?.full_name || userData.user.user_metadata?.name || '',
+              userId: uid,
+              language
+            }
+          }).catch(err => console.warn('Welcome email failed:', err));
+
+          // Save phone + SMS consent
+          const normalizedPhone = phone.trim().replace(/\s+/g, '');
+          if (normalizedPhone && smsConsent) {
+            const e164 = normalizedPhone.startsWith('+') ? normalizedPhone : `+${normalizedPhone}`;
+            try {
+              await supabase.from('user_sms_preferences').upsert({
+                user_id: uid,
+                phone_e164: e164,
+                sms_consent: true,
+                onboarding_opt_in: true,
+                marketing_opt_in: true,
+                checkout_recovery_opt_in: true,
+                consent_source: 'challenge-7-zile-landing',
+                consent_at: new Date().toISOString(),
+              }, { onConflict: 'user_id' });
+
+              // Enroll in onboarding sequence
+              supabase.functions.invoke('sms-enroll', {
+                body: {
+                  user_id: uid,
+                  sequence_key: language === 'en' ? 'onboarding_en' : 'onboarding_ro',
+                  phone_e164: e164,
+                  metadata: { source: 'challenge-7-zile-landing' }
+                }
+              }).catch(err => console.warn('SMS enroll failed:', err));
+            } catch (err) {
+              console.warn('SMS prefs save failed:', err);
+            }
           }
         });
 
