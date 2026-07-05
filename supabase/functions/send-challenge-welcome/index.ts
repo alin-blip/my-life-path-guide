@@ -150,27 +150,54 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { subject, html } = getEmailTemplate(name || '', referralLink, trackingPixelUrl, unsubscribeUrl, language);
 
-     const emailResponse = await resend.emails.send({
-       from: "CEO Mind OS <noreply@ceomindos.com>",
-      to: [email],
-      subject,
-      html,
+    // Log intent BEFORE sending so we see it in the email dashboard even on failure.
+    await supabase.from('email_send_log').insert({
+      message_id: trackingId,
+      template_name: 'challenge-welcome',
+      recipient_email: email,
+      status: 'pending',
+      metadata: { user_id: userId, language },
     });
 
-    console.log(`Welcome email sent to ${email}:`, emailResponse);
+    let emailResponse: any;
+    try {
+      emailResponse = await resend.emails.send({
+        from: "CEO Mind OS <noreply@ceomindos.com>",
+        to: [email],
+        subject,
+        html,
+      });
+      console.log(`Welcome email sent to ${email}:`, emailResponse);
+
+      await supabase.from('email_send_log').insert({
+        message_id: trackingId,
+        template_name: 'challenge-welcome',
+        recipient_email: email,
+        status: 'sent',
+        metadata: {
+          user_id: userId,
+          language,
+          resend_id: (emailResponse as any)?.data?.id || (emailResponse as any)?.id || null,
+        },
+      });
+    } catch (sendErr: any) {
+      await supabase.from('email_send_log').insert({
+        message_id: trackingId,
+        template_name: 'challenge-welcome',
+        recipient_email: email,
+        status: 'failed',
+        error_message: (sendErr?.message || 'send failed').slice(0, 500),
+        metadata: { user_id: userId, language },
+      });
+      throw sendErr;
+    }
 
     await supabase.from('email_sequence_log').insert({
       email,
       sequence_type: 'challenge_welcome',
       tracking_id: trackingId,
-      step_number: 1,
+      day_number: 1,
       sent_at: new Date().toISOString(),
-      metadata: {
-        user_id: userId,
-        language,
-        resend_id: (emailResponse as any)?.data?.id || (emailResponse as any)?.id || null,
-        referral_link: referralLink
-      }
     });
 
     return new Response(JSON.stringify({ success: true, trackingId }), {
