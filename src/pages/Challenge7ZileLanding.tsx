@@ -292,20 +292,20 @@ const Challenge7ZileLanding = () => {
     }
   ];
 
-  const stats = [
-    { 
-      value: `${realMetrics.users.toLocaleString()}+`, 
-      label: language === 'en' ? "Active Users" : "Utilizatori Activi" 
+  const stats = realMetrics.users > 0 ? [
+    {
+      value: `${realMetrics.users.toLocaleString()}+`,
+      label: language === 'en' ? "Signups" : "Înscrieri"
     },
-    { 
-      value: `${realMetrics.completionRate}%`, 
-      label: language === 'en' ? "Completion Rate" : "Rată de Finalizare" 
+    {
+      value: realMetrics.completionRate > 0 ? `${realMetrics.completionRate}%` : '—',
+      label: language === 'en' ? "Day 7 Completion" : "Finalizare Ziua 7"
     },
-    { 
-      value: "4.8/5", 
-      label: language === 'en' ? "Average Rating" : "Rating Mediu" 
+    {
+      value: "4.8/5",
+      label: language === 'en' ? "Average Rating" : "Rating Mediu"
     }
-  ];
+  ] : [];
 
   if (checkoutLoading) {
     return (
