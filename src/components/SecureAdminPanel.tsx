@@ -22,6 +22,7 @@ import { SmsAdmin } from './admin/SmsAdmin';
 import { ChallengeFunnelDashboard } from './admin/ChallengeFunnelDashboard';
 import { RetargetingAudiences } from './admin/RetargetingAudiences';
 import { AdsRoiDashboard } from './admin/AdsRoiDashboard';
+import { ReactivationCampaign } from './admin/ReactivationCampaign';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
   Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck, Activity
@@ -165,10 +166,12 @@ export const SecureAdminPanel: React.FC = () => {
               <Tabs defaultValue="funnel" className="w-full">
                 <TabsList className="mb-4">
                   <TabsTrigger value="funnel">Funnel</TabsTrigger>
+                  <TabsTrigger value="reactivation">🔥 Reactivation</TabsTrigger>
                   <TabsTrigger value="retargeting">Retargeting</TabsTrigger>
                   <TabsTrigger value="ads-roi">Ads ROI</TabsTrigger>
                 </TabsList>
                 <TabsContent value="funnel"><ChallengeFunnelDashboard /></TabsContent>
+                <TabsContent value="reactivation"><ReactivationCampaign /></TabsContent>
                 <TabsContent value="retargeting"><RetargetingAudiences /></TabsContent>
                 <TabsContent value="ads-roi"><AdsRoiDashboard /></TabsContent>
               </Tabs>

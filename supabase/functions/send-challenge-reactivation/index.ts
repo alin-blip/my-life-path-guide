@@ -21,7 +21,7 @@ const getReactivationContent = (stepNumber: number, name: string, lang: EmailLan
 
   const stepsRo: Record<number, EmailContent> = {
     1: { subject: firstName ? `${firstName}, ai uitat ceva important` : 'Ai uitat ceva important', body: 'Ai decis sa iti schimbi viata. Dar nu ai terminat ce ai inceput.\n\nZiua 1 dureaza 15 minute. In 15 minute poti avea mai multa claritate decat in ultimii 5 ani.', ctaText: 'Incepe Ziua 1' },
-    2: { subject: 'E din cauza lipsei de timp, sau altceva?', body: 'Multi oameni nu incep pentru ca le e frica sa afle raspunsul la "Ce vreau de fapt?"\n\nChallenge-ul te ghideaza pas cu pas, fara sa te simti copleșit.', ctaText: 'Fa Primii 5 Minute' },
+    2: { subject: 'E din cauza lipsei de timp, sau altceva?', body: 'Multi oameni nu incep pentru ca le e frica sa afle raspunsul la "Ce vreau de fapt?"\n\nChallenge-ul te ghideaza pas cu pas, fara sa te simti coplesit.', ctaText: 'Fa Primii 5 Minute' },
     3: { subject: 'Costul de a nu avea un plan', body: 'In ultimele 72 de ore, alti participanti si-au setat viziunea pentru 2026.\n\nFara plan clar = decizii reactive. Fara obiective = energie risipita. Fara directie = frustrare zilnica.', ctaText: 'Recupereaza Ziua 1' },
     4: { subject: firstName ? `${firstName}, te mai asteptam` : 'Te mai asteptam', body: 'Au trecut 5 zile. Alti participanti sunt deja la Ziua 5 — au rutina configurata si AI Coach activ.\n\nViata e ocupata. Dar tocmai de asta ai nevoie de un sistem.', ctaText: 'Incepe Astazi' },
     5: { subject: 'Nu pierde progresul de pana acum', body: 'Daca nu incepi azi, probabil nu vei incepe niciodata.\n\nDaca nu mai vrei sa primesti aceste emailuri, te poti dezabona mai jos.', ctaText: 'Vreau sa Incep' }
@@ -39,20 +39,24 @@ const getReactivationContent = (stepNumber: number, name: string, lang: EmailLan
   return steps[stepNumber] || steps[1];
 };
 
-const generateTrackingId = (stepNumber: number) => `challenge-reactivation-s${stepNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+const generateTrackingId = () => crypto.randomUUID();
 
-const getStepForUser = (signupDate: Date): number | null => {
-  const hoursSinceSignup = (Date.now() - signupDate.getTime()) / (1000 * 60 * 60);
-  if (hoursSinceSignup >= 24 && hoursSinceSignup < 48) return 1;
-  if (hoursSinceSignup >= 48 && hoursSinceSignup < 72) return 2;
-  if (hoursSinceSignup >= 72 && hoursSinceSignup < 120) return 3;
-  if (hoursSinceSignup >= 120 && hoursSinceSignup < 168) return 4;
-  if (hoursSinceSignup >= 168 && hoursSinceSignup < 240) return 5;
+// Step cadence in DAYS since enrollment/signup: 1, 3, 6, 10, 14
+const getStepForDaysElapsed = (daysSince: number): number | null => {
+  if (daysSince >= 1 && daysSince < 3) return 1;
+  if (daysSince >= 3 && daysSince < 6) return 2;
+  if (daysSince >= 6 && daysSince < 10) return 3;
+  if (daysSince >= 10 && daysSince < 14) return 4;
+  if (daysSince >= 14 && daysSince < 20) return 5;
   return null;
 };
 
-function buildEmail(content: EmailContent, trackingPixelUrl: string, unsubscribeUrl: string, lang: EmailLang): string {
+function buildEmail(content: EmailContent, trackingPixelUrl: string, unsubscribeUrl: string, lang: EmailLang, hasAccount: boolean): string {
   const unsubLabel = lang === 'en' ? 'Unsubscribe' : 'Dezabonare';
+  // Send unauthenticated leads to /auth first (with redirect back to challenge day 1)
+  const ctaUrl = hasAccount
+    ? 'https://ceomindos.com/challenge/1?utm_source=email&utm_medium=reactivation&utm_campaign=win_back'
+    : 'https://ceomindos.com/auth?redirect=/challenge/1&utm_source=email&utm_medium=reactivation&utm_campaign=win_back';
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
@@ -61,7 +65,7 @@ function buildEmail(content: EmailContent, trackingPixelUrl: string, unsubscribe
 <tr><td style="background:#18181b;padding:24px 32px;text-align:center;"><h1 style="color:#fff;margin:0;font-size:20px;font-weight:600;">CEO Mind OS</h1></td></tr>
 <tr><td style="padding:32px;">
 <div style="color:#4b5563;font-size:16px;line-height:1.7;white-space:pre-line;margin:0 0 24px 0;">${content.body}</div>
-<div style="text-align:center;margin:32px 0;"><a href="https://ceomindos.com/challenge/1?utm_source=email&utm_medium=reactivation" style="display:inline-block;background:#18181b;color:#fff;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:16px;font-weight:600;">${content.ctaText}</a></div>
+<div style="text-align:center;margin:32px 0;"><a href="${ctaUrl}" style="display:inline-block;background:#18181b;color:#fff;text-decoration:none;padding:14px 32px;border-radius:6px;font-size:16px;font-weight:600;">${content.ctaText}</a></div>
 </td></tr>
 <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
 <p style="color:#9ca3af;margin:0 0 8px 0;font-size:12px;">CEO Mind OS</p>
@@ -72,62 +76,155 @@ function buildEmail(content: EmailContent, trackingPixelUrl: string, unsubscribe
 </body></html>`;
 }
 
+interface Candidate {
+  email: string;
+  name: string | null;
+  referenceDate: Date;  // enrollment date (manual) OR signup date (auto)
+  isManual: boolean;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString();
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    const { data: leads, error: leadsError } = await supabase
-      .from('email_leads').select('email, created_at, metadata, subscribed, name')
-      .eq('subscribed', true).gte('created_at', tenDaysAgo).lte('created_at', oneDayAgo);
-    if (leadsError) throw leadsError;
+    // Build candidate set from BOTH sources:
+    // 1. Manual enrollments (admin-triggered, includes old leads outside 20d window)
+    // 2. Auto: recent signups from email_leads within 20d
+    const candidates = new Map<string, Candidate>();
+
+    const { data: manual } = await supabase
+      .from('challenge_reactivation_manual')
+      .select('email, enrolled_at')
+      .is('completed_at', null)
+      .is('unsubscribed_at', null);
+
+    for (const m of manual || []) {
+      const key = m.email.toLowerCase();
+      candidates.set(key, {
+        email: m.email,
+        name: null,
+        referenceDate: new Date(m.enrolled_at),
+        isManual: true,
+      });
+    }
+
+    const twentyDaysAgo = new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString();
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: leads } = await supabase
+      .from('email_leads')
+      .select('email, created_at, name, subscribed')
+      .eq('subscribed', true)
+      .gte('created_at', twentyDaysAgo)
+      .lte('created_at', oneDayAgo)
+      .like('source', 'challenge%');
+
+    for (const l of leads || []) {
+      const key = l.email.toLowerCase();
+      if (candidates.has(key)) {
+        // manual takes precedence, but capture name
+        const c = candidates.get(key)!;
+        if (!c.name && l.name) c.name = l.name;
+        continue;
+      }
+      candidates.set(key, {
+        email: l.email,
+        name: l.name ?? null,
+        referenceDate: new Date(l.created_at),
+        isManual: false,
+      });
+    }
+
+    // Preload auth users once
+    const { data: authList } = await supabase.auth.admin.listUsers();
+    const authByEmail = new Map<string, any>();
+    for (const u of authList?.users || []) {
+      if (u.email) authByEmail.set(u.email.toLowerCase(), u);
+    }
+
+    // Preload suppressed
+    const { data: suppressed } = await supabase.from('suppressed_emails').select('email');
+    const suppressedSet = new Set((suppressed || []).map((s: any) => s.email.toLowerCase()));
 
     let emailsSent = 0;
     const errors: string[] = [];
+    const skipped: Record<string, number> = { suppressed: 0, no_step: 0, already_sent: 0, day1_completed: 0 };
 
-    for (const lead of leads || []) {
+    for (const c of candidates.values()) {
       try {
-        const { data: authUsers } = await supabase.auth.admin.listUsers();
-        const authUser = authUsers?.users?.find(u => u.email === lead.email);
-        if (!authUser) continue;
+        const emailLower = c.email.toLowerCase();
+        if (suppressedSet.has(emailLower)) { skipped.suppressed++; continue; }
 
-        const { data: progress } = await supabase
-          .from('challenge_progress').select('day_number, completed')
-          .eq('user_id', authUser.id).eq('day_number', 1).maybeSingle();
-        if (progress?.completed) continue;
+        const authUser = authByEmail.get(emailLower);
+        const hasAccount = !!authUser;
 
-        const stepNumber = getStepForUser(new Date(lead.created_at));
-        if (!stepNumber) continue;
+        // If has account AND completed day 1, skip entirely
+        if (hasAccount) {
+          const { data: progress } = await supabase
+            .from('challenge_progress')
+            .select('completed')
+            .eq('user_id', authUser.id)
+            .eq('day_number', 1)
+            .maybeSingle();
+          if (progress?.completed) { skipped.day1_completed++; continue; }
+        }
+
+        const daysSince = (Date.now() - c.referenceDate.getTime()) / (1000 * 60 * 60 * 24);
+        const stepNumber = getStepForDaysElapsed(daysSince);
+        if (!stepNumber) { skipped.no_step++; continue; }
 
         const { data: existingLog } = await supabase
-          .from('email_sequence_log').select('id')
-          .eq('email', lead.email).eq('sequence_type', 'challenge_reactivation').eq('step_number', stepNumber).maybeSingle();
-        if (existingLog) continue;
+          .from('email_sequence_log')
+          .select('id')
+          .eq('email', c.email)
+          .eq('sequence_type', 'challenge_reactivation')
+          .eq('day_number', stepNumber)
+          .maybeSingle();
+        if (existingLog) { skipped.already_sent++; continue; }
 
-        const name = authUser.user_metadata?.full_name || authUser.user_metadata?.name || lead.name || '';
-        const lang = await resolveLeadLanguage(supabase, lead.email);
+        const name = authUser?.user_metadata?.full_name || authUser?.user_metadata?.name || c.name || '';
+        const lang = await resolveLeadLanguage(supabase, c.email);
         const content = getReactivationContent(stepNumber, name, lang);
-        const trackingId = generateTrackingId(stepNumber);
+        const trackingId = generateTrackingId();
         const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}`;
         const unsubscribeUrl = `${SUPABASE_URL}/functions/v1/unsubscribe-email?id=${trackingId}`;
-        const html = buildEmail(content, trackingPixelUrl, unsubscribeUrl, lang);
+        const html = buildEmail(content, trackingPixelUrl, unsubscribeUrl, lang, hasAccount);
 
-        await resend.emails.send({ from: "CEO Mind OS <noreply@ceomindos.com>", to: [lead.email], subject: content.subject, html });
+        await resend.emails.send({
+          from: "CEO Mind OS <noreply@ceomindos.com>",
+          to: [c.email],
+          subject: content.subject,
+          html,
+        });
 
         await supabase.from('email_sequence_log').insert({
-          email: lead.email, sequence_type: 'challenge_reactivation', tracking_id: trackingId, step_number: stepNumber, sent_at: new Date().toISOString(),
-          metadata: { user_id: authUser.id, language: lang, resend_id: null }
+          email: c.email,
+          sequence_type: 'challenge_reactivation',
+          tracking_id: trackingId,
+          day_number: stepNumber,
+          sent_at: new Date().toISOString(),
+          metadata: { user_id: authUser?.id || null, language: lang, has_account: hasAccount, is_manual: c.isManual }
         });
+
+        // If step 5 sent, mark manual enrollment complete so we don't hold it forever
+        if (c.isManual && stepNumber === 5) {
+          await supabase
+            .from('challenge_reactivation_manual')
+            .update({ completed_at: new Date().toISOString() })
+            .eq('email', c.email);
+        }
+
         emailsSent++;
       } catch (err: any) {
-        errors.push(`${lead.email}: ${err.message}`);
+        errors.push(`${c.email}: ${err.message}`);
       }
     }
 
-    return new Response(JSON.stringify({ success: true, emailsSent, errors: errors.length > 0 ? errors : undefined }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    return new Response(
+      JSON.stringify({ success: true, emailsSent, candidateCount: candidates.size, skipped, errors: errors.length > 0 ? errors : undefined }),
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
   } catch (error: any) {
     console.error("Error in send-challenge-reactivation:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
