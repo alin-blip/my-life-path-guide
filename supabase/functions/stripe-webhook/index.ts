@@ -193,9 +193,11 @@ serve(async (req) => {
           metadata: session.metadata
         });
 
-        const customerEmail = session.customer_email;
+        // Stripe sets customer_email when we preset it; when Stripe collects it on the checkout page,
+        // it lands in customer_details.email. Support both.
+        const customerEmail = session.customer_email || session.customer_details?.email;
         const customerId = session.customer as string;
-        
+
         if (!customerEmail) {
           log("No customer email in session");
           break;
@@ -296,12 +298,17 @@ serve(async (req) => {
           await processCoachCommission(user.id, paymentAmountEur, session.currency || "eur", session.id);
         }
 
-        // === BURNOUT/EBOOK FUNNEL HOOKS ===
+        // === BURNOUT/EBOOK/CHALLENGE FUNNEL HOOKS ===
         try {
           const planId = session.metadata?.plan_id || "";
+          const funnelSource = session.metadata?.source || "";
           const isEbookPurchase = ["ebook-only", "ebook-bundle", "ebook-only-en", "ebook-bundle-en"].includes(planId);
           const isUpsellPurchase = ["ebook-accelerator", "ebook-accelerator-en", "challenge-plus-trial", "challenge-plus-trial-en"].includes(planId);
-          const language = planId.endsWith("-en") ? "en" : "ro";
+          // Basic plan purchased directly from the /challenge-7-zile landing page (guest checkout)
+          const isChallengeBasic = planId === "basic" && funnelSource === "challenge-7-zile";
+          const language = (session.metadata?.language === "en" || session.metadata?.language === "ro")
+            ? session.metadata.language
+            : (planId.endsWith("-en") ? "en" : "ro");
 
           const EBOOK_DOWNLOADS = {
             ro: {
@@ -422,6 +429,60 @@ serve(async (req) => {
               } catch (challengeErr) {
                 log("Challenge welcome flow error", { error: challengeErr instanceof Error ? challengeErr.message : String(challengeErr) });
               }
+            }
+          }
+
+          // === CHALLENGE 7 ZILE (Basic plan, guest checkout from landing) ===
+          if (isChallengeBasic) {
+            try {
+              let challengeUser = user;
+              if (!challengeUser) {
+                const tempPwd = crypto.randomUUID().replace(/-/g, "") + "A1!";
+                const { data: created, error: createErr } = await supabaseService.auth.admin.createUser({
+                  email: customerEmail,
+                  password: tempPwd,
+                  email_confirm: true,
+                  user_metadata: {
+                    display_name: session.metadata?.guest_name || "",
+                    source: "challenge_7_zile",
+                  },
+                });
+                if (createErr) {
+                  log("Basic auto-create user error", { error: createErr.message });
+                } else if (created?.user) {
+                  challengeUser = created.user;
+                  await supabaseService
+                    .from("subscribers")
+                    .update({ user_id: created.user.id })
+                    .eq("email", customerEmail);
+                }
+              }
+
+              const origin = req.headers.get("origin") || "https://ceomindos.com";
+              const { data: linkData, error: linkErr } = await supabaseService.auth.admin.generateLink({
+                type: "recovery",
+                email: customerEmail,
+                options: { redirectTo: `${origin}/reset-password` },
+              });
+              if (linkErr) {
+                log("Basic generateLink error", { error: linkErr.message });
+              } else {
+                await supabaseService.functions.invoke("send-transactional-email", {
+                  body: {
+                    templateName: "challenge-welcome-set-password",
+                    recipientEmail: customerEmail,
+                    idempotencyKey: `challenge-basic-welcome-${session.id}`,
+                    templateData: {
+                      name: session.metadata?.guest_name || undefined,
+                      language,
+                      setPasswordUrl: linkData?.properties?.action_link || `${origin}/auth`,
+                    },
+                  },
+                });
+                log("Challenge Basic welcome email queued", { email: customerEmail });
+              }
+            } catch (basicErr) {
+              log("Challenge Basic welcome flow error", { error: basicErr instanceof Error ? basicErr.message : String(basicErr) });
             }
           }
         } catch (funnelErr) {
