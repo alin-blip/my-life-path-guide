@@ -8795,6 +8795,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      trigger_send_challenge_recovery: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "coach" | "trainer"
