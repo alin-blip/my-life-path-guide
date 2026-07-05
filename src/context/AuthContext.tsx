@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { trackLead } from '@/lib/facebook-pixel';
 import { migrateLocalJournalEntries } from '@/services/journalMigrationService';
+import { getStoredUtm } from '@/hooks/useUtmCapture';
 
 
 interface AuthContextType {
@@ -105,8 +106,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (event === 'SIGNED_IN' && session?.user && !isSameUser) {
 
-
-
           // Track login activity in CRM
           const sessionId = sessionStorage.getItem('crm_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           supabase.from('crm_activity_timeline').insert([{
@@ -117,6 +116,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             session_id: sessionId,
             device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop'
           }]).then(() => {});
+
+          // Persist UTM attribution to subscribers on first sign-in (never overwrite)
+          const utm = getStoredUtm();
+          if (utm && (utm.utm_source || utm.utm_campaign || utm.utm_medium)) {
+            (async () => {
+              try {
+                const { data: existing } = await supabase
+                  .from('subscribers')
+                  .select('id, attribution_utm, attribution_first_touch')
+                  .eq('user_id', session.user.id)
+                  .maybeSingle();
+                const hasAttribution = existing?.attribution_utm && Object.keys(existing.attribution_utm as any).length > 0;
+                if (!hasAttribution) {
+                  await supabase.from('subscribers').upsert([{
+                    user_id: session.user.id,
+                    email: session.user.email!,
+                    attribution_utm: utm as any,
+                    attribution_first_touch: new Date().toISOString(),
+                  }], { onConflict: 'user_id' });
+                }
+              } catch (err) {
+                console.warn('[AuthContext] UTM attribution save failed:', err);
+              }
+            })();
+          }
 
           // CHALLENGE OAUTH LEAD CAPTURE
           const fromChallenge = window.location.pathname.includes('/challenge');

@@ -80,6 +80,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ads_spend_manual: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          notes: string | null
+          period_end: string
+          period_start: string
+          spend_amount: number
+          updated_at: string
+          utm_campaign: string
+          utm_source: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          period_end: string
+          period_start: string
+          spend_amount: number
+          updated_at?: string
+          utm_campaign?: string
+          utm_source: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          spend_amount?: number
+          updated_at?: string
+          utm_campaign?: string
+          utm_source?: string
+        }
+        Relationships: []
+      }
       ai_generated_images: {
         Row: {
           category: string | null
@@ -6298,6 +6340,8 @@ export type Database = {
       }
       subscribers: {
         Row: {
+          attribution_first_touch: string | null
+          attribution_utm: Json
           created_at: string | null
           early_bird_expires_at: string | null
           email: string
@@ -6311,6 +6355,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          attribution_first_touch?: string | null
+          attribution_utm?: Json
           created_at?: string | null
           early_bird_expires_at?: string | null
           email: string
@@ -6324,6 +6370,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          attribution_first_touch?: string | null
+          attribution_utm?: Json
           created_at?: string | null
           early_bird_expires_at?: string | null
           email?: string
@@ -8729,6 +8777,18 @@ export type Database = {
           pages_read: number | null
           principles_touched: number | null
           user_id: string | null
+        }
+        Relationships: []
+      }
+      retargeting_audiences_v: {
+        Row: {
+          email: string | null
+          last_seen_at: string | null
+          stage: string | null
+          subscription_tier: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_source: string | null
         }
         Relationships: []
       }

@@ -14,7 +14,7 @@ import {
   Heart, Crown, Users, Sparkles, Gift,
   Star, Target, Map, Bell, Trophy, ChevronDown
 } from 'lucide-react';
-import { trackCheckoutInitiated } from '@/lib/facebook-pixel';
+import { trackCheckoutInitiated, trackViewContent } from '@/lib/facebook-pixel';
 import { preOpenWindow, redirectExternal } from '@/lib/externalRedirect';
 import { Helmet } from 'react-helmet-async';
 import { useChallengeStats } from '@/hooks/useChallengeStats';
@@ -57,6 +57,11 @@ const Challenge7ZileLanding = () => {
       }
     };
     fetchMetrics();
+  }, []);
+
+  // Meta Pixel ViewContent on landing mount
+  useEffect(() => {
+    trackViewContent('challenge_7_zile_landing', 'lead_magnet');
   }, []);
 
   // Detect authenticated users without challenge progress to show a strong "continue" CTA.
