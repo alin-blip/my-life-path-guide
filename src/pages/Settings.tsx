@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { MigrationManagement } from '@/components/settings/MigrationManagement';
 import { SoundSettings } from '@/components/settings/SoundSettings';
 import { InstallAppButton } from '@/components/pwa/InstallAppButton';
+import { SmsPreferencesCard } from '@/components/settings/SmsPreferencesCard';
 import { Smartphone } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
