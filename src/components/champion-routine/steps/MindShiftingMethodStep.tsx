@@ -146,7 +146,7 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
         <MentalitateStackFlow
           mode="daily"
           source="routine"
-          onComplete={onComplete}
+          onComplete={completeAndContinue}
           onSkip={onSkip}
         />
       </div>
