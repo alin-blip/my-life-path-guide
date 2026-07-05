@@ -114,8 +114,12 @@ serve(async (req) => {
     const { data: authUsers } = await supabase.auth.admin.listUsers();
     const userEmailMap = new Map(authUsers?.users?.map(u => [u.id, { email: u.email, name: u.user_metadata?.name || '' }]) || []);
 
+    // Fetch all challenge leads (both OAuth signups and inline-auth signups).
+    // Prior code used a lead_magnet value that never existed → 0 recovery emails.
     const { data: challengeLeads } = await supabase
-      .from("email_leads").select("email, name, created_at").eq("lead_magnet", "challenge_7_zile");
+      .from("email_leads")
+      .select("email, name, created_at")
+      .or("source.ilike.challenge%,lead_magnet.ilike.challenge%");
 
     const today = new Date().toISOString().split('T')[0];
     const { data: sentToday } = await supabase
