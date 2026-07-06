@@ -405,12 +405,9 @@ const handler = async (req: Request): Promise<Response> => {
 
         if (existingLog) continue;
 
-        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
-        if (userError || !userData?.user?.email) continue;
-
-        const email = userData.user.email;
         const name = userData.user.user_metadata?.full_name || userData.user.user_metadata?.name || '';
-        
+        const email = emailAddr;
+
         const { data: emailLead } = await supabase
           .from('email_leads')
           .select('subscribed, metadata, language')
@@ -426,12 +423,26 @@ const handler = async (req: Request): Promise<Response> => {
           if (prefLang === 'en' || prefLang === 'ro') language = prefLang;
         } catch {}
         const content = getDayContent(nextDay, language);
-        
+
         const trackingId = generateTrackingId(nextDay);
         const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email-open?t=${trackingId}`;
         const unsubscribeUrl = `${SUPABASE_URL}/functions/v1/unsubscribe-email?id=${trackingId}`;
 
         const { subject, html } = getEmailTemplate(name, nextDay, content, trackingPixelUrl, unsubscribeUrl, language);
+
+        // Reserve the slot BEFORE sending so a duplicate cron run cannot re-send.
+        // Unique index (email, sequence_type, day_number) guarantees only one insert wins.
+        const { error: reserveErr } = await supabase.from('email_sequence_log').insert({
+          email,
+          sequence_type: 'challenge_daily',
+          tracking_id: trackingId,
+          day_number: nextDay,
+          sent_at: new Date().toISOString(),
+        });
+        if (reserveErr) {
+          console.log(`Skip (already reserved) ${email} day ${nextDay}: ${reserveErr.message}`);
+          continue;
+        }
 
         const emailResponse = await resend.emails.send({
           from: "CEO Mind OS <noreply@ceomindos.com>",
@@ -440,17 +451,18 @@ const handler = async (req: Request): Promise<Response> => {
           html,
         });
 
-        await supabase.from('email_sequence_log').insert({
-          email,
-          sequence_type: 'challenge_daily',
-          tracking_id: trackingId,
-          step_number: nextDay,
-          sent_at: new Date().toISOString(),
+        // Also log to email_send_log for the dashboard
+        await supabase.from('email_send_log').insert({
+          message_id: trackingId,
+          template_name: 'challenge-daily',
+          recipient_email: email,
+          status: 'sent',
           metadata: {
             user_id: userId,
             language,
-            resend_id: (emailResponse as any)?.data?.id || null
-          }
+            day_number: nextDay,
+            resend_id: (emailResponse as any)?.data?.id || null,
+          },
         });
 
         emailsSent++;
