@@ -21,7 +21,8 @@ interface WelcomeEmailRequest {
 }
 
 const generateTrackingId = () => {
-  return `challenge-welcome-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  // tracking_id column is UUID. Non-UUID strings fail insert -> dedup breaks -> duplicates.
+  return crypto.randomUUID();
 };
 
 const getEmailTemplate = (
@@ -150,7 +151,25 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { subject, html } = getEmailTemplate(name || '', referralLink, trackingPixelUrl, unsubscribeUrl, language);
 
-    // Log intent BEFORE sending so we see it in the email dashboard even on failure.
+    // RESERVE THE SLOT FIRST. UNIQUE(email, sequence_type) on 'challenge_welcome'
+    // ensures concurrent invocations (SIGNED_IN + tab-refocus + another device)
+    // cannot both pass the dedup check and both send.
+    const { error: reserveErr } = await supabase.from('email_sequence_log').insert({
+      email,
+      sequence_type: 'challenge_welcome',
+      tracking_id: trackingId,
+      day_number: 1,
+      sent_at: new Date().toISOString(),
+    });
+    if (reserveErr) {
+      console.log(`Welcome email already reserved for ${email}, skipping (race). ${reserveErr.message}`);
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: 'already_sent' }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Log intent for the dashboard.
     await supabase.from('email_send_log').insert({
       message_id: trackingId,
       template_name: 'challenge-welcome',
@@ -192,13 +211,6 @@ const handler = async (req: Request): Promise<Response> => {
       throw sendErr;
     }
 
-    await supabase.from('email_sequence_log').insert({
-      email,
-      sequence_type: 'challenge_welcome',
-      tracking_id: trackingId,
-      day_number: 1,
-      sent_at: new Date().toISOString(),
-    });
 
     return new Response(JSON.stringify({ success: true, trackingId }), {
       status: 200,
