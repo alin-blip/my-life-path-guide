@@ -1,9 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders, requireUser, unauthorized } from '../_shared/auth.ts'
 
 interface WidgetConfig {
   type: 'counter' | 'tracker' | 'goal' | 'checklist' | 'notes';
@@ -22,6 +18,9 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');

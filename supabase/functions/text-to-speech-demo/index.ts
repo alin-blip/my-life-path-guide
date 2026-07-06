@@ -11,7 +11,7 @@ const rateLimits = new Map<string, { count: number; resetAt: number }>();
 const checkRateLimit = (ip: string): boolean => {
   const now = Date.now();
   const windowMs = 60 * 60 * 1000; // 1 hour window
-  const maxRequests = 100; // max 100 TTS requests per hour per IP
+  const maxRequests = 30; // max 30 TTS requests per hour per IP
   
   const entry = rateLimits.get(ip);
   

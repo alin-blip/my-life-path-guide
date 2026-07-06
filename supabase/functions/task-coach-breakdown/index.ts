@@ -1,5 +1,6 @@
 // Task Coach Wizard: reframe mental + breakdown task în micro-acțiuni
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { requireUser, unauthorized } from '../_shared/auth.ts';
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
@@ -63,6 +64,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: extraHeaders });
 
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY missing');
     const body: ReqBody = await req.json();
     const lang = body.language === 'en' ? 'en' : 'ro';

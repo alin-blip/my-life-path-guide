@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireCronOrAdmin } from "../_shared/require-cron-or-admin.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -169,6 +170,9 @@ serve(async (req: Request) => {
   }
 
   try {
+    const authFail = await requireCronOrAdmin(req, corsHeaders);
+    if (authFail) return authFail;
+
     if (!RESEND_API_KEY) {
       throw new Error('RESEND_API_KEY not configured');
     }

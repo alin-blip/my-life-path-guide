@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.80.0";
+import { authorizeUserOrRecentLead } from "../_shared/auth.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -167,6 +168,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     const body: LifeScoreResultsRequest = await req.json();
     const { email, name = 'Warrior', scores, language = 'ro' } = body;
+
+    const authError = await authorizeUserOrRecentLead(req, email, 'life_score_quiz');
+    if (authError) return authError;
 
     console.log('Sending life score results email to:', email, 'scores:', scores);
 

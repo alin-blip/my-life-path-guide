@@ -2,17 +2,51 @@
 // Configure in Twilio console: https://<project>.supabase.co/functions/v1/sms-webhook
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "../_shared/auth.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN") ?? "";
+
+async function verifyTwilioSignature(req: Request, rawBody: string): Promise<boolean> {
+  if (!TWILIO_AUTH_TOKEN) {
+    console.warn("[sms-webhook] TWILIO_AUTH_TOKEN not set — skipping signature check");
+    return true;
+  }
+  const signature = req.headers.get("X-Twilio-Signature");
+  if (!signature) return false;
+
+  const url = new URL(req.url);
+  const params = new URLSearchParams(rawBody);
+  const sortedKeys = [...params.keys()].sort();
+  let data = url.origin + url.pathname;
+  for (const key of sortedKeys) {
+    data += key + params.get(key);
+  }
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(TWILIO_AUTH_TOKEN),
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(data));
+  const expected = btoa(String.fromCharCode(...new Uint8Array(sig)));
+
+  return signature === expected;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   try {
+    const rawBody = await req.text();
+    if (!(await verifyTwilioSignature(req, rawBody))) {
+      console.error("[sms-webhook] Invalid Twilio signature");
+      return new Response("Forbidden", { status: 403, headers: corsHeaders });
+    }
+
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-    const form = await req.formData();
+    const form = new URLSearchParams(rawBody);
     const from = String(form.get('From') ?? '').trim();
     const body = String(form.get('Body') ?? '').trim().toUpperCase();
     const messageSid = String(form.get('MessageSid') ?? '');
@@ -20,7 +54,7 @@ serve(async (req) => {
 
     // Status callback
     if (messageStatus && messageSid) {
-      const patch: any = {};
+      const patch: Record<string, string> = {};
       if (messageStatus === 'delivered') { patch.status = 'delivered'; patch.delivered_at = new Date().toISOString(); }
       else if (['failed', 'undelivered'].includes(messageStatus)) {
         patch.status = messageStatus;
@@ -35,7 +69,6 @@ serve(async (req) => {
     // Inbound STOP / START
     if (from && ['STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT'].includes(body)) {
       await supabase.from('sms_suppression').upsert({ phone_e164: from, reason: 'user_stop' });
-      // Pause enrollments for this user
       const { data: prefs } = await supabase.from('user_sms_preferences').select('user_id').eq('phone_e164', from).maybeSingle();
       if (prefs?.user_id) {
         await supabase.from('user_sms_preferences').update({ sms_consent: false }).eq('user_id', prefs.user_id);

@@ -1,17 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { corsHeaders, requireUser, unauthorized, forbidden } from "../_shared/auth.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 
 const resend = new Resend(RESEND_API_KEY);
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
 
 interface WelcomeEmailRequest {
   email: string;
@@ -122,11 +118,21 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { email, name, userId, language = 'ro' }: WelcomeEmailRequest = await req.json();
 
     if (!email || !userId) {
       throw new Error("Missing required fields: email and userId");
+    }
+
+    if (user.id !== userId) {
+      return forbidden("userId must match authenticated user");
+    }
+    if ((user.email ?? "").toLowerCase() !== email.toLowerCase().trim()) {
+      return forbidden("email must match authenticated user");
     }
 
     const { data: existingLog } = await supabase

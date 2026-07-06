@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { requireUser, unauthorized } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,6 +25,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
     const { mode, payload } = await req.json();
     const system = PROMPTS[mode as keyof typeof PROMPTS];

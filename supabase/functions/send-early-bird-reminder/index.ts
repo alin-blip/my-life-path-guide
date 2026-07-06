@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.80.0";
+import { requireCronOrAdmin } from "../_shared/require-cron-or-admin.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -25,6 +26,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const authFail = await requireCronOrAdmin(req, corsHeaders);
+    if (authFail) return authFail;
+
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
     const body: ReminderRequest = await req.json().catch(() => ({}));
     
