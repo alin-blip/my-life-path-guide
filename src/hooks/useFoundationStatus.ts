@@ -227,20 +227,10 @@ export const useFoundationStatus = (): FoundationStatus => {
 
   useEffect(() => {
     fetchFoundationStatus();
-    // Refresh when the tab becomes visible again — the wizard often opens
-    // stale after the user just created annual goals / weekly plan / domino
-    // in another tab or route.
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        fetchFoundationStatus();
-      }
-    };
-    window.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('focus', fetchFoundationStatus);
-    return () => {
-      window.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('focus', fetchFoundationStatus);
-    };
+    // NOTE: intentionally no visibilitychange / focus refetch here.
+    // It caused a full re-fetch (and wizard flicker) every time the user
+    // switched browser tabs. Foundation data refreshes on mount and when the
+    // user actually creates/edits goals via the relevant flows.
   }, []);
 
   // Computed values
