@@ -298,14 +298,31 @@ export const Dashboard: React.FC = () => {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const shownToday = localStorage.getItem('onboarding-wizard-shown-today');
     
-    if (shownToday !== today && !foundationStatus.isFoundationComplete) {
+    // Only trigger the wizard for FOUNDATIONAL items (setup-once), not daily items
+    // that reset every 24h (today's tasks / today's routine) — otherwise the wizard
+    // pops up every day even after full onboarding.
+    const foundationalIncomplete =
+      !foundationStatus.hasAllAnnualCategories ||
+      !foundationStatus.hasQuarterly ||
+      !foundationStatus.hasMonthly ||
+      !foundationStatus.hasVisionBoard;
+
+    if (shownToday !== today && foundationalIncomplete) {
       const timer = setTimeout(() => {
         setShowOnboardingWizard(true);
         localStorage.setItem('onboarding-wizard-shown-today', today);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [foundationStatus.isLoading, foundationStatus.isFoundationComplete, isMobile, isTourOpen]);
+  }, [
+    foundationStatus.isLoading,
+    foundationStatus.hasAllAnnualCategories,
+    foundationStatus.hasQuarterly,
+    foundationStatus.hasMonthly,
+    foundationStatus.hasVisionBoard,
+    isMobile,
+    isTourOpen,
+  ]);
 
   // Listen for progress updates and XP events
   useEffect(() => {
