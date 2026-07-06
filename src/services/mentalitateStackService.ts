@@ -170,6 +170,37 @@ export const mentalitateStackService = {
       .select()
       .single();
     if (error) throw error;
+
+    // Mirror completion into Warrior Routine tracking so the Mentalitate
+    // pillar (mindShifting step) counts this session — matches the behavior of
+    // mindShiftService.saveSession and KillItTodayStack.
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      try { localStorage.setItem(`mind_shift_done_${today}`, '1'); } catch {}
+      const { data: u } = await supabase.auth.getUser();
+      if (u.user) {
+        const summary = {
+          session_id: (data as any).id,
+          source: 'mentalitate_stack',
+          mode: (data as any).mode,
+          distortion_slug: synthesis.distortion_detected,
+          cognitive_reframe: synthesis.reframe,
+          commitment_text: synthesis.action,
+          commitment_task_id: dominoTaskId,
+          axes_impacted: synthesis.axes_impacted,
+          pattern_summary: synthesis.pattern_summary,
+        };
+        await supabase
+          .from('champion_routine_logs')
+          .upsert(
+            { user_id: u.user.id, date: today, mind_shift_summary: summary as any },
+            { onConflict: 'user_id,date' }
+          );
+      }
+    } catch (e) {
+      console.warn('mentalitate: mirror to routine log failed', e);
+    }
+
     return { session: data as any, scheduleError };
   },
 
