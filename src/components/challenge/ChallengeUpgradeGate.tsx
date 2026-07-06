@@ -125,24 +125,55 @@ export const ChallengeUpgradeGate: React.FC<ChallengeUpgradeGateProps> = ({
     setIsLoading(planId);
     trackCheckoutInitiated(planId, value);
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.info(isRo ? 'Te rugăm să te autentifici.' : 'Please log in.');
-        navigate('/auth', { state: { returnUrl: '/challenge', plan: planId } });
-        return;
-      }
+    // Log intent for funnel analytics
+    const sessionId = sessionStorage.getItem('crm_session_id')
+      || `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    sessionStorage.setItem('crm_session_id', sessionId);
+    supabase.from('checkout_events').insert({
+      event_type: 'checkout_initiated',
+      plan_id: planId,
+      source: 'challenge-upgrade-gate',
+      session_id: sessionId,
+      metadata: { value, path: window.location.pathname, guest: true },
+    }).then(() => {});
 
+    try {
+      const utmRaw = localStorage.getItem('utm_data');
+      const utm = utmRaw ? JSON.parse(utmRaw) : undefined;
+      // Guest checkout — Stripe collects email + card; account is created after payment via webhook
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: planId, source: 'challenge-7-zile' },
+        body: {
+          plan: planId,
+          source: 'challenge-upgrade-gate',
+          language: isRo ? 'ro' : 'en',
+          utm,
+        },
       });
       if (error) throw error;
-      if ((data as any)?.url) { window.location.href = (data as any).url; return; }
+      if ((data as any)?.url) {
+        supabase.from('checkout_events').insert({
+          event_type: 'checkout_redirected',
+          plan_id: planId,
+          source: 'challenge-upgrade-gate',
+          session_id: sessionId,
+          metadata: { value, guest: true },
+        }).then(() => {});
+        window.location.href = (data as any).url;
+        return;
+      }
       throw new Error((data as any)?.error ?? 'Failed');
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       console.error('Checkout error:', { planId, msg });
-      toast.error(msg || 'A apărut o eroare.');
+      supabase.from('checkout_events').insert({
+        event_type: 'checkout_error',
+        plan_id: planId,
+        source: 'challenge-upgrade-gate',
+        session_id: sessionId,
+        error_message: msg.slice(0, 500),
+        metadata: { value, guest: true },
+      }).then(() => {});
+      toast.error(msg || (isRo ? 'A apărut o eroare.' : 'Something went wrong.'));
     } finally {
       setIsLoading(null);
     }
