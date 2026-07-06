@@ -230,7 +230,7 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         const emailResponse = await sendEmail(body.email, emailContent.subject, emailContent.html);
         await supabase.from('email_sequence_log').insert({
-          email: body.email, sequence_type: SEQUENCE_TYPE, email_number: body.emailNumber,
+          email: body.email, sequence_type: SEQUENCE_TYPE, day_number: body.emailNumber,
           tracking_id: trackingId, sent_at: new Date().toISOString(),
         });
         results.push({ email: body.email, emailNumber: body.emailNumber, success: true, messageId: emailResponse?.id, lang });
