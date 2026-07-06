@@ -146,7 +146,17 @@ const LoadingFallback = () => (
   </div>
 );
 
-const queryClient = new QueryClient();
+// Disable window-focus refetching globally — it caused a full "refresh" flicker
+// on every tab switch. Individual queries can opt back in if they truly need it.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      staleTime: 60_000,
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>
