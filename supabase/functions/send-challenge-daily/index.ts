@@ -390,12 +390,17 @@ const handler = async (req: Request): Promise<Response> => {
         
         if (progress.dayNumber === 7 && progress.completed) continue;
 
+        // Fetch user email first so we can dedup by (email, day_number) on real columns
+        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+        if (userError || !userData?.user?.email) continue;
+        const emailAddr = userData.user.email;
+
         const { data: existingLog } = await supabase
           .from('email_sequence_log')
           .select('id')
-          .eq('metadata->>user_id', userId)
+          .eq('email', emailAddr)
           .eq('sequence_type', 'challenge_daily')
-          .eq('step_number', nextDay)
+          .eq('day_number', nextDay)
           .maybeSingle();
 
         if (existingLog) continue;
