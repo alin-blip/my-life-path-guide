@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { getCategoryName } from './mission/utils/categoryUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { formatFromSupabase } from '@/types/factMaps';
+import { getFactMaps, deleteFactMap, createFoundationMap, createMissionMap } from '@/services/factMapService';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
 import { useNavigate } from 'react-router-dom';
@@ -75,14 +75,8 @@ export const GameContent: React.FC = () => {
       let error = null;
       
       if (missionToDelete.type === 'monthly' || missionToDelete.type === 'impossible') {
-        // TODO: Implement proper database deletion with authentication
-        // For now, using local storage until authentication is implemented
-        const savedMissions = JSON.parse(localStorage.getItem('monthlyMissions') || '[]');
-        const updatedMissions = savedMissions.filter((m: any) => m.id !== missionToDelete.id);
-        localStorage.setItem('monthlyMissions', JSON.stringify(updatedMissions));
-        const result = { error: null };
-          
-        error = result.error;
+        const ok = await deleteFactMap(missionToDelete.id);
+        if (!ok) throw new Error('Delete failed');
       } else {
         const result = await supabase
           .from('fact_maps')
@@ -138,32 +132,11 @@ export const GameContent: React.FC = () => {
     try {
       // Create different types of missions based on selection
       if (type === 'foundation') {
-        // Create a new foundation fact map
-        // TODO: Implement proper database insertion with authentication
-        // For now, using local storage until authentication is implemented
-        const newFoundation = {
-          id: crypto.randomUUID(),
-          title: `Foundation ${currentQuarter}-${currentYear}`,
-          category: 'foundation',
-          user_id: 'temp-user', // Will be replaced with real user ID when auth is implemented
-          items: [{ 
-            id: crypto.randomUUID(),
-            name: category,
-            description: '',
-            status: 'pending',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          }],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        const existingMaps = JSON.parse(localStorage.getItem('factMaps') || '[]');
-        localStorage.setItem('factMaps', JSON.stringify([...existingMaps, newFoundation]));
-        const data = [newFoundation];
-        const error = null;
-
-        if (error) throw error;
+        const newMap = await createFoundationMap(
+          category,
+          `Foundation ${currentQuarter}-${currentYear}`,
+        );
+        if (!newMap) throw new Error('Failed to create foundation map');
         
         toast({
           title: language === 'en' ? 'Foundation Map Created' : 'Hartă de Fundație Creată',
@@ -173,28 +146,8 @@ export const GameContent: React.FC = () => {
         });
         
       } else {
-        // Create monthly or impossible mission
-        // TODO: Implement proper database insertion with authentication
-        // For now, using local storage until authentication is implemented
-        const newMission = {
-          id: crypto.randomUUID(),
-          name: `${type === 'monthly' ? 'MM' : 'IG'} ${category.charAt(0).toUpperCase() + category.slice(1)}`,
-          category: category,
-          user_id: 'temp-user', // Will be replaced with real user ID when auth is implemented
-          start_date: new Date().toISOString().split('T')[0],
-          end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          is_impossible_game: type === 'impossible',
-          questions: {},
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        const existingMissions = JSON.parse(localStorage.getItem('monthlyMissions') || '[]');
-        localStorage.setItem('monthlyMissions', JSON.stringify([...existingMissions, newMission]));
-        const data = [newMission];
-        const error = null;
-
-        if (error) throw error;
+        const newMap = await createMissionMap(type, category);
+        if (!newMap) throw new Error('Failed to create mission');
         
         toast({
           title: language === 'en' ? `${type === 'monthly' ? 'Monthly' : 'Impossible'} Mission Created` : 
@@ -238,35 +191,30 @@ export const GameContent: React.FC = () => {
   const fetchMissions = async () => {
     setIsLoading(true);
     try {
-      // TODO: Implement proper database fetching with authentication
-      // For now, using local storage until authentication is implemented
-      const factMapData = JSON.parse(localStorage.getItem('factMaps') || '[]').filter((map: any) => map.category === 'foundation');
-      const monthlyData = JSON.parse(localStorage.getItem('monthlyMissions') || '[]').filter((mission: any) => !mission.is_impossible_game);
-      const impossibleData = JSON.parse(localStorage.getItem('monthlyMissions') || '[]').filter((mission: any) => mission.is_impossible_game);
+      const allMaps = await getFactMaps();
+      const factMapData = allMaps.filter(map => map.category === 'foundation');
+      const monthlyData = allMaps.filter(map => map.category === 'monthly');
+      const impossibleData = allMaps.filter(map => map.category === 'impossible');
 
-      // Process and set the missions data - start with empty arrays
-      const formattedFoundation = factMapData ? factMapData.map(item => {
-        const formattedItem = formatFromSupabase(item);
-        return {
-          id: formattedItem.id,
-          name: formattedItem.title || `Foundation #${formattedItem.id.substring(0, 4)}`,
-          categories: formattedItem.items
-            .map(goal => goal.name.toLowerCase() as MissionCategory)
-            .filter(Boolean) as MissionCategory[]
-        };
-      }) : [];
+      const formattedFoundation = factMapData.map(formattedItem => ({
+        id: formattedItem.id,
+        name: formattedItem.title || `Foundation #${formattedItem.id.substring(0, 4)}`,
+        categories: formattedItem.items
+          .map(goal => goal.name.toLowerCase() as MissionCategory)
+          .filter(Boolean) as MissionCategory[]
+      }));
 
-      const formattedMonthly = monthlyData ? monthlyData.map(item => ({
+      const formattedMonthly = monthlyData.map(item => ({
         id: item.id,
-        name: item.name || `Monthly Mission`,
-        categories: [item.category as MissionCategory]
-      })) : [];
+        name: item.title || `Monthly Mission`,
+        categories: item.items.map(i => i.name.toLowerCase() as MissionCategory).filter(Boolean) as MissionCategory[],
+      }));
 
-      const formattedImpossible = impossibleData ? impossibleData.map(item => ({
+      const formattedImpossible = impossibleData.map(item => ({
         id: item.id,
-        name: item.name || `Impossible Game`,
-        categories: [item.category as MissionCategory]
-      })) : [];
+        name: item.title || `Impossible Game`,
+        categories: item.items.map(i => i.name.toLowerCase() as MissionCategory).filter(Boolean) as MissionCategory[],
+      }));
 
       // Update state with fetched missions - don't create defaults if none exist
       setMissions({

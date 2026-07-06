@@ -1,9 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, requireUser, unauthorized } from '../_shared/auth.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,6 +7,9 @@ serve(async (req) => {
   }
 
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     const { messages, systemPrompt, language = 'ro' } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {

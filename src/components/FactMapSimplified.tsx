@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { MissionCategory } from '@/types/mission';
 import { ArrowRight, CheckCircle, PlusCircle, Play } from 'lucide-react';
 import { Save, Edit } from 'lucide-react';
-import { getFactMaps } from '@/services/factMapService';
+import { getFactMaps, findFoundationMapForCategory, createFoundationMap, updateFoundationAnswers, findOrCreateMonthlyMission } from '@/services/factMapService';
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -618,17 +618,7 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
     const loadMaps = async () => {
       try {
         const factMaps = await getFactMaps();
-        const monthlyMissionsString = localStorage.getItem('monthlyMissions') || '[]';
-        let monthlyMissions = [];
-        try {
-          monthlyMissions = JSON.parse(monthlyMissionsString);
-          if (!Array.isArray(monthlyMissions)) {
-            monthlyMissions = [];
-          }
-        } catch (e) {
-          console.error('Error parsing monthlyMissions from localStorage:', e);
-          monthlyMissions = [];
-        }
+        const monthlyMissions = factMaps.filter(m => m.category === 'monthly');
         
         let questions: string[] = [];
 
@@ -664,7 +654,7 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
         }
 
         const monthlyMission = monthlyMissions.find(
-          (mission: any) => mission.category === category && !mission.isImpossibleGame
+          (mission: any) => mission.items?.some((i: any) => i.name?.toLowerCase() === category)
         );
         
         if (monthlyMission) {
@@ -677,8 +667,9 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
           }));
         }
         
-        const impossibleMission = monthlyMissions.find(
-          (mission: any) => mission.category === category && mission.isImpossibleGame === true
+        const impossibleMissions = factMaps.filter(m => m.category === 'impossible');
+        const impossibleMission = impossibleMissions.find(
+          (mission: any) => mission.items?.some((i: any) => i.name?.toLowerCase() === category)
         );
         
         if (impossibleMission) {
@@ -702,66 +693,19 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
     const loadFoundationMap = async () => {
       if (category !== "body") return;
 
-      // TODO: Implement proper database loading with authentication
-      // For now, using local storage until authentication is implemented
-      const savedMaps = localStorage.getItem('factMaps');
-      const data = savedMaps ? JSON.parse(savedMaps).filter((m: any) => m.category === 'foundation') : [];
-      
-      if (!data || data.length === 0) return;
+      const foundation = await findFoundationMapForCategory("body");
+      if (!foundation) return;
 
-      const foundation = data.find((m: any) => {
-        if (!m.items) return false;
-        
-        let itemsArray;
-        if (typeof m.items === 'string') {
-          try {
-            itemsArray = JSON.parse(m.items);
-          } catch (e) {
-            console.error('Error parsing items as JSON:', e);
-            return false;
-          }
-        } else if (Array.isArray(m.items)) {
-          itemsArray = m.items;
-        } else {
-          console.warn('Items is not an array:', typeof m.items);
-          return false;
-        }
-        
-        return Array.isArray(itemsArray) && 
-               itemsArray.some((item: any) => item.name?.toLowerCase() === "body");
-      });
-      
-      if (foundation) {
-        setFoundationId(foundation.id);
-        
-        let items = foundation.items;
-        if (typeof items === 'string') {
-          try {
-            items = JSON.parse(items);
-          } catch (e) {
-            console.error('Failed to parse items string:', e);
-            return;
-          }
-        }
-        
-        if (!Array.isArray(items)) {
-          console.error('Items is not an array:', items);
-          return;
-        }
-        
-        const bodyItem = items.find(
-          (item: any) => item.name?.toLowerCase() === "body"
-        );
-        
-        if (bodyItem && typeof bodyItem === 'object' && bodyItem !== null) {
-          if ('answers' in bodyItem && bodyItem.answers) {
-            setBodyAnswers(bodyItem.answers as Record<string, string>);
-          }
-          
-          if (foundation.created_at) setBodyCreatedAt(new Date(foundation.created_at).toLocaleString());
-          if (foundation.updated_at) setBodyUpdatedAt(new Date(foundation.updated_at).toLocaleString());
-        }
+      setFoundationId(foundation.id);
+      const bodyItem = foundation.items.find(
+        (item: any) => item.name?.toLowerCase() === "body"
+      );
+
+      if (bodyItem?.answers) {
+        setBodyAnswers(bodyItem.answers as Record<string, string>);
       }
+      if (foundation.createdAt) setBodyCreatedAt(new Date(foundation.createdAt).toLocaleString());
+      if (foundation.updatedAt) setBodyUpdatedAt(new Date(foundation.updatedAt).toLocaleString());
     };
     loadFoundationMap();
   }, [category]);
@@ -794,67 +738,28 @@ export const FactMapSimplified: React.FC<FactMapProps> = ({ category }) => {
 
   const handleSaveBodyFacts = async () => {
     const now = new Date().toISOString();
-    let createdId = foundationId;
-
-    let resultItems = [{
-      name: "body",
-      answers: bodyAnswers,
-    }];
 
     if (!foundationId) {
-      // TODO: Implement proper database insertion with authentication
-      // For now, using local storage until authentication is implemented
-      const newFoundation = {
-        id: crypto.randomUUID(),
-        category: 'foundation',
-        title: language === 'en' ? 'Body Foundation' : 'Baza Corpului',
-        items: resultItems,
-        user_id: 'temp-user',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      const existingMaps = JSON.parse(localStorage.getItem('factMaps') || '[]');
-      localStorage.setItem('factMaps', JSON.stringify([...existingMaps, newFoundation]));
-      
-      setFoundationId(newFoundation.id);
-      setBodyCreatedAt(new Date(newFoundation.created_at).toLocaleString());
-      setBodyUpdatedAt(new Date(newFoundation.updated_at).toLocaleString());
-    } else {
-      // TODO: Implement proper database updating with authentication
-      // For now, using local storage until authentication is implemented
-      const existingMaps = JSON.parse(localStorage.getItem('factMaps') || '[]');
-      const updatedMaps = existingMaps.map((map: any) => 
-        map.id === foundationId ? { ...map, items: resultItems, updated_at: now } : map
+      const newMap = await createFoundationMap(
+        "body",
+        language === 'en' ? 'Body Foundation' : 'Baza Corpului',
+        bodyAnswers,
       );
-      localStorage.setItem('factMaps', JSON.stringify(updatedMaps));
+      if (!newMap) return;
+      setFoundationId(newMap.id);
+      setBodyCreatedAt(new Date(newMap.createdAt).toLocaleString());
+      setBodyUpdatedAt(new Date(newMap.updatedAt).toLocaleString());
+    } else {
+      await updateFoundationAnswers(foundationId, "body", bodyAnswers);
       setBodyUpdatedAt(new Date(now).toLocaleString());
     }
     setBodyEditing(false);
 
-    const userId = null;
-    // TODO: Implement proper database operations with authentication
-    // For now, using local storage until authentication is implemented
-    const existingMissions = JSON.parse(localStorage.getItem('monthlyMissions') || '[]');
-    const missionData = existingMissions.filter((mission: any) => 
-      mission.category === 'body' && !mission.is_impossible_game
+    await findOrCreateMonthlyMission(
+      'body',
+      language === 'en' ? 'Monthly Mission (Body)' : 'Misiunea Lunii (Corp)',
+      bodyAnswers,
     );
-
-    if (!missionData || missionData.length === 0) {
-      const newMission = {
-        id: crypto.randomUUID(),
-        category: 'body',
-        name: language === 'en' ? 'Monthly Mission (Body)' : 'Misiunea Lunii (Corp)',
-        user_id: 'temp-user',
-        start_date: now.slice(0,10),
-        end_date: new Date(Date.now() + 2629800000).toISOString().slice(0,10),
-        is_impossible_game: false,
-        questions: resultItems[0].answers,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      localStorage.setItem('monthlyMissions', JSON.stringify([...existingMissions, newMission]));
-    }
   };
 
   const handleBeingAnswerChange = (key: string, value: string) => {

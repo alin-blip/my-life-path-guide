@@ -2,6 +2,7 @@ import * as React from 'npm:react@18.3.1'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
+import { authorizeTransactionalEmail, corsHeaders } from '../_shared/auth.ts'
 
 // Configuration baked in at scaffold time — do NOT change these manually.
 // To update, re-run the email domain setup flow.
@@ -15,12 +16,6 @@ const SENDER_DOMAIN = "support.ceomindos.com"
 // even though actual sending uses the subdomain above.
 const FROM_DOMAIN = "support.ceomindos.com"
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type',
-}
-
 // Generate a cryptographically random 32-byte hex token
 function generateToken(): string {
   const bytes = new Uint8Array(32)
@@ -29,10 +24,6 @@ function generateToken(): string {
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
 }
-
-// Auth note: this function uses verify_jwt = true in config.toml, so Supabase's
-// gateway validates the caller's JWT (anon or service_role) before the request
-// reaches this code. No in-function auth check is needed.
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -121,6 +112,9 @@ Deno.serve(async (req) => {
       }
     )
   }
+
+  const authError = await authorizeTransactionalEmail(req, templateName, effectiveRecipient)
+  if (authError) return authError
 
   // Create Supabase client with service role (bypasses RLS)
   const supabase = createClient(supabaseUrl, supabaseServiceKey)

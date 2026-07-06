@@ -93,13 +93,13 @@ export const BASIC_ROUTES: string[] = [
   '/warrior-accelerator-thank-you',
   '/vision-2026',
   '/vision-board',
+  '/door',
 ];
 
-// Routes that require PRO tier (LIVE coaching, VIP community, Door planning, Leaderboard, Achievements, Coach Dashboard)
+// Routes that require PRO tier (LIVE coaching, VIP community, Leaderboard, Achievements, Coach Dashboard)
 export const PRO_REQUIRED_ROUTES: string[] = [
   '/brotherhood',
   '/live-coaching',
-  '/door',
   '/leaderboard',
   '/achievements',
   '/coach',

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, User, ArrowLeft, ChevronRight } from 'lucide-react';
@@ -11,6 +12,8 @@ interface BlogArticleProps {
 
 export const BlogArticle = ({ post }: BlogArticleProps) => {
   const [activeSection, setActiveSection] = useState('');
+  const sanitizeHtml = (html: string) =>
+    DOMPurify.sanitize(html, { ALLOWED_TAGS: ['strong', 'em', 'b', 'i', 'br'], ALLOWED_ATTR: [] });
   const lang: 'ro' | 'en' = post.language ?? 'ro';
   const t = {
     inlineCtaTitle: lang === 'en' ? '🚀 Want to implement this today?' : '🚀 Vrei să implementezi asta chiar azi?',
@@ -153,7 +156,7 @@ export const BlogArticle = ({ post }: BlogArticleProps) => {
                           {items.map((item, i) => (
                             <li key={i} className="flex items-start gap-2">
                               <span className="text-primary mt-1">•</span>
-                              <span dangerouslySetInnerHTML={{ __html: item.replace(/^-\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') }} />
+                              <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.replace(/^-\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>')) }} />
                             </li>
                           ))}
                         </ul>
@@ -161,9 +164,9 @@ export const BlogArticle = ({ post }: BlogArticleProps) => {
                     }
                     return (
                       <p key={pIdx} dangerouslySetInnerHTML={{
-                        __html: paragraph
+                        __html: sanitizeHtml(paragraph
                           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                          .replace(/\*(.*?)\*/g, '<em>$1</em>'))
                       }} />
                     );
                   })}
