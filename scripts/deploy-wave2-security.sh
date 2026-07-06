@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# Deploy Wave 1 + Wave 2 security fixes to Supabase production.
-# Requires: SUPABASE_ACCESS_TOKEN (sbp_...) from https://supabase.com/dashboard/account/tokens
+# Deploy Wave 1 + Wave 2 security fixes.
+#
+# Lovable Cloud projects (this repo): merge to main → Lovable auto-deploys
+# supabase/functions/ and applies supabase/migrations/. No SUPABASE_ACCESS_TOKEN needed.
+# After Lovable syncs, run only: bash scripts/edge-auth-live-smoke.sh
+#
+# Self-hosted Supabase (optional): set SUPABASE_ACCESS_TOKEN (sbp_...) and run this script.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -8,8 +13,12 @@ cd "$(dirname "$0")/.."
 PROJECT_REF="${SUPABASE_PROJECT_REF:-exsbnfmaadjyfblperas}"
 
 if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
-  echo "ERROR: SUPABASE_ACCESS_TOKEN is not set."
-  echo "Generate one at https://supabase.com/dashboard/account/tokens"
+  echo "Lovable Cloud: no CLI token needed."
+  echo "  1. Merge PR #4 into main (GitHub)"
+  echo "  2. Wait for Lovable to sync + deploy backend"
+  echo "  3. Run: bash scripts/edge-auth-live-smoke.sh"
+  echo ""
+  echo "Self-hosted Supabase: set SUPABASE_ACCESS_TOKEN (sbp_...) and re-run."
   exit 1
 fi
 
