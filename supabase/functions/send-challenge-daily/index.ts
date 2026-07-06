@@ -184,8 +184,10 @@ const getDayContent = (dayNumber: number, language: 'en' | 'ro'): DayContent => 
   return days[dayNumber]?.[isRo ? 'ro' : 'en'] || days[1][isRo ? 'ro' : 'en'];
 };
 
-const generateTrackingId = (dayNumber: number) => {
-  return `challenge-daily-d${dayNumber}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+const generateTrackingId = (_dayNumber: number) => {
+  // tracking_id column is UUID — must be a valid uuid, otherwise inserts fail silently
+  // and dedup breaks (the exact cause of prior duplicate-send bug).
+  return crypto.randomUUID();
 };
 
 const getEmailTemplate = (
