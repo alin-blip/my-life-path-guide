@@ -3,6 +3,7 @@
 //  - trial-reminder (once, when Stripe subscription is trialing and trial ends in <= 2 days)
 //  - retention-winback (once every 30 days, to users inactive for 14+ days)
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4'
+import { requireCronOrAdmin } from "../_shared/require-cron-or-admin.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -118,6 +119,9 @@ async function runWinback() {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
+  const authFail = await requireCronOrAdmin(req, corsHeaders);
+  if (authFail) return authFail;
+
     const [welcome, trial, winback] = await Promise.all([runWelcome(), runTrialReminder(), runWinback()])
     log('done', { welcome, trial, winback })
     return new Response(JSON.stringify({ ok: true, welcome, trial, winback }), {

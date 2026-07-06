@@ -1,6 +1,7 @@
 // Enroll a user into an SMS sequence. Called on signup, checkout abandon, or manually.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireUser, unauthorized, forbidden } from "../_shared/auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,9 +11,13 @@ const corsHeaders = {
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const { user_id, sequence_key, phone_e164, metadata } = await req.json();
     if (!user_id || !sequence_key) return json({ error: 'user_id and sequence_key required' }, 400);
+    if (user.id !== user_id) return forbidden('user_id must match authenticated user');
 
     const { data: seq } = await supabase.from('sms_sequences').select('*').eq('key', sequence_key).eq('is_active', true).maybeSingle();
     if (!seq) return json({ error: 'sequence not found' }, 404);

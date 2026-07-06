@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireUser, unauthorized } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -108,6 +109,9 @@ function extractMarker(content: string, marker: string): any | null {
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
+    const { user } = await requireUser(req);
+    if (!user) return unauthorized();
+
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
     const { mode, messages, payload } = await req.json();
     const system = PROMPTS[mode];

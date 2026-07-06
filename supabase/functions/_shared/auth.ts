@@ -84,6 +84,47 @@ export const LEAD_VERIFIED_TEMPLATES: Record<string, string> = {
   "burnout-results": "burnout_test",
 };
 
+export async function verifyRecentLead(
+  email: string,
+  leadMagnet: string,
+  windowHours = 24,
+): Promise<boolean> {
+  const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false },
+  });
+  const since = new Date(Date.now() - windowHours * 60 * 60 * 1000).toISOString();
+  const { data } = await admin
+    .from("email_leads")
+    .select("id")
+    .eq("email", email.toLowerCase().trim())
+    .eq("lead_magnet", leadMagnet)
+    .gte("created_at", since)
+    .maybeSingle();
+  return !!data;
+}
+
+/** Allow authenticated user (matching email) OR a recent lead capture for any of the magnets. */
+export async function authorizeUserOrRecentLead(
+  req: Request,
+  recipientEmail: string,
+  leadMagnets: string | string[],
+): Promise<Response | null> {
+  const normalized = recipientEmail.toLowerCase().trim();
+  const { user } = await requireUser(req);
+  if (user && (user.email ?? "").toLowerCase() === normalized) return null;
+
+  const magnets = Array.isArray(leadMagnets) ? leadMagnets : [leadMagnets];
+  for (const magnet of magnets) {
+    if (await verifyRecentLead(normalized, magnet)) return null;
+  }
+  return unauthorized("Authentication or recent lead capture required");
+}
+
+export async function requireServiceRoleResponse(req: Request): Promise<Response | null> {
+  if (await requireServiceRole(req)) return null;
+  return forbidden("Service role required");
+}
+
 export async function authorizeTransactionalEmail(
   req: Request,
   templateName: string,

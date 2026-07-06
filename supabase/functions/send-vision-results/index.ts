@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.80.0";
+import { authorizeUserOrRecentLead } from "../_shared/auth.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
@@ -54,11 +55,18 @@ const handler = async (req: Request): Promise<Response> => {
     const visions = body?.visions || {};
     const images = body?.images || {};
 
-    console.log('Sending vision results email to:', email, 'with visions:', Object.keys(visions), 'images:', Object.keys(images));
-
     if (!email) {
       throw new Error('Email is required');
     }
+
+    const authError = await authorizeUserOrRecentLead(
+      req,
+      email,
+      ['vision_2026_quiz', 'vision_board_ai', 'vision_board'],
+    );
+    if (authError) return authError;
+
+    console.log('Sending vision results email to:', email, 'with visions:', Object.keys(visions), 'images:', Object.keys(images));
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
