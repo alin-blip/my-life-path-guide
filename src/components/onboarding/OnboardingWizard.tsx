@@ -178,14 +178,25 @@ export const OnboardingWizard: React.FC<OnboardingWizardProps> = ({ isOpen, onCl
     }
   };
 
-  // Reset step when opened
+  // Set initial step to first incomplete when opened AND after data has loaded.
+  // Depend on stable primitives, not the whole foundationStatus object (which
+  // gets a new identity every render and would keep resetting currentStep).
   useEffect(() => {
-    if (isOpen) {
-      // Find the first incomplete step
-      const firstIncomplete = steps.findIndex((step) => !step.checkComplete());
-      setCurrentStep(firstIncomplete > 0 ? firstIncomplete : 0);
-    }
-  }, [isOpen, foundationStatus]);
+    if (!isOpen) return;
+    if (foundationStatus.isLoading) return;
+    const firstIncomplete = steps.findIndex((step) => !step.checkComplete());
+    setCurrentStep(firstIncomplete > 0 ? firstIncomplete : 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isOpen,
+    foundationStatus.isLoading,
+    foundationStatus.hasAllAnnualCategories,
+    foundationStatus.hasQuarterly,
+    foundationStatus.hasMonthly,
+    foundationStatus.hasVisionBoard,
+    foundationStatus.hasTodayTasks,
+    foundationStatus.hasStartedRoutineToday,
+  ]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
