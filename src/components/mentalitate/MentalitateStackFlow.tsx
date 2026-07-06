@@ -828,12 +828,36 @@ export const MentalitateStackFlow: React.FC<Props> = ({
               </div>
             )}
 
-            <Button
-              onClick={() => onComplete?.(session!)}
-              className="w-full bg-violet-500 hover:bg-violet-600 text-white"
-            >
-              Continuă
-            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Reset local state for a fresh reconstruction
+                  setSession(null);
+                  setSynthesis(null);
+                  setScheduleError(null);
+                  setAnswers({});
+                  setInput('');
+                  setMessages([]);
+                  setQIdx(0);
+                  initedRef.current = false;
+                  distortionsFetchedRef.current = false;
+                  answerSuggestionsFetchedRef.current = {};
+                }}
+                className="w-full border-violet-500/40 text-violet-600 hover:bg-violet-500/10"
+              >
+                🔁 Începe altă reconstrucție
+              </Button>
+              <Button
+                onClick={() => onComplete?.(session!)}
+                className="w-full bg-violet-500 hover:bg-violet-600 text-white"
+              >
+                ✓ Continuă rutina
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center">
+              Sesiunea a fost salvată. Mentalitate +1/4 în rutina de campion.
+            </p>
           </CardContent>
         </Card>
       )}
