@@ -21,7 +21,8 @@ interface WelcomeEmailRequest {
 }
 
 const generateTrackingId = () => {
-  return `challenge-welcome-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  // tracking_id column is UUID. Non-UUID strings fail insert -> dedup breaks -> duplicates.
+  return crypto.randomUUID();
 };
 
 const getEmailTemplate = (
