@@ -21,6 +21,7 @@ export default function MasterPlanSystem() {
   const [selectedProject, setSelectedProject] = useState<NapoleonHillProject | null>(null);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { status: masterPlanAccess, consume: consumeMasterPlan } = useFeatureAccess('master_plan');
 
   useEffect(() => {
     loadProjects();
