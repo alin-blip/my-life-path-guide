@@ -47,4 +47,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'streak-milestone': streakMilestone,
   'routine-comeback': routineComeback,
   'achievement-unlocked': achievementUnlocked,
+  'warrior-report': warriorReport,
+  'warrior-welcome': warriorWelcome,
 }
