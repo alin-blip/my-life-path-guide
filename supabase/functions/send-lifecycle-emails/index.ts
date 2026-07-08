@@ -167,9 +167,9 @@ Deno.serve(async (req) => {
   const authFail = await requireCronOrAdmin(req, corsHeaders);
   if (authFail) return authFail;
 
-    const [welcome, trial, winback] = await Promise.all([runWelcome(), runTrialReminder(), runWinback()])
-    log('done', { welcome, trial, winback })
-    return new Response(JSON.stringify({ ok: true, welcome, trial, winback }), {
+    const [welcome, trial, winback, comeback] = await Promise.all([runWelcome(), runTrialReminder(), runWinback(), runRoutineComeback()])
+    log('done', { welcome, trial, winback, comeback })
+    return new Response(JSON.stringify({ ok: true, welcome, trial, winback, comeback }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (e) {
