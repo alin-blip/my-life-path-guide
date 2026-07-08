@@ -88,24 +88,43 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Require authenticated user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Authentication required' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    const token = authHeader.slice(7);
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-    if (userErr || !userData?.user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    const userId = userData.user.id;
-
     const body = await req.json();
-    const { warrior_type, result_id } = body;
+    const { warrior_type, result_id, target_user_id } = body;
+
+    // Two auth modes:
+    //   1. User JWT (Bearer) — normal in-app activation
+    //   2. Service-role key (via `apikey` or Authorization header) + explicit target_user_id
+    //      — used by stripe-webhook after checkout completes
+    const authHeader = req.headers.get('Authorization') || '';
+    const apiKey = req.headers.get('apikey') || '';
+    const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const isServiceRoleCall = serviceRole && (
+      authHeader === `Bearer ${serviceRole}` || apiKey === serviceRole
+    );
+
+    let userId: string | null = null;
+    if (isServiceRoleCall && target_user_id) {
+      userId = String(target_user_id);
+    } else {
+      if (!authHeader.startsWith('Bearer ')) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const token = authHeader.slice(7);
+      const { data: userData, error: userErr } = await supabase.auth.getUser(token);
+      if (userErr || !userData?.user) {
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
+          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      userId = userData.user.id;
+    }
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'No user resolved' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (!warrior_type || !TEMPLATES[warrior_type as WarriorType]) {
       return new Response(JSON.stringify({ error: 'Invalid warrior_type' }), {
