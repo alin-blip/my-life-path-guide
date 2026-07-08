@@ -46,7 +46,7 @@ const testimonials = [
   },
 ];
 
-const QUIZ_URL = '/quiz-rutina?source=warrior-onboarding';
+const QUIZ_URL = '/quiz-rutina?source=warrior-onboarding&autostart=1';
 
 const WarriorOnboarding = () => {
   const navigate = useNavigate();
