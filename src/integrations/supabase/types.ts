@@ -7944,6 +7944,71 @@ export type Database = {
           },
         ]
       }
+      warrior_funnel_leads: {
+        Row: {
+          checkout_started_at: string | null
+          created_at: string
+          email: string
+          id: string
+          language: string
+          quiz_result_id: string | null
+          report_sent_at: string | null
+          routine_activated_at: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_session_id: string | null
+          trial_started_at: string | null
+          updated_at: string
+          user_id: string | null
+          utm: Json | null
+          warrior_type: string
+        }
+        Insert: {
+          checkout_started_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          language?: string
+          quiz_result_id?: string | null
+          report_sent_at?: string | null
+          routine_activated_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          trial_started_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+          utm?: Json | null
+          warrior_type: string
+        }
+        Update: {
+          checkout_started_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          language?: string
+          quiz_result_id?: string | null
+          report_sent_at?: string | null
+          routine_activated_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_session_id?: string | null
+          trial_started_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+          utm?: Json | null
+          warrior_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warrior_funnel_leads_quiz_result_id_fkey"
+            columns: ["quiz_result_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_routine_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       warrior_power_results: {
         Row: {
           created_at: string
