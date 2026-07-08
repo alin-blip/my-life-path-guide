@@ -48,8 +48,6 @@ import {
   LogOut,
   UserCheck,
   RotateCcw,
-  Baby,
-  Wrench
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Lock } from 'lucide-react';
