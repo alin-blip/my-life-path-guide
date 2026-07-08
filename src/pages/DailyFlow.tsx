@@ -8,11 +8,13 @@ import { ro } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
+import { useAchievements } from '@/hooks/useAchievements';
 
 const DailyFlow = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { theme, toggleTheme } = useTheme();
+  const { check: checkAchievements } = useAchievements();
   const shortDate = format(new Date(), "d MMM", { locale: ro }).toUpperCase();
 
   const initialStep = searchParams.get('step') as RoutineStepId | null;
@@ -101,7 +103,10 @@ const DailyFlow = () => {
         >
           <div className="container max-w-4xl mx-auto px-4 py-4">
             <ChampionRoutineFlow
-              onComplete={() => navigate('/dashboard')}
+              onComplete={async () => {
+                await checkAchievements();
+                navigate('/dashboard');
+              }}
               initialStep={initialStep || undefined}
             />
           </div>
