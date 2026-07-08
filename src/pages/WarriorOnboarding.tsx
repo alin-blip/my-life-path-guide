@@ -27,13 +27,6 @@ const howItWorks = [
   'Dacă vrei să aplici, activezi Warrior Starter: 7 zile trial, apoi 7€/lună',
 ];
 
-const included = [
-  'Rutina Warrior personalizată pe tipul tău',
-  'Daily Flow — sistem de dimineață',
-  'Domino Door — planificare săptămânală',
-  'Mind Coach (5 sesiuni/lună)',
-  'Anulezi oricând, fără întrebări',
-];
 
 const testimonials = [
   {
