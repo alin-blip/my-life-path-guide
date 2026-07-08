@@ -354,6 +354,38 @@ const QuizRutinaResult = () => {
             </Card>
           </motion.div>
 
+          {/* Cost of inaction — what staying in this pattern costs */}
+          {COST_OF_INACTION[warriorType as WarriorType] && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="bg-red-950/20 border-red-500/20 p-6 md:p-8 space-y-5">
+                <div className="text-center space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs uppercase tracking-wider">
+                    <TrendingDown className="w-3 h-3" /> Costul de a nu schimba nimic
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold">
+                    {COST_OF_INACTION[warriorType as WarriorType].headline}
+                  </h3>
+                </div>
+                <div className="grid md:grid-cols-3 gap-3">
+                  {COST_OF_INACTION[warriorType as WarriorType].items.map((item) => {
+                    const Icon = costIcon(item.icon);
+                    return (
+                      <div key={item.label} className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-2">
+                        <Icon className="w-5 h-5 text-red-400" />
+                        <div className="font-semibold text-white/95 text-sm">{item.label}</div>
+                        <p className="text-xs text-white/65 leading-relaxed">{item.detail}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-center text-sm text-white/70 pt-2 border-t border-white/10">
+                  Vestea bună: <span className="text-[#D4A84A] font-semibold">rutina de mai jos rezolvă exact asta</span> — activezi 7 zile gratuit și vezi diferența înainte să plătești ceva.
+                </p>
+              </Card>
+            </motion.div>
+          )}
+
+
           {/* Email gate + CTA */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
             <Card className="bg-gradient-to-br from-[#D4A84A]/10 to-[#D4A84A]/5 border-[#D4A84A]/30 p-6 md:p-8 space-y-4">
