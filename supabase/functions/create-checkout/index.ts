@@ -83,6 +83,14 @@ serve(async (req) => {
     let tier = "basic";
 
     switch (plan) {
+      case "starter":
+        unitAmount = 700; // €7
+        currency = "eur";
+        productName = "Warrior Starter (7-Day Free Trial)";
+        tier = "starter";
+        trialDays = 7;
+        break;
+
       case "basic":
         unitAmount = 4900;
         currency = "eur";
