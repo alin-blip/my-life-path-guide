@@ -5,7 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ResponsiveModal, ResponsiveModalHeader, ResponsiveModalTitle } from '@/components/ui/responsive-modal';
-import { UtensilsCrossed, Plus, ArrowRight, Flame, Beef, Trash2, Search, X, Settings, Wheat } from 'lucide-react';
+import { UtensilsCrossed, Plus, ArrowRight, Flame, Beef, Trash2, Search, X, Settings, Wheat, Leaf, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+
+const REQUIRED_SMOOTHIE_ID = 'required-green-smoothie';
+const SMOOTHIE_DEFAULTS = {
+  description: 'Healthy Protein Green Smoothie',
+  calories: 350,
+  protein: 30,
+  carbs: 25,
+  fats: 12,
+};
 import { foods, foodCategories, searchFoods, FoodItem } from '@/services/fitness/data/foodDatabase';
 import { NutritionSetupQuiz, NutritionSettings as QuizSettings } from './NutritionSetupQuiz';
 import { useNutritionSettings } from '@/hooks/useNutritionSettings';
