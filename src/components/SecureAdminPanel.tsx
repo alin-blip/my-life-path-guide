@@ -23,6 +23,7 @@ import { ChallengeFunnelDashboard } from './admin/ChallengeFunnelDashboard';
 import { RetargetingAudiences } from './admin/RetargetingAudiences';
 import { AdsRoiDashboard } from './admin/AdsRoiDashboard';
 import { ReactivationCampaign } from './admin/ReactivationCampaign';
+import { WarriorRoutineDashboard } from './admin/WarriorRoutineDashboard';
 import { 
   Shield, BookOpen, Settings, LayoutDashboard, 
   Lock, Bot, Megaphone, Target, Users, DollarSign, Trophy, TrendingUp, UserCheck, Activity
@@ -196,7 +197,14 @@ export const SecureAdminPanel: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="engagement" className="pt-4">
-          <EngagementDashboard />
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="general">📊 General</TabsTrigger>
+              <TabsTrigger value="warrior-routine">⚔️ Warrior Routine</TabsTrigger>
+            </TabsList>
+            <TabsContent value="general"><EngagementDashboard /></TabsContent>
+            <TabsContent value="warrior-routine"><WarriorRoutineDashboard /></TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="content" className="space-y-6">
