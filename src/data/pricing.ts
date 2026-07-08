@@ -1,5 +1,5 @@
 export type Plan = {
-  id: "basic" | "pro" | "elite" | "basic-annual" | "pro-annual" | "elite-annual";
+  id: "starter" | "basic" | "pro" | "elite" | "basic-annual" | "pro-annual" | "elite-annual";
   nameEn: string;
   nameRo: string;
   priceEn: string;
@@ -25,6 +25,39 @@ export type Plan = {
 };
 
 export const plans: Plan[] = [
+  {
+    id: "starter",
+    nameEn: "Warrior Starter",
+    nameRo: "Warrior Starter",
+    priceEn: "€7",
+    priceRo: "€7",
+    priceValue: 700,
+    originalPriceEn: "€49",
+    originalPriceRo: "€49",
+    periodEn: "/ month",
+    periodRo: "/ lună",
+    highlightEn: "7-Day Free Trial",
+    highlightRo: "7 Zile Trial Gratuit",
+    resultEn: "Your personalized Warrior Routine, activated automatically after the quiz.",
+    resultRo: "Rutina ta personalizată Warrior, activată automat după quiz.",
+    benefitsEn: [
+      "Personalized Warrior Routine (from quiz)",
+      "Daily Flow — morning execution system",
+      "Domino Door — weekly planning",
+      "Mind Coach basic (5 sessions/month)",
+      "Progress journal + streak tracking",
+    ],
+    benefitsRo: [
+      "Rutina Warrior personalizată (din quiz)",
+      "Daily Flow — sistem de execuție dimineața",
+      "Domino Door — planificare săptămânală",
+      "Mind Coach basic (5 sesiuni/lună)",
+      "Jurnal de progres + streak tracking",
+    ],
+    ctaEn: "Start 7-Day Trial → €7/mo",
+    ctaRo: "Începe 7 Zile Trial → 7€/lună",
+    trialDays: 7,
+  },
   {
     id: "basic",
     nameEn: "Basic",

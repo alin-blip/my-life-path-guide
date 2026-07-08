@@ -34,6 +34,7 @@ serve(async (req) => {
       'ebook-accelerator', 'ebook-accelerator-en',
       'challenge-plus-trial', 'challenge-plus-trial-en',
       'basic', // Challenge 7 zile — Stripe collects email, webhook creates account
+      'starter', // Warrior onboarding funnel — guest checkout after quiz
     ]);
 
     // Resolve user (auth optional for guest-allowed plans)
@@ -82,6 +83,14 @@ serve(async (req) => {
     let tier = "basic";
 
     switch (plan) {
+      case "starter":
+        unitAmount = 700; // €7
+        currency = "eur";
+        productName = "Warrior Starter (7-Day Free Trial)";
+        tier = "starter";
+        trialDays = 7;
+        break;
+
       case "basic":
         unitAmount = 4900;
         currency = "eur";
@@ -308,6 +317,9 @@ serve(async (req) => {
     } else if (plan === 'challenge-plus-trial-en') {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/ebook-upsell-en?canceled=true`;
+    } else if (plan === 'starter') {
+      successUrl = `${origin}/warrior/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}/warrior?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;

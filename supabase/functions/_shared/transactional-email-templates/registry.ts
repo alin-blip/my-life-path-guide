@@ -26,6 +26,8 @@ import { template as burnoutStory } from './burnout-story.tsx'
 import { template as streakMilestone } from './streak-milestone.tsx'
 import { template as routineComeback } from './routine-comeback.tsx'
 import { template as achievementUnlocked } from './achievement-unlocked.tsx'
+import { template as warriorReport } from './warrior-report.tsx'
+import { template as warriorWelcome } from './warrior-welcome.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'burnout-results': burnoutResults,
@@ -45,4 +47,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'streak-milestone': streakMilestone,
   'routine-comeback': routineComeback,
   'achievement-unlocked': achievementUnlocked,
+  'warrior-report': warriorReport,
+  'warrior-welcome': warriorWelcome,
 }
