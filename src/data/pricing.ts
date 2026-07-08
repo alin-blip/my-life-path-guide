@@ -1,5 +1,5 @@
 export type Plan = {
-  id: "basic" | "pro" | "elite" | "basic-annual" | "pro-annual" | "elite-annual";
+  id: "starter" | "basic" | "pro" | "elite" | "basic-annual" | "pro-annual" | "elite-annual";
   nameEn: string;
   nameRo: string;
   priceEn: string;
