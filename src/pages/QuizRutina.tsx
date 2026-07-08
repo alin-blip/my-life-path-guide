@@ -59,12 +59,16 @@ const QuizRutina = () => {
   };
 
   const submitQuiz = async () => {
+    if (!EMAIL_RE.test(email.trim())) {
+      toast.error('Ai nevoie de un email valid ca să primești rezultatul.');
+      return;
+    }
     setStep('submitting');
     try {
       const { data, error } = await supabase.functions.invoke('submit-quiz-routine', {
         body: {
           answers,
-          email: email.trim() || null,
+          email: email.trim().toLowerCase(),
           language: 'ro',
           source: 'quiz-rutina',
         },
@@ -72,7 +76,8 @@ const QuizRutina = () => {
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || 'Eroare necunoscută');
 
-      navigate(`/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}`);
+      const emailParam = encodeURIComponent(email.trim().toLowerCase());
+      navigate(`/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}&email=${emailParam}`);
     } catch (e) {
       console.error(e);
       toast.error('Nu am putut trimite quiz-ul. Încearcă din nou.');
