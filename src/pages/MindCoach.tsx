@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Brain, Sparkles, Zap, Target, Heart } from 'lucide-react';
@@ -7,10 +7,14 @@ import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { getISOWeek, getYear, startOfWeek } from 'date-fns';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { FeatureLimitBanner } from '@/components/FeatureLimitBanner';
 
 export default function MindCoach() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { status: accessStatus, consume: consumeMindCoach } = useFeatureAccess('mind_coach');
+  const sessionConsumedRef = useRef(false);
 
   const handleAddToHitList = async (task: string) => {
     try {
