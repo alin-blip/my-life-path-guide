@@ -213,6 +213,8 @@ const App = () => (
                     <Route path="/challenge-7-zile" element={<Challenge7ZileLanding />} />
                     <Route path="/quiz-rutina" element={<QuizRutina />} />
                     <Route path="/quiz-rutina/result" element={<QuizRutinaResult />} />
+                    <Route path="/warrior" element={<WarriorOnboarding />} />
+                    <Route path="/warrior/welcome" element={<WarriorWelcome />} />
                     <Route path="/challenge-en" element={<ChallengeEnglish />} />
                     <Route path="/challenge-en/:day" element={<ChallengeDayEnglish />} />
                     <Route path="/challenge" element={<Challenge />} />
