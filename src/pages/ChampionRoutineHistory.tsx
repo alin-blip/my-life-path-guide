@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight, Calendar, CheckCircle2, XCircle, Flame, Beef, Brain, Dumbbell, Heart, Target } from 'lucide-react';
+import { CategoryHistorySummary } from '@/components/progres/CategoryHistorySummary';
 
 interface ChampionLog {
   id: string;
@@ -119,6 +120,9 @@ export default function ChampionRoutineHistory() {
             Înapoi
           </Button>
         </div>
+
+        {/* Progress summary — quick links to per-category charts */}
+        <CategoryHistorySummary />
 
         {/* Month Navigation */}
         <Card className="p-4">
