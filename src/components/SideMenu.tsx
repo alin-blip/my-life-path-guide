@@ -280,6 +280,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       ],
     },
 
+    // 7d. PROGRES & ISTORIC — hub central de tracking
+    {
+      title: language === 'ro' ? 'Progres & Istoric' : 'Progress & History',
+      icon: BarChart3,
+      path: '/progres',
+      badge: 'NEW',
+    },
+
 
 
 
