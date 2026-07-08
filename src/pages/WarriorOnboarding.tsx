@@ -173,33 +173,6 @@ const WarriorOnboarding = () => {
             </Card>
           </section>
 
-          {/* Preț + CTA */}
-          <section className="text-center space-y-4">
-            <Card className="bg-gradient-to-br from-[#D4A84A]/10 to-[#D4A84A]/5 border-[#D4A84A]/30 p-6 md:p-10 max-w-xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">
-                Începe cu <span className="text-[#D4A84A]">7 zile gratuite</span>.
-              </h2>
-              <p className="text-white/80 mb-6">
-                Plătești <span className="text-[#D4A84A] font-semibold">7€</span> doar dacă continui. Anulezi oricând.
-              </p>
-              <Button
-                size="lg"
-                onClick={goToQuiz}
-                className="bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-14 px-8 text-base w-full sm:w-auto"
-              >
-                Activează Warrior Starter — începe cu quiz-ul <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-              <div className="mt-6 pt-6 border-t border-white/10 text-left space-y-2">
-                <p className="text-sm font-semibold mb-2">Include:</p>
-                {included.map((f) => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-white/85">
-                    <Check className="w-4 h-4 text-[#D4A84A] flex-shrink-0" /> {f}
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </section>
-
           {/* Testimoniale */}
           <section className="space-y-6">
             <h2 className="text-2xl md:text-3xl font-bold text-center">Ce zic alți fondatori</h2>
@@ -212,6 +185,7 @@ const WarriorOnboarding = () => {
               ))}
             </div>
           </section>
+
 
           {/* De ce funcționează */}
           <section className="space-y-6 max-w-2xl mx-auto">
