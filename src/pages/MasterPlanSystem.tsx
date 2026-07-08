@@ -84,6 +84,15 @@ export default function MasterPlanSystem() {
             </p>
           </div>
 
+          <div className="max-w-3xl mx-auto mb-6">
+            <FeatureLimitBanner
+              status={masterPlanAccess}
+              featureLabel="proiecte Master Plan"
+            />
+          </div>
+
+
+
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
