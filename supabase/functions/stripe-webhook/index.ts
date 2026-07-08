@@ -348,6 +348,7 @@ serve(async (req) => {
             // Send delivery email immediately
             try {
               await supabaseService.functions.invoke("send-transactional-email", {
+                headers: svcInvokeHeaders,
                 body: {
                   templateName: "ebook-delivery",
                   recipientEmail: customerEmail,
