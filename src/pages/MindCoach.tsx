@@ -142,13 +142,44 @@ export default function MindCoach() {
 
           {/* Chat */}
           <div className="relative px-4 md:px-8 py-8">
-            <div className="max-w-2xl mx-auto">
-              <MindCoachChat
-                onAddToHitList={handleAddToHitList}
-                onAddHabit={handleAddHabit}
-                onComplete={handleComplete}
-                language={language === 'ro' ? 'ro' : 'en'}
+            <div className="max-w-2xl mx-auto space-y-4">
+              <FeatureLimitBanner
+                status={accessStatus}
+                featureLabel={language === 'ro' ? 'sesiuni Mind Coach' : 'Mind Coach sessions'}
               />
+              {accessStatus && !accessStatus.unlimited && !accessStatus.allowed ? (
+                <div className="rounded-xl border border-border/60 bg-card/50 p-8 text-center text-sm text-muted-foreground">
+                  {language === 'ro'
+                    ? 'Ai folosit toate sesiunile Mind Coach din plan. Fă upgrade pentru acces nelimitat.'
+                    : 'You\'ve used all Mind Coach sessions in your plan. Upgrade for unlimited access.'}
+                </div>
+              ) : (
+                <div
+                  onClickCapture={async () => {
+                    if (sessionConsumedRef.current) return;
+                    if (!accessStatus || accessStatus.unlimited) {
+                      sessionConsumedRef.current = true;
+                      return;
+                    }
+                    sessionConsumedRef.current = true;
+                    const allowed = await consumeMindCoach();
+                    if (!allowed) {
+                      toast.error(
+                        language === 'ro'
+                          ? 'Ai atins limita lunară pentru Mind Coach.'
+                          : 'You reached this month\'s Mind Coach limit.',
+                      );
+                    }
+                  }}
+                >
+                  <MindCoachChat
+                    onAddToHitList={handleAddToHitList}
+                    onAddHabit={handleAddHabit}
+                    onComplete={handleComplete}
+                    language={language === 'ro' ? 'ro' : 'en'}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
