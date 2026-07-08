@@ -66,6 +66,8 @@ const FactMaps = lazy(() => import("./pages/FactMaps"));
 const QuickQuiz = lazy(() => import("./pages/QuickQuiz"));
 const QuizRutina = lazy(() => import("./pages/QuizRutina"));
 const QuizRutinaResult = lazy(() => import("./pages/QuizRutinaResult"));
+const WarriorOnboarding = lazy(() => import("./pages/WarriorOnboarding"));
+const WarriorWelcome = lazy(() => import("./pages/WarriorWelcome"));
 const DailyFlow = lazy(() => import("./pages/DailyFlow"));
 const ChampionRoutineHistory = lazy(() => import("./pages/ChampionRoutineHistory"));
 const WorkoutHistory = lazy(() => import("./pages/WorkoutHistory"));
