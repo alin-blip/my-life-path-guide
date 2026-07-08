@@ -34,6 +34,7 @@ serve(async (req) => {
       'ebook-accelerator', 'ebook-accelerator-en',
       'challenge-plus-trial', 'challenge-plus-trial-en',
       'basic', // Challenge 7 zile — Stripe collects email, webhook creates account
+      'starter', // Warrior onboarding funnel — guest checkout after quiz
     ]);
 
     // Resolve user (auth optional for guest-allowed plans)
