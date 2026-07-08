@@ -93,11 +93,17 @@ serve(async (req) => {
     log("Event received", { type: event.type, id: event.id });
 
     // Initialize Supabase with service role
+    const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const supabaseService = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      SERVICE_ROLE_KEY,
       { auth: { persistSession: false } }
     );
+    // Explicit service-role auth for cross-function invokes. Without this,
+    // send-transactional-email's authorizeTransactionalEmail rejects with 403
+    // "Recipient must match authenticated user email" because supabase-js's
+    // invoke() does not always forward the Bearer token in Deno edge runtime.
+    const svcInvokeHeaders = { Authorization: `Bearer ${SERVICE_ROLE_KEY}` };
 
     // Handle different event types
     // Helper function to process coach commissions (50%)
@@ -342,6 +348,7 @@ serve(async (req) => {
             // Send delivery email immediately
             try {
               await supabaseService.functions.invoke("send-transactional-email", {
+                headers: svcInvokeHeaders,
                 body: {
                   templateName: "ebook-delivery",
                   recipientEmail: customerEmail,
@@ -413,6 +420,7 @@ serve(async (req) => {
                   log("generateLink error", { error: linkErr.message });
                 } else {
                   await supabaseService.functions.invoke("send-transactional-email", {
+                    headers: svcInvokeHeaders,
                     body: {
                       templateName: "challenge-welcome-set-password",
                       recipientEmail: customerEmail,
@@ -468,6 +476,7 @@ serve(async (req) => {
                 log("Basic generateLink error", { error: linkErr.message });
               } else {
                 await supabaseService.functions.invoke("send-transactional-email", {
+                  headers: svcInvokeHeaders,
                   body: {
                     templateName: "challenge-welcome-set-password",
                     recipientEmail: customerEmail,
@@ -542,6 +551,7 @@ serve(async (req) => {
                 const { error: actErr } = await supabaseService.functions.invoke(
                   "activate-warrior-routine",
                   {
+                    headers: svcInvokeHeaders,
                     body: {
                       warrior_type: warriorType,
                       result_id: lead?.quiz_result_id || null,
@@ -562,6 +572,7 @@ serve(async (req) => {
                 options: { redirectTo: `${origin}/daily-flow?new=1` },
               });
               await supabaseService.functions.invoke("send-transactional-email", {
+                headers: svcInvokeHeaders,
                 body: {
                   templateName: "warrior-welcome",
                   recipientEmail: customerEmail,
@@ -688,6 +699,7 @@ serve(async (req) => {
               || (user?.user_metadata as any)?.full_name
               || customerEmail.split("@")[0];
             await supabaseService.functions.invoke("send-transactional-email", {
+              headers: svcInvokeHeaders,
               body: {
                 templateName: "subscription-upgraded",
                 recipientEmail: customerEmail,
