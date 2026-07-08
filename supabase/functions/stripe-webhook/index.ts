@@ -500,8 +500,18 @@ serve(async (req) => {
 
               const warriorType = lead?.warrior_type as string | undefined;
 
-              // 2. Ensure a user account exists
+              // 2. Ensure a user account exists (check for existing first)
               let warriorUser = user;
+              if (!warriorUser) {
+                // Try to find existing user by email before creating
+                try {
+                  const { data: list } = await supabaseService.auth.admin.listUsers({ page: 1, perPage: 200 });
+                  const existing = list?.users?.find((u: any) => (u.email || "").toLowerCase() === customerEmail.toLowerCase());
+                  if (existing) warriorUser = existing as any;
+                } catch (lookupErr) {
+                  log("Warrior Starter user lookup error", { error: (lookupErr as Error).message });
+                }
+              }
               if (!warriorUser) {
                 const tempPwd = crypto.randomUUID().replace(/-/g, "") + "A1!";
                 const { data: created, error: createErr } = await supabaseService.auth.admin.createUser({
@@ -525,6 +535,7 @@ serve(async (req) => {
                     .eq("email", customerEmail);
                 }
               }
+
 
               // 3. Activate the routine automatically (service-role call)
               if (warriorUser && warriorType) {
