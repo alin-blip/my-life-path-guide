@@ -377,4 +377,13 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     }
   )
+  } catch (unhandled) {
+    const msg = unhandled instanceof Error ? unhandled.message : String(unhandled)
+    console.error('Unhandled error in send-transactional-email', { error: msg })
+    return new Response(
+      JSON.stringify({ error: 'Internal error', details: msg }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
 })
+
