@@ -597,7 +597,8 @@ serve(async (req) => {
             }
           }
         } catch (funnelErr) {
-          log("Burnout funnel hook error", { error: funnelErr instanceof Error ? funnelErr.message : String(funnelErr) });
+          log("Warrior/Challenge funnel hook error", { error: funnelErr instanceof Error ? funnelErr.message : String(funnelErr) });
+
         }
 
         break;
