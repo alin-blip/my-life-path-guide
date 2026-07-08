@@ -93,11 +93,17 @@ serve(async (req) => {
     log("Event received", { type: event.type, id: event.id });
 
     // Initialize Supabase with service role
+    const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const supabaseService = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      SERVICE_ROLE_KEY,
       { auth: { persistSession: false } }
     );
+    // Explicit service-role auth for cross-function invokes. Without this,
+    // send-transactional-email's authorizeTransactionalEmail rejects with 403
+    // "Recipient must match authenticated user email" because supabase-js's
+    // invoke() does not always forward the Bearer token in Deno edge runtime.
+    const svcInvokeHeaders = { Authorization: `Bearer ${SERVICE_ROLE_KEY}` };
 
     // Handle different event types
     // Helper function to process coach commissions (50%)
