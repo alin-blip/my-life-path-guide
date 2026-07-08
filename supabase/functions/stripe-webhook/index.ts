@@ -572,6 +572,7 @@ serve(async (req) => {
                 options: { redirectTo: `${origin}/daily-flow?new=1` },
               });
               await supabaseService.functions.invoke("send-transactional-email", {
+                headers: svcInvokeHeaders,
                 body: {
                   templateName: "warrior-welcome",
                   recipientEmail: customerEmail,
