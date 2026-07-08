@@ -699,6 +699,7 @@ serve(async (req) => {
               || (user?.user_metadata as any)?.full_name
               || customerEmail.split("@")[0];
             await supabaseService.functions.invoke("send-transactional-email", {
+              headers: svcInvokeHeaders,
               body: {
                 templateName: "subscription-upgraded",
                 recipientEmail: customerEmail,
