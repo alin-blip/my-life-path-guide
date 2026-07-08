@@ -127,34 +127,6 @@ const WarriorOnboarding = () => {
             </Card>
           </section>
 
-          {/* Pricing preview */}
-          <section className="text-center space-y-4">
-            <Card className="bg-gradient-to-br from-[#D4A84A]/10 to-[#D4A84A]/5 border-[#D4A84A]/30 p-6 md:p-8 max-w-md mx-auto">
-              <div className="text-xs uppercase tracking-wider text-[#D4A84A] mb-2">Warrior Starter</div>
-              <div className="text-5xl font-bold mb-1">7€<span className="text-lg text-white/60">/lună</span></div>
-              <div className="text-sm text-white/60 mb-4">după 7 zile trial gratuit</div>
-              <div className="space-y-2 text-sm text-white/85 text-left">
-                {[
-                  'Rutina Warrior personalizată',
-                  'Daily Flow — sistem de dimineață',
-                  'Domino Door — planificare săptămânală',
-                  'Mind Coach (5 sesiuni/lună)',
-                  'Anulezi oricând',
-                ].map(f => (
-                  <div key={f} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[#D4A84A]" /> {f}
-                  </div>
-                ))}
-              </div>
-            </Card>
-            <Button
-              size="lg"
-              onClick={() => navigate('/quiz-rutina?source=warrior-onboarding')}
-              className="bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-14 px-8"
-            >
-              Începe cu quiz-ul <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-          </section>
 
           <footer className="pt-8 pb-4 text-center text-xs text-white/40">
             © CEO Mind OS · <Link to="/pricing" className="hover:text-white/70">Vezi toate planurile</Link>
