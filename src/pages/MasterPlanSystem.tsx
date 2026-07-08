@@ -11,6 +11,9 @@ import { NotificationSettings } from '@/components/master-plan-system/Notificati
 import { BackupManager } from '@/components/master-plan-system/BackupManager';
 import { NewProjectModal } from '@/components/master-plan-system/NewProjectModal';
 import { Button } from '@/components/ui/button';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { FeatureLimitBanner } from '@/components/FeatureLimitBanner';
+import { toast } from 'sonner';
 
 export default function MasterPlanSystem() {
   const [activeTab, setActiveTab] = useState<string>("projects");
