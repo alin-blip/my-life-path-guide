@@ -68,6 +68,29 @@ export function MealPlanningStep({
   const [showFoodPicker, setShowFoodPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [smoothieAdvanced, setSmoothieAdvanced] = useState(false);
+  const smoothieMeal = meals.find(m => m.id === REQUIRED_SMOOTHIE_ID);
+  const smoothieDone = !!smoothieMeal;
+
+  const toggleSmoothie = (checked: boolean) => {
+    if (checked && !smoothieMeal) {
+      setMeals([
+        {
+          id: REQUIRED_SMOOTHIE_ID,
+          type: 'breakfast',
+          ...SMOOTHIE_DEFAULTS,
+        },
+        ...meals,
+      ]);
+    } else if (!checked && smoothieMeal) {
+      setMeals(meals.filter(m => m.id !== REQUIRED_SMOOTHIE_ID));
+    }
+  };
+
+  const updateSmoothie = (field: 'calories' | 'protein' | 'carbs' | 'fats', value: string) => {
+    const n = parseInt(value) || 0;
+    setMeals(meals.map(m => m.id === REQUIRED_SMOOTHIE_ID ? { ...m, [field]: n } : m));
+  };
 
   const totalCaloriesComputed = meals.reduce((acc, m) => acc + m.calories, 0);
   const totalProteinComputed = meals.reduce((acc, m) => acc + m.protein, 0);
