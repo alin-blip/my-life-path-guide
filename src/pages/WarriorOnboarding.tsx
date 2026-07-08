@@ -85,6 +85,10 @@ const WarriorOnboarding = () => {
                 Începe quiz-ul <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <p className="text-xs text-white/50">Fără card · Rezultatul livrat pe email</p>
+              <p className="text-xs text-white/70 mt-1">
+                După quiz: acces complet la platformă pentru doar{' '}
+                <span className="text-[#D4A84A] font-semibold">7€/lună</span> — anulezi oricând.
+              </p>
             </div>
           </motion.section>
 
