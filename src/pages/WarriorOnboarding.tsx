@@ -63,14 +63,18 @@ const WarriorOnboarding = () => {
             className="text-center space-y-6"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4A84A]/10 border border-[#D4A84A]/30 text-[#D4A84A] text-xs uppercase tracking-wider">
-              <Sparkles className="w-3 h-3" /> Quiz gratuit · 2 min
+              <Sparkles className="w-3 h-3" /> Early access · Primii 100 de fondatori
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight max-w-3xl mx-auto">
-              Descoperă ce tip de <span className="bg-gradient-to-r from-[#D4A84A] to-[#e8c56a] bg-clip-text text-transparent">Warrior</span> ești
-              <span className="block text-white/80 text-2xl md:text-3xl font-medium mt-3">și primești rutina personalizată — activată în cont.</span>
+              Ești{' '}
+              <span className="bg-gradient-to-r from-[#D4A84A] to-[#e8c56a] bg-clip-text text-transparent">Reactor</span>,{' '}
+              <span className="bg-gradient-to-r from-[#D4A84A] to-[#e8c56a] bg-clip-text text-transparent">Disciplinat</span>,{' '}
+              <span className="bg-gradient-to-r from-[#D4A84A] to-[#e8c56a] bg-clip-text text-transparent">Experimentator</span> sau{' '}
+              <span className="bg-gradient-to-r from-[#D4A84A] to-[#e8c56a] bg-clip-text text-transparent">Warrior</span>?
+              <span className="block text-white/80 text-2xl md:text-3xl font-medium mt-4">Rutina ta de dimineață depinde de răspuns.</span>
             </h1>
             <p className="text-lg text-white/70 max-w-xl mx-auto">
-              8 întrebări · 4 arhetipuri · O rutină construită pentru cum funcționezi tu. Fără presupuneri.
+              Hai să-l aflăm împreună — 8 întrebări, 2 minute, și primești rutina calibrată pe tine, activată direct în cont.
             </p>
             <div className="pt-2 flex flex-col items-center gap-2">
               <Button
