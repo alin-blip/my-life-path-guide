@@ -6,16 +6,39 @@ import { SkoolPostCard } from './SkoolPostCard';
 import { SkoolGroupSidebar } from './SkoolGroupSidebar';
 import { CommunityWelcomeBanner } from './CommunityWelcomeBanner';
 import { useLanguage } from '@/context/LanguageContext';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { FeatureLimitBanner } from '@/components/FeatureLimitBanner';
+import { toast } from 'sonner';
 
 export const CommunityTab: React.FC = () => {
   const { language } = useLanguage();
   const { posts, loading, createPost, toggleLike, fetchPosts } = useBrotherhood();
   const [activeCategory, setActiveCategory] = useState('all');
+  const { status: accessStatus, consume: consumePostQuota } = useFeatureAccess('brotherhood_post');
 
   // Re-fetch posts when category changes
   useEffect(() => {
     fetchPosts(undefined, activeCategory);
   }, [activeCategory]);
+
+  const handleCreatePost = async (
+    content: string,
+    options?: { mediaUrls?: string[]; category?: string; [k: string]: unknown },
+  ) => {
+    // Free-tier gate: 1 post per ISO week
+    if (accessStatus && !accessStatus.unlimited) {
+      const allowed = await consumePostQuota();
+      if (!allowed) {
+        toast.error(
+          language === 'ro'
+            ? 'Ai atins limita săptămânală pentru Brotherhood. Fă upgrade pentru postări nelimitate.'
+            : 'You reached this week\'s Brotherhood limit. Upgrade for unlimited posts.',
+        );
+        return;
+      }
+    }
+    await createPost(content, undefined, options?.mediaUrls, options);
+  };
 
   if (loading) {
     return (
@@ -30,7 +53,11 @@ export const CommunityTab: React.FC = () => {
       {/* Main Feed */}
       <div className="flex-1 min-w-0 max-w-2xl space-y-4">
         <CommunityWelcomeBanner />
-        <SkoolWritePost onPost={(content, options) => createPost(content, undefined, options?.mediaUrls, options)} />
+        <FeatureLimitBanner
+          status={accessStatus}
+          featureLabel={language === 'ro' ? 'postări Brotherhood' : 'Brotherhood posts'}
+        />
+        <SkoolWritePost onPost={handleCreatePost} />
         <SkoolCategoryFilter active={activeCategory} onChange={setActiveCategory} />
 
         {posts.length === 0 ? (
@@ -55,3 +82,4 @@ export const CommunityTab: React.FC = () => {
     </div>
   );
 };
+

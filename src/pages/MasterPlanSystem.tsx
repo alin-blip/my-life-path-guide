@@ -11,6 +11,9 @@ import { NotificationSettings } from '@/components/master-plan-system/Notificati
 import { BackupManager } from '@/components/master-plan-system/BackupManager';
 import { NewProjectModal } from '@/components/master-plan-system/NewProjectModal';
 import { Button } from '@/components/ui/button';
+import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { FeatureLimitBanner } from '@/components/FeatureLimitBanner';
+import { toast } from 'sonner';
 
 export default function MasterPlanSystem() {
   const [activeTab, setActiveTab] = useState<string>("projects");
@@ -18,6 +21,7 @@ export default function MasterPlanSystem() {
   const [selectedProject, setSelectedProject] = useState<NapoleonHillProject | null>(null);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { status: masterPlanAccess, consume: consumeMasterPlan } = useFeatureAccess('master_plan');
 
   useEffect(() => {
     loadProjects();
@@ -35,7 +39,15 @@ export default function MasterPlanSystem() {
     setActiveTab("journey");
   };
 
-  const handleNewProject = () => {
+  const handleNewProject = async () => {
+    // Free-tier gate: 1 Master Plan per month
+    if (masterPlanAccess && !masterPlanAccess.unlimited) {
+      const allowed = await consumeMasterPlan();
+      if (!allowed) {
+        toast.error('Ai atins limita lunară pentru Master Plan. Fă upgrade pentru proiecte nelimitate.');
+        return;
+      }
+    }
     setIsNewProjectModalOpen(true);
   };
 
@@ -71,6 +83,15 @@ export default function MasterPlanSystem() {
               Călătoria completă prin cele 14 principii ale succesului - de la introspecție la implementare
             </p>
           </div>
+
+          <div className="max-w-3xl mx-auto mb-6">
+            <FeatureLimitBanner
+              status={masterPlanAccess}
+              featureLabel="proiecte Master Plan"
+            />
+          </div>
+
+
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-4">
