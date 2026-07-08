@@ -3326,6 +3326,33 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_usage_log: {
+        Row: {
+          created_at: string
+          feature_key: string
+          id: string
+          metadata: Json | null
+          period_key: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_key: string
+          id?: string
+          metadata?: Json | null
+          period_key: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_key?: string
+          id?: string
+          metadata?: Json | null
+          period_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_journey_maps: {
         Row: {
           annual_goal: Json | null
