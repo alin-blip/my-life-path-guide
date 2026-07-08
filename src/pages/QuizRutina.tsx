@@ -218,18 +218,18 @@ const QuizRutina = () => {
                   className="space-y-6"
                 >
                   <div className="text-center space-y-3">
-                    <h2 className="text-3xl font-bold">Aproape gata! ⚡</h2>
+                    <h2 className="text-3xl font-bold">Ultimul pas ⚡</h2>
                     <p className="text-white/70">
-                      Lasă-mi email-ul (opțional) ca să-ți trimit rezultatul și tips-uri pentru
-                      tipul tău de Warrior în următoarele zile.
+                      Lasă-mi email-ul ca să-ți trimit rezultatul personalizat + raportul complet.
                     </p>
                   </div>
 
                   <Card className="bg-white/5 border-white/10 p-6 space-y-4">
                     <div>
-                      <label className="text-sm text-white/70 mb-2 block">Email (opțional)</label>
+                      <label className="text-sm text-white/70 mb-2 block">Email</label>
                       <Input
                         type="email"
+                        required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="tu@example.com"
@@ -239,14 +239,16 @@ const QuizRutina = () => {
                     <Button
                       onClick={submitQuiz}
                       size="lg"
-                      className="w-full bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-12"
+                      disabled={!EMAIL_RE.test(email.trim())}
+                      className="w-full bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-12 disabled:opacity-50"
                     >
                       Vezi rezultatul <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                     <p className="text-xs text-white/50 text-center">
-                      Fără spam. Poți opta la orice moment.
+                      Fără spam. Doar rezultatul tău + rutina personalizată.
                     </p>
                   </Card>
+
                 </motion.div>
               )}
 
