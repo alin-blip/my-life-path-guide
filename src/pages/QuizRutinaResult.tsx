@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, Check, Sword, Loader2, Sparkles, Lock, Mail, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Check, Sword, Loader2, Sparkles, Lock, Mail, CheckCircle2, TrendingDown, Clock, Zap } from 'lucide-react';
 import { WARRIOR_TYPES, WARRIOR_TEMPLATES, type WarriorType } from '@/data/warriorTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -13,6 +13,45 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+// Cost-of-inaction per warrior type — what staying in this pattern actually costs
+const COST_OF_INACTION: Record<WarriorType, { headline: string; items: { icon: 'time' | 'money' | 'energy'; label: string; detail: string }[] }> = {
+  reactor: {
+    headline: 'Fiecare zi în care rămâi Reactor te costă concret:',
+    items: [
+      { icon: 'time', label: '2-3 ore pierdute zilnic', detail: 'Reactiv pe telefon, notificări, task-uri urgente-dar-neimportante = ~750 ore/an duse.' },
+      { icon: 'money', label: 'Decizii proaste sub presiune', detail: 'Fără spațiu mental dimineața, alegi ce e ușor, nu ce mișcă businessul. Costul lunar: 5-10k€ oportunități ratate.' },
+      { icon: 'energy', label: 'Burnout garantat în 6-12 luni', detail: 'Cortizol ridicat toată ziua, somn prost, energie 4/10. Family & health primesc restul.' },
+    ],
+  },
+  disciplined: {
+    headline: 'Ești disciplinat, dar plafonat. Costul e mai subtil:',
+    items: [
+      { icon: 'time', label: 'Rutina nu se pliază pe realitate', detail: 'Faci pași corect, dar nu adaptezi. Rezultatul: efort mare, progres liniar când ar trebui exponențial.' },
+      { icon: 'money', label: 'Optimizezi execuția, nu direcția', detail: 'Faci lucrurile bine, dar nu neapărat pe cele care contează. 20-30% din energie merge în task-uri care nu mută viziunea.' },
+      { icon: 'energy', label: 'Risc mare de burnout „ascuns"', detail: 'Nu spargi ritmul, dar nici nu recuperezi. Într-un an, energia scade fără să realizezi de ce.' },
+    ],
+  },
+  experimenter: {
+    headline: 'Testezi mult, dar nu compui. Iată ce te costă:',
+    items: [
+      { icon: 'time', label: '10 cărți începute, 0 aplicate', detail: 'Fiecare sistem nou = 2-4 săptămâni de „learning" fără rezultat. În 1 an = 6+ luni pierdute pe reset.' },
+      { icon: 'money', label: 'Zero compunere', detail: 'Sistemele fac bani doar prin repetiție. Tu resetezi înainte să vezi curba. Costul: growth linear, nu exponențial.' },
+      { icon: 'energy', label: 'Identitate difuză', detail: 'Nu te vezi ca „cineva care face X consistent". Fără identitate clară, orice sistem cade la primul obstacol.' },
+    ],
+  },
+  warrior: {
+    headline: 'Ești deja aproape. Dar fără sistem, riști să pierzi ce ai construit:',
+    items: [
+      { icon: 'time', label: 'Rutina depinde de tine 100%', detail: 'Dacă ai o săptămână grea, tot sistemul cade. Fără infrastructură externă, ești vulnerabil.' },
+      { icon: 'money', label: 'Fără accountability, plateau', detail: 'Ai ajuns unde ești singur. Dar next level cere feedback loop pe care nu-l poți construi solo.' },
+      { icon: 'energy', label: 'Izolare la vârf', detail: 'Fondatori la nivelul tău au nevoie de sistem + tribe. Fără ele, „warrior" devine „lone wolf" → burnout.' },
+    ],
+  },
+};
+
+const costIcon = (t: 'time' | 'money' | 'energy') =>
+  t === 'time' ? Clock : t === 'money' ? TrendingDown : Zap;
 
 const QuizRutinaResult = () => {
   const [params] = useSearchParams();
