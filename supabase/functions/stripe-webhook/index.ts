@@ -476,6 +476,7 @@ serve(async (req) => {
                 log("Basic generateLink error", { error: linkErr.message });
               } else {
                 await supabaseService.functions.invoke("send-transactional-email", {
+                  headers: svcInvokeHeaders,
                   body: {
                     templateName: "challenge-welcome-set-password",
                     recipientEmail: customerEmail,
