@@ -71,6 +71,57 @@ Deno.serve(async (req) => {
         .select('achievement_key, metadata');
       if (insertErr) console.error('insert error', insertErr);
       else newlyUnlocked.push(...(inserted ?? []).map((r) => ({ key: r.achievement_key, metadata: r.metadata as Record<string, unknown> })));
+
+      // Fire contextual emails for meaningful unlocks (fire-and-forget)
+      if (newlyUnlocked.length > 0 && user.email) {
+        const email = user.email;
+        const displayName = (user.user_metadata?.display_name as string) || (user.user_metadata?.full_name as string) || email.split('@')[0];
+        let language: 'ro' | 'en' = 'ro';
+        try {
+          const { data: prefs } = await supabase.from('user_preferences').select('language').eq('user_id', user.id).maybeSingle();
+          if (prefs?.language === 'en' || prefs?.language === 'ro') language = prefs.language;
+        } catch {}
+
+        const STREAK_META: Record<string, { icon: string; title: string; reward?: string; days: number }> = {
+          streak_3: { icon: '🔥', title: '3 zile consecutive', days: 3 },
+          streak_7: { icon: '⚡', title: 'O săptămână de disciplină', days: 7, reward: '+2 sesiuni Mind Coach / lună' },
+          streak_14: { icon: '💎', title: 'Două săptămâni fără compromis', days: 14, reward: 'Postări nelimitate în Brotherhood' },
+          streak_30: { icon: '👑', title: 'Războinic consacrat', days: 30, reward: 'Badge Elite + Master Plan bonus' },
+        };
+        const ACTION_META: Record<string, { icon: string; title: string; description: string; reward?: string }> = {
+          quiz_completed: { icon: '🧭', title: 'Războinicul Descoperit', description: 'Ți-ai aflat tipul de războinic.', reward: 'Badge Warrior Type' },
+          first_master_plan: { icon: '🗺️', title: 'Primul Plan Strategic', description: 'Ai creat primul tău Master Plan.' },
+          first_brotherhood_post: { icon: '🗣️', title: 'Voce în Trib', description: 'Prima postare în Brotherhood.' },
+        };
+
+        for (const nu of newlyUnlocked) {
+          const streak = STREAK_META[nu.key];
+          const action = ACTION_META[nu.key];
+          try {
+            if (streak) {
+              await supabase.functions.invoke('send-transactional-email', {
+                body: {
+                  templateName: 'streak-milestone',
+                  recipientEmail: email,
+                  idempotencyKey: `streak-${nu.key}-${user.id}`,
+                  templateData: { name: displayName, language, streakDays: streak.days, achievementTitle: streak.title, achievementIcon: streak.icon, reward: streak.reward },
+                },
+              });
+            } else if (action) {
+              await supabase.functions.invoke('send-transactional-email', {
+                body: {
+                  templateName: 'achievement-unlocked',
+                  recipientEmail: email,
+                  idempotencyKey: `ach-${nu.key}-${user.id}`,
+                  templateData: { name: displayName, language, achievementTitle: action.title, achievementDescription: action.description, achievementIcon: action.icon, reward: action.reward },
+                },
+              });
+            }
+          } catch (mailErr) {
+            console.warn('contextual email invoke failed', nu.key, mailErr);
+          }
+        }
+      }
     }
 
     return new Response(
