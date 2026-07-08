@@ -309,10 +309,70 @@ export function MealPlanningStep({
           </div>
         </div>
 
+        {/* Required: Healthy Protein Green Smoothie */}
+        <div className={`rounded-lg border p-4 space-y-3 ${smoothieDone ? 'bg-green-500/10 border-green-500/40' : 'bg-amber-500/10 border-amber-500/40'}`}>
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="smoothie-required"
+              checked={smoothieDone}
+              onCheckedChange={(c) => toggleSmoothie(!!c)}
+              className="mt-1"
+            />
+            <label htmlFor="smoothie-required" className="flex-1 cursor-pointer">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Leaf className="h-4 w-4 text-green-600" />
+                <span className="font-semibold">Healthy Protein Green Smoothie</span>
+                <span className="text-[10px] uppercase tracking-wide font-bold px-1.5 py-0.5 rounded bg-red-500/20 text-red-600 border border-red-500/40">
+                  Obligatoriu
+                </span>
+                {smoothieDone && (
+                  <span className="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
+                    <Check className="h-3 w-3" /> Bifat
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Bifează după consum. Sau extinde pentru macro-uri avansate.
+              </p>
+            </label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setSmoothieAdvanced(v => !v)}
+              className="gap-1"
+            >
+              {smoothieAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              Avansat
+            </Button>
+          </div>
+
+          {smoothieAdvanced && smoothieDone && smoothieMeal && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 pt-2 border-t border-border/50">
+              <div>
+                <label className="text-xs text-muted-foreground">Calorii</label>
+                <Input type="number" value={smoothieMeal.calories} onChange={(e) => updateSmoothie('calories', e.target.value)} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Proteine (g)</label>
+                <Input type="number" value={smoothieMeal.protein} onChange={(e) => updateSmoothie('protein', e.target.value)} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Carbo (g)</label>
+                <Input type="number" value={smoothieMeal.carbs || 0} onChange={(e) => updateSmoothie('carbs', e.target.value)} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Grăsimi (g)</label>
+                <Input type="number" value={smoothieMeal.fats || 0} onChange={(e) => updateSmoothie('fats', e.target.value)} />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Meals list */}
-        {meals.length > 0 && (
+        {meals.filter(m => m.id !== REQUIRED_SMOOTHIE_ID).length > 0 && (
           <div className="space-y-2">
-            {meals.map((meal) => {
+            {meals.filter(m => m.id !== REQUIRED_SMOOTHIE_ID).map((meal) => {
               const typeInfo = getMealTypeInfo(meal.type);
               return (
                 <div 
@@ -342,6 +402,7 @@ export function MealPlanningStep({
             })}
           </div>
         )}
+
 
         {/* Meal Type Selector */}
         <div className="grid grid-cols-4 gap-2">
