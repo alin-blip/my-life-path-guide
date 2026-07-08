@@ -64,6 +64,8 @@ const Vision2026Dashboard = lazy(() => import("./pages/Vision2026Dashboard"));
 const VisionBoard2026 = lazy(() => import("./pages/VisionBoard2026"));
 const FactMaps = lazy(() => import("./pages/FactMaps"));
 const QuickQuiz = lazy(() => import("./pages/QuickQuiz"));
+const QuizRutina = lazy(() => import("./pages/QuizRutina"));
+const QuizRutinaResult = lazy(() => import("./pages/QuizRutinaResult"));
 const DailyFlow = lazy(() => import("./pages/DailyFlow"));
 const ChampionRoutineHistory = lazy(() => import("./pages/ChampionRoutineHistory"));
 const WorkoutHistory = lazy(() => import("./pages/WorkoutHistory"));
@@ -207,6 +209,8 @@ const App = () => (
                     } />
                     <Route path="/master-plan" element={<Navigate to="/programs?tab=classroom" replace />} />
                     <Route path="/challenge-7-zile" element={<Challenge7ZileLanding />} />
+                    <Route path="/quiz-rutina" element={<QuizRutina />} />
+                    <Route path="/quiz-rutina/result" element={<QuizRutinaResult />} />
                     <Route path="/challenge-en" element={<ChallengeEnglish />} />
                     <Route path="/challenge-en/:day" element={<ChallengeDayEnglish />} />
                     <Route path="/challenge" element={<Challenge />} />

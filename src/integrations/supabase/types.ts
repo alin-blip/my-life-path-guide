@@ -5710,6 +5710,51 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_routine_results: {
+        Row: {
+          activated: boolean
+          activated_at: string | null
+          answers: Json
+          created_at: string
+          email: string | null
+          id: string
+          language: string | null
+          scores: Json
+          source: string | null
+          updated_at: string
+          user_id: string | null
+          warrior_type: string
+        }
+        Insert: {
+          activated?: boolean
+          activated_at?: string | null
+          answers?: Json
+          created_at?: string
+          email?: string | null
+          id?: string
+          language?: string | null
+          scores?: Json
+          source?: string | null
+          updated_at?: string
+          user_id?: string | null
+          warrior_type: string
+        }
+        Update: {
+          activated?: boolean
+          activated_at?: string | null
+          answers?: Json
+          created_at?: string
+          email?: string | null
+          id?: string
+          language?: string | null
+          scores?: Json
+          source?: string | null
+          updated_at?: string
+          user_id?: string | null
+          warrior_type?: string
+        }
+        Relationships: []
+      }
       rate_limits: {
         Row: {
           created_at: string | null
