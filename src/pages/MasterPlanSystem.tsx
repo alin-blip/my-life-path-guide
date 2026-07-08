@@ -39,7 +39,15 @@ export default function MasterPlanSystem() {
     setActiveTab("journey");
   };
 
-  const handleNewProject = () => {
+  const handleNewProject = async () => {
+    // Free-tier gate: 1 Master Plan per month
+    if (masterPlanAccess && !masterPlanAccess.unlimited) {
+      const allowed = await consumeMasterPlan();
+      if (!allowed) {
+        toast.error('Ai atins limita lunară pentru Master Plan. Fă upgrade pentru proiecte nelimitate.');
+        return;
+      }
+    }
     setIsNewProjectModalOpen(true);
   };
 
