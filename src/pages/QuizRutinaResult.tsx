@@ -116,6 +116,39 @@ const QuizRutinaResult = () => {
     }
   };
 
+  // Auto-send report if email arrived from the quiz step
+  useEffect(() => {
+    if (autoSendAttempted) return;
+    if (!emailFromQuiz || !warriorType || !EMAIL_RE.test(emailFromQuiz)) return;
+    setAutoSendAttempted(true);
+    (async () => {
+      setEmailSubmitting(true);
+      try {
+        const utm = (() => {
+          try { return JSON.parse(localStorage.getItem('warrior_funnel_utm') || '{}'); } catch { return {}; }
+        })();
+        const { data, error } = await supabase.functions.invoke('send-warrior-report', {
+          body: {
+            email: emailFromQuiz.toLowerCase(),
+            warrior_type: warriorType,
+            result_id: resultId,
+            language: (navigator.language || 'ro').startsWith('en') ? 'en' : 'ro',
+            utm: { ...utm, source },
+          },
+        });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || 'Eroare');
+        setLeadId(data.lead_id);
+        setEmailSent(true);
+      } catch (err) {
+        console.error('auto-send report failed', err);
+      } finally {
+        setEmailSubmitting(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [emailFromQuiz, warriorType, resultId]);
+
   const submitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!EMAIL_RE.test(email.trim())) {
