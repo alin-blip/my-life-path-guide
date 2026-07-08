@@ -551,6 +551,7 @@ serve(async (req) => {
                 const { error: actErr } = await supabaseService.functions.invoke(
                   "activate-warrior-routine",
                   {
+                    headers: svcInvokeHeaders,
                     body: {
                       warrior_type: warriorType,
                       result_id: lead?.quiz_result_id || null,
