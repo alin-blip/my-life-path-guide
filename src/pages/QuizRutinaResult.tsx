@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, Check, Sword, Loader2, Sparkles, Lock, Mail, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Check, Sword, Loader2, Sparkles, Lock, Mail, CheckCircle2, TrendingDown, Clock, Zap } from 'lucide-react';
 import { WARRIOR_TYPES, WARRIOR_TEMPLATES, type WarriorType } from '@/data/warriorTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -13,6 +13,45 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+// Cost-of-inaction per warrior type — what staying in this pattern actually costs
+const COST_OF_INACTION: Record<WarriorType, { headline: string; items: { icon: 'time' | 'money' | 'energy'; label: string; detail: string }[] }> = {
+  reactor: {
+    headline: 'Fiecare zi în care rămâi Reactor te costă concret:',
+    items: [
+      { icon: 'time', label: '2-3 ore pierdute zilnic', detail: 'Reactiv pe telefon, notificări, task-uri urgente-dar-neimportante = ~750 ore/an duse.' },
+      { icon: 'money', label: 'Decizii proaste sub presiune', detail: 'Fără spațiu mental dimineața, alegi ce e ușor, nu ce mișcă businessul. Costul lunar: 5-10k€ oportunități ratate.' },
+      { icon: 'energy', label: 'Burnout garantat în 6-12 luni', detail: 'Cortizol ridicat toată ziua, somn prost, energie 4/10. Family & health primesc restul.' },
+    ],
+  },
+  disciplined: {
+    headline: 'Ești disciplinat, dar plafonat. Costul e mai subtil:',
+    items: [
+      { icon: 'time', label: 'Rutina nu se pliază pe realitate', detail: 'Faci pași corect, dar nu adaptezi. Rezultatul: efort mare, progres liniar când ar trebui exponențial.' },
+      { icon: 'money', label: 'Optimizezi execuția, nu direcția', detail: 'Faci lucrurile bine, dar nu neapărat pe cele care contează. 20-30% din energie merge în task-uri care nu mută viziunea.' },
+      { icon: 'energy', label: 'Risc mare de burnout „ascuns"', detail: 'Nu spargi ritmul, dar nici nu recuperezi. Într-un an, energia scade fără să realizezi de ce.' },
+    ],
+  },
+  experimenter: {
+    headline: 'Testezi mult, dar nu compui. Iată ce te costă:',
+    items: [
+      { icon: 'time', label: '10 cărți începute, 0 aplicate', detail: 'Fiecare sistem nou = 2-4 săptămâni de „learning" fără rezultat. În 1 an = 6+ luni pierdute pe reset.' },
+      { icon: 'money', label: 'Zero compunere', detail: 'Sistemele fac bani doar prin repetiție. Tu resetezi înainte să vezi curba. Costul: growth linear, nu exponențial.' },
+      { icon: 'energy', label: 'Identitate difuză', detail: 'Nu te vezi ca „cineva care face X consistent". Fără identitate clară, orice sistem cade la primul obstacol.' },
+    ],
+  },
+  warrior: {
+    headline: 'Ești deja aproape. Dar fără sistem, riști să pierzi ce ai construit:',
+    items: [
+      { icon: 'time', label: 'Rutina depinde de tine 100%', detail: 'Dacă ai o săptămână grea, tot sistemul cade. Fără infrastructură externă, ești vulnerabil.' },
+      { icon: 'money', label: 'Fără accountability, plateau', detail: 'Ai ajuns unde ești singur. Dar next level cere feedback loop pe care nu-l poți construi solo.' },
+      { icon: 'energy', label: 'Izolare la vârf', detail: 'Fondatori la nivelul tău au nevoie de sistem + tribe. Fără ele, „warrior" devine „lone wolf" → burnout.' },
+    ],
+  },
+};
+
+const costIcon = (t: 'time' | 'money' | 'energy') =>
+  t === 'time' ? Clock : t === 'money' ? TrendingDown : Zap;
 
 const QuizRutinaResult = () => {
   const [params] = useSearchParams();
@@ -22,13 +61,15 @@ const QuizRutinaResult = () => {
   const warriorType = params.get('type') as WarriorType | null;
   const resultId = params.get('rid');
   const source = params.get('source') || 'quiz';
+  const emailFromQuiz = params.get('email') || '';
 
   const [activating, setActivating] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(emailFromQuiz);
   const [emailSubmitting, setEmailSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
+  const [autoSendAttempted, setAutoSendAttempted] = useState(false);
 
   const meta = warriorType ? WARRIOR_TYPES[warriorType] : null;
   const template = warriorType ? WARRIOR_TEMPLATES[warriorType] : null;
@@ -74,6 +115,39 @@ const QuizRutinaResult = () => {
       setActivating(false);
     }
   };
+
+  // Auto-send report if email arrived from the quiz step
+  useEffect(() => {
+    if (autoSendAttempted) return;
+    if (!emailFromQuiz || !warriorType || !EMAIL_RE.test(emailFromQuiz)) return;
+    setAutoSendAttempted(true);
+    (async () => {
+      setEmailSubmitting(true);
+      try {
+        const utm = (() => {
+          try { return JSON.parse(localStorage.getItem('warrior_funnel_utm') || '{}'); } catch { return {}; }
+        })();
+        const { data, error } = await supabase.functions.invoke('send-warrior-report', {
+          body: {
+            email: emailFromQuiz.toLowerCase(),
+            warrior_type: warriorType,
+            result_id: resultId,
+            language: (navigator.language || 'ro').startsWith('en') ? 'en' : 'ro',
+            utm: { ...utm, source },
+          },
+        });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || 'Eroare');
+        setLeadId(data.lead_id);
+        setEmailSent(true);
+      } catch (err) {
+        console.error('auto-send report failed', err);
+      } finally {
+        setEmailSubmitting(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [emailFromQuiz, warriorType, resultId]);
 
   const submitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,6 +353,38 @@ const QuizRutinaResult = () => {
               )}
             </Card>
           </motion.div>
+
+          {/* Cost of inaction — what staying in this pattern costs */}
+          {COST_OF_INACTION[warriorType as WarriorType] && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="bg-red-950/20 border-red-500/20 p-6 md:p-8 space-y-5">
+                <div className="text-center space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-xs uppercase tracking-wider">
+                    <TrendingDown className="w-3 h-3" /> Costul de a nu schimba nimic
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold">
+                    {COST_OF_INACTION[warriorType as WarriorType].headline}
+                  </h3>
+                </div>
+                <div className="grid md:grid-cols-3 gap-3">
+                  {COST_OF_INACTION[warriorType as WarriorType].items.map((item) => {
+                    const Icon = costIcon(item.icon);
+                    return (
+                      <div key={item.label} className="p-4 rounded-lg bg-white/5 border border-white/10 space-y-2">
+                        <Icon className="w-5 h-5 text-red-400" />
+                        <div className="font-semibold text-white/95 text-sm">{item.label}</div>
+                        <p className="text-xs text-white/65 leading-relaxed">{item.detail}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-center text-sm text-white/70 pt-2 border-t border-white/10">
+                  Vestea bună: <span className="text-[#D4A84A] font-semibold">rutina de mai jos rezolvă exact asta</span> — activezi 7 zile gratuit și vezi diferența înainte să plătești ceva.
+                </p>
+              </Card>
+            </motion.div>
+          )}
+
 
           {/* Email gate + CTA */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>

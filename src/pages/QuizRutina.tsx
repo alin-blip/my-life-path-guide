@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,20 @@ import { cn } from '@/lib/utils';
 
 type Answer = { questionId: string; optionIndex: number };
 
+const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
 const QuizRutina = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'intro' | number | 'email' | 'submitting'>('intro');
+  const [searchParams] = useSearchParams();
+  const autostart = searchParams.get('autostart') === '1';
+  const [step, setStep] = useState<'intro' | number | 'email' | 'submitting'>(autostart ? 0 : 'intro');
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (autostart && step === 'intro') setStep(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autostart]);
 
   const totalQuestions = QUIZ_QUESTIONS.length;
   const currentIndex = typeof step === 'number' ? step : -1;
@@ -50,12 +59,16 @@ const QuizRutina = () => {
   };
 
   const submitQuiz = async () => {
+    if (!EMAIL_RE.test(email.trim())) {
+      toast.error('Ai nevoie de un email valid ca să primești rezultatul.');
+      return;
+    }
     setStep('submitting');
     try {
       const { data, error } = await supabase.functions.invoke('submit-quiz-routine', {
         body: {
           answers,
-          email: email.trim() || null,
+          email: email.trim().toLowerCase(),
           language: 'ro',
           source: 'quiz-rutina',
         },
@@ -63,7 +76,8 @@ const QuizRutina = () => {
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || 'Eroare necunoscută');
 
-      navigate(`/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}`);
+      const emailParam = encodeURIComponent(email.trim().toLowerCase());
+      navigate(`/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}&email=${emailParam}`);
     } catch (e) {
       console.error(e);
       toast.error('Nu am putut trimite quiz-ul. Încearcă din nou.');
@@ -204,18 +218,18 @@ const QuizRutina = () => {
                   className="space-y-6"
                 >
                   <div className="text-center space-y-3">
-                    <h2 className="text-3xl font-bold">Aproape gata! ⚡</h2>
+                    <h2 className="text-3xl font-bold">Ultimul pas ⚡</h2>
                     <p className="text-white/70">
-                      Lasă-mi email-ul (opțional) ca să-ți trimit rezultatul și tips-uri pentru
-                      tipul tău de Warrior în următoarele zile.
+                      Lasă-mi email-ul ca să-ți trimit rezultatul personalizat + raportul complet.
                     </p>
                   </div>
 
                   <Card className="bg-white/5 border-white/10 p-6 space-y-4">
                     <div>
-                      <label className="text-sm text-white/70 mb-2 block">Email (opțional)</label>
+                      <label className="text-sm text-white/70 mb-2 block">Email</label>
                       <Input
                         type="email"
+                        required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="tu@example.com"
@@ -225,14 +239,16 @@ const QuizRutina = () => {
                     <Button
                       onClick={submitQuiz}
                       size="lg"
-                      className="w-full bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-12"
+                      disabled={!EMAIL_RE.test(email.trim())}
+                      className="w-full bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-12 disabled:opacity-50"
                     >
                       Vezi rezultatul <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                     <p className="text-xs text-white/50 text-center">
-                      Fără spam. Poți opta la orice moment.
+                      Fără spam. Doar rezultatul tău + rutina personalizată.
                     </p>
                   </Card>
+
                 </motion.div>
               )}
 
