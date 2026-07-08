@@ -485,6 +485,106 @@ serve(async (req) => {
               log("Challenge Basic welcome flow error", { error: basicErr instanceof Error ? basicErr.message : String(basicErr) });
             }
           }
+
+          // === WARRIOR STARTER FUNNEL (7€/mo, 7-day trial) ===
+          if (planId === "starter") {
+            try {
+              // 1. Look up the lead captured on the funnel page
+              const { data: lead } = await supabaseService
+                .from("warrior_funnel_leads")
+                .select("id, warrior_type, quiz_result_id")
+                .eq("email", customerEmail)
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+              const warriorType = lead?.warrior_type as string | undefined;
+
+              // 2. Ensure a user account exists
+              let warriorUser = user;
+              if (!warriorUser) {
+                const tempPwd = crypto.randomUUID().replace(/-/g, "") + "A1!";
+                const { data: created, error: createErr } = await supabaseService.auth.admin.createUser({
+                  email: customerEmail,
+                  password: tempPwd,
+                  email_confirm: true,
+                  user_metadata: {
+                    display_name: session.metadata?.guest_name || "",
+                    source: "warrior_onboarding",
+                    warrior_type: warriorType || null,
+                    language,
+                  },
+                });
+                if (createErr) {
+                  log("Warrior Starter auto-create user error", { error: createErr.message });
+                } else if (created?.user) {
+                  warriorUser = created.user;
+                  await supabaseService
+                    .from("subscribers")
+                    .update({ user_id: created.user.id })
+                    .eq("email", customerEmail);
+                }
+              }
+
+              // 3. Activate the routine automatically (service-role call)
+              if (warriorUser && warriorType) {
+                const { error: actErr } = await supabaseService.functions.invoke(
+                  "activate-warrior-routine",
+                  {
+                    body: {
+                      warrior_type: warriorType,
+                      result_id: lead?.quiz_result_id || null,
+                      target_user_id: warriorUser.id,
+                    },
+                  }
+                );
+                if (actErr) {
+                  log("Warrior Starter activate error", { error: (actErr as Error).message });
+                }
+              }
+
+              // 4. Send welcome email with magic link
+              const origin = req.headers.get("origin") || "https://ceomindos.com";
+              const { data: linkData } = await supabaseService.auth.admin.generateLink({
+                type: "magiclink",
+                email: customerEmail,
+                options: { redirectTo: `${origin}/daily-flow?new=1` },
+              });
+              await supabaseService.functions.invoke("send-transactional-email", {
+                body: {
+                  templateName: "warrior-welcome",
+                  recipientEmail: customerEmail,
+                  idempotencyKey: `warrior-welcome-${session.id}`,
+                  templateData: {
+                    warriorName: warriorType
+                      ? warriorType.charAt(0).toUpperCase() + warriorType.slice(1)
+                      : "Warrior",
+                    magicLink: linkData?.properties?.action_link || `${origin}/auth`,
+                    language,
+                  },
+                },
+              });
+
+              // 5. Mark lead as converted
+              if (lead?.id) {
+                await supabaseService
+                  .from("warrior_funnel_leads")
+                  .update({
+                    stripe_customer_id: customerId,
+                    stripe_session_id: session.id,
+                    trial_started_at: new Date().toISOString(),
+                    routine_activated_at: warriorType ? new Date().toISOString() : null,
+                    user_id: warriorUser?.id || null,
+                    status: "converted",
+                  })
+                  .eq("id", lead.id);
+              }
+
+              log("Warrior Starter funnel completed", { email: customerEmail, warriorType });
+            } catch (warriorErr) {
+              log("Warrior Starter flow error", { error: warriorErr instanceof Error ? warriorErr.message : String(warriorErr) });
+            }
+          }
         } catch (funnelErr) {
           log("Burnout funnel hook error", { error: funnelErr instanceof Error ? funnelErr.message : String(funnelErr) });
         }
