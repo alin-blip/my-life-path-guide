@@ -272,11 +272,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
       icon: LayoutGrid,
       path: '/core-ceo',
       subItems: [
-        { title: language === 'ro' ? 'Corp' : 'Body', icon: Dumbbell, path: '/workout' },
-        { title: language === 'ro' ? 'Minte' : 'Mind', icon: Brain, path: '/minte' },
-        { title: language === 'ro' ? 'Relații' : 'Relationships', icon: Heart, path: '/marriage' },
-        { title: language === 'ro' ? 'Spiritualitate' : 'Spirituality', icon: Sparkles, path: '/empowerment-meditation' },
-        { title: 'Business', icon: Briefcase, path: '/business' },
+        { title: language === 'ro' ? 'Corp' : 'Body', icon: Dumbbell, path: '/core-ceo?cat=corp' },
+        { title: language === 'ro' ? 'Minte' : 'Mind', icon: Brain, path: '/core-ceo?cat=minte' },
+        { title: language === 'ro' ? 'Relații' : 'Relationships', icon: Heart, path: '/core-ceo?cat=relatii' },
+        { title: language === 'ro' ? 'Spiritualitate' : 'Spirituality', icon: Sparkles, path: '/core-ceo?cat=spiritualitate' },
+        { title: 'Business', icon: Briefcase, path: '/core-ceo?cat=business' },
       ],
     },
 

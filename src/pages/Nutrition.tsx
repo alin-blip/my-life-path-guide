@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Layout } from '@/components/Layout';
 import { MealPlanningStep } from '@/components/champion-routine/steps/MealPlanningStep';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +25,9 @@ const Nutrition = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [totalCalories, setTotalCalories] = useState(0);
   const [totalProtein, setTotalProtein] = useState(0);
+  const userIdRef = useRef<string | null>(null);
+  const hasLoadedRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadTodayMeals();
@@ -33,6 +36,7 @@ const Nutrition = () => {
   const loadTodayMeals = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+    userIdRef.current = user.id;
 
     const today = format(new Date(), 'yyyy-MM-dd');
     const { data } = await supabase
@@ -48,6 +52,43 @@ const Nutrition = () => {
       setTotalCalories(data.total_calories || 0);
       setTotalProtein(data.total_protein || 0);
     }
+    hasLoadedRef.current = true;
+  };
+
+  // Autosave (debounced 600ms) after initial load
+  useEffect(() => {
+    if (!hasLoadedRef.current || !userIdRef.current) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      void persistMeals(meals, totalCalories, totalProtein);
+    }, 600);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [meals, totalCalories, totalProtein]);
+
+  const persistMeals = async (m: Meal[], cal: number, prot: number) => {
+    const userId = userIdRef.current;
+    if (!userId) return;
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const { data: existing } = await supabase
+      .from('champion_routine_logs')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('date', today)
+      .maybeSingle();
+
+    const payload = {
+      meals_logged: JSON.parse(JSON.stringify(m)) as Json,
+      total_calories: cal,
+      total_protein: prot,
+    };
+
+    if (existing) {
+      await supabase.from('champion_routine_logs').update(payload).eq('id', existing.id);
+    } else {
+      await supabase.from('champion_routine_logs').insert([{ user_id: userId, date: today, ...payload }]);
+    }
   };
 
   const handleChange = (newMeals: Meal[], calories: number, protein: number) => {
@@ -55,6 +96,7 @@ const Nutrition = () => {
     setTotalCalories(calories);
     setTotalProtein(protein);
   };
+
 
   const handleComplete = async () => {
     const { data: { user } } = await supabase.auth.getUser();
