@@ -48,8 +48,6 @@ import {
   LogOut,
   UserCheck,
   RotateCcw,
-  Baby,
-  Wrench
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Lock } from 'lucide-react';
@@ -260,56 +258,25 @@ export const SideMenu: React.FC<SideMenuProps> = ({ isCollapsed, onItemClick }) 
         { title: 'Success Principles', icon: BookOpen, path: '/programs?tab=classroom' },
       ]
     },
-    // 7b. MINTE — Brain Map, Mind Tests, Belief Matrix, PSA Reconstruction
+    // 7b. CORE CEO — hub central de configurare
     {
-      title: language === 'ro' ? 'Minte' : 'Mind',
-      icon: Brain,
-      path: '/minte',
+      title: 'Core CEO',
+      icon: Briefcase,
+      path: '/core-ceo',
       badge: 'NEW',
-      subItems: [
-        { title: language === 'ro' ? 'Brain Map' : 'Brain Map', icon: Brain, path: '/minte' },
-        { title: language === 'ro' ? 'Teste de Minte' : 'Mind Tests', icon: GraduationCap, path: '/minte/teste' },
-        { title: language === 'ro' ? 'Matricea Credințelor' : 'Belief Matrix', icon: LayoutGrid, path: '/minte/credinte' },
-        { title: language === 'ro' ? 'Credințe Fundamentale' : 'Core Beliefs', icon: Sparkles, path: '/minte/credinte-fundamentale' },
-        { title: language === 'ro' ? 'Reprogramator Credințe' : 'Belief Reprogrammer', icon: RotateCcw, path: '/minte/credinte-fundamentale/reprogrammer' },
-        { title: language === 'ro' ? 'Biblioteca Credințelor' : 'Belief Library', icon: LayoutGrid, path: '/biblioteca-credintelor' },
-        { title: language === 'ro' ? 'PSA Reconstrucție' : 'PSA Reconstruction', icon: RotateCcw, path: '/minte/psa' },
-      ]
     },
 
-    // 7c. RELAȚII — Marriage + Parenting (grup)
+    // 7c. ARIILE MELE — grup navigare rapidă pe categorii de viață
     {
-      title: language === 'ro' ? 'Relații' : 'Relationships',
-      icon: Heart,
-      path: '/marriage',
-      badge: 'NEW',
+      title: language === 'ro' ? 'Ariile mele' : 'My Life Areas',
+      icon: LayoutGrid,
+      path: '/core-ceo',
       subItems: [
-        {
-          title: language === 'ro' ? 'Căsătorie' : 'Marriage',
-          icon: Heart,
-          path: '/marriage',
-          subItems: [
-            { title: 'Dashboard', icon: Heart, path: '/marriage' },
-            { title: language === 'ro' ? 'Audit Conflict' : 'Conflict Audit', icon: Sparkles, path: '/marriage/audit' },
-            { title: language === 'ro' ? 'Profil Partener' : 'Partner Profile', icon: UserCheck, path: '/marriage/profile' },
-            { title: language === 'ro' ? 'Istoric' : 'Timeline', icon: BarChart3, path: '/marriage/timeline' },
-            { title: language === 'ro' ? 'Quiz Public' : 'Public Quiz', icon: GraduationCap, path: '/marriage-quiz' },
-          ],
-        },
-        {
-          title: language === 'ro' ? 'Parenting' : 'Parenting',
-          icon: Baby,
-          path: '/parenting',
-          subItems: [
-            { title: 'Dashboard', icon: Baby, path: '/parenting' },
-            { title: language === 'ro' ? 'Copiii mei' : 'My Children', icon: UserCheck, path: '/parenting/profile' },
-            { title: language === 'ro' ? 'Scanare Toxicitate' : 'Toxicity Scan', icon: Shield, path: '/parenting/toxicity-scan' },
-            { title: language === 'ro' ? 'Tool-uri Zilnice' : 'Daily Tools', icon: Wrench, path: '/parenting/tools' },
-            { title: language === 'ro' ? 'Coach AI' : 'AI Coach', icon: Sparkles, path: '/parenting/coach' },
-            { title: 'Timeline', icon: BarChart3, path: '/parenting/timeline' },
-            { title: language === 'ro' ? 'Bibliotecă' : 'Library', icon: BookOpen, path: '/parenting/library' },
-          ],
-        },
+        { title: language === 'ro' ? 'Corp' : 'Body', icon: Dumbbell, path: '/workout' },
+        { title: language === 'ro' ? 'Minte' : 'Mind', icon: Brain, path: '/minte' },
+        { title: language === 'ro' ? 'Relații' : 'Relationships', icon: Heart, path: '/marriage' },
+        { title: language === 'ro' ? 'Spiritualitate' : 'Spirituality', icon: Sparkles, path: '/empowerment-meditation' },
+        { title: 'Business', icon: Briefcase, path: '/business' },
       ],
     },
 

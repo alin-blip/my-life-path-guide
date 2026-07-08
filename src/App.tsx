@@ -48,6 +48,7 @@ const Library = lazy(() => import("./pages/Library").then(m => ({ default: m.Lib
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Business = lazy(() => import("./pages/Business"));
 const HormoziAnalysis = lazy(() => import("./pages/HormoziAnalysis"));
+const CoreCEO = lazy(() => import("./pages/CoreCEO"));
 const VoiceAnalysis = lazy(() => import("./pages/VoiceAnalysis"));
 const Lifebook = lazy(() => import("./pages/Lifebook"));
 const VibeCanvasPage = lazy(() => import("./pages/VibeCanvasPage"));
@@ -228,6 +229,11 @@ const App = () => (
                     <Route path="/core" element={
                       <ProtectedRoute>
                         <Core />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/core-ceo" element={
+                      <ProtectedRoute>
+                        <CoreCEO />
                       </ProtectedRoute>
                     } />
                     <Route path="/daily-four" element={
