@@ -61,13 +61,15 @@ const QuizRutinaResult = () => {
   const warriorType = params.get('type') as WarriorType | null;
   const resultId = params.get('rid');
   const source = params.get('source') || 'quiz';
+  const emailFromQuiz = params.get('email') || '';
 
   const [activating, setActivating] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(emailFromQuiz);
   const [emailSubmitting, setEmailSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
+  const [autoSendAttempted, setAutoSendAttempted] = useState(false);
 
   const meta = warriorType ? WARRIOR_TYPES[warriorType] : null;
   const template = warriorType ? WARRIOR_TEMPLATES[warriorType] : null;
