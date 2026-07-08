@@ -14,11 +14,20 @@ import { cn } from '@/lib/utils';
 
 type Answer = { questionId: string; optionIndex: number };
 
+const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
 const QuizRutina = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'intro' | number | 'email' | 'submitting'>('intro');
+  const [searchParams] = useSearchParams();
+  const autostart = searchParams.get('autostart') === '1';
+  const [step, setStep] = useState<'intro' | number | 'email' | 'submitting'>(autostart ? 0 : 'intro');
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (autostart && step === 'intro') setStep(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autostart]);
 
   const totalQuestions = QUIZ_QUESTIONS.length;
   const currentIndex = typeof step === 'number' ? step : -1;
