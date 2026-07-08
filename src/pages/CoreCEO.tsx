@@ -13,6 +13,7 @@ import {
   Briefcase,
   ChevronRight,
   SlidersHorizontal,
+  LineChart,
 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
@@ -216,7 +217,15 @@ const CoreCEO: React.FC = () => {
 
           {sections.map((s) => (
             <TabsContent key={s.id} value={s.id} className="mt-6 space-y-4">
-              <p className="text-sm text-muted-foreground">{s.intro}</p>
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <p className="text-sm text-muted-foreground flex-1 min-w-[240px]">{s.intro}</p>
+                <Button asChild size="sm" variant="outline" className="gap-2">
+                  <Link to={`/progres?cat=${s.id}`}>
+                    <LineChart className="w-4 h-4" />
+                    {t('Vezi progres & istoric', 'View progress & history')}
+                  </Link>
+                </Button>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {s.cards.map((card) => (
                   <Card key={card.to} className="flex flex-col">
