@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, Check, Sword, Loader2, Sparkles, Lock, Mail, CheckCircle2, TrendingDown, Clock, Zap } from 'lucide-react';
+import { ArrowRight, Check, Sword, Loader2, Lock, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { WARRIOR_TYPES, WARRIOR_TEMPLATES, type WarriorType } from '@/data/warriorTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -14,44 +14,107 @@ import { cn } from '@/lib/utils';
 
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-// Cost-of-inaction per warrior type — what staying in this pattern actually costs
-const COST_OF_INACTION: Record<WarriorType, { headline: string; items: { icon: 'time' | 'money' | 'energy'; label: string; detail: string }[] }> = {
+// Per-type emotional conversion content: hero → pain → revelation → 3 concrete steps → proof
+const RESULT_CONTENT: Record<WarriorType, {
+  heroTitle: string;
+  heroTitleAccent: string;
+  heroSubtitle: string;
+  pain: string[];
+  revelation: string;
+  preview: string;
+  steps: { day: string; text: string }[];
+  testimonial: { quote: string; author: string };
+  ctaTransition: string;
+}> = {
   reactor: {
-    headline: 'Fiecare zi în care rămâi Reactor te costă concret:',
-    items: [
-      { icon: 'time', label: '2-3 ore pierdute zilnic', detail: 'Reactiv pe telefon, notificări, task-uri urgente-dar-neimportante = ~750 ore/an duse.' },
-      { icon: 'money', label: 'Decizii proaste sub presiune', detail: 'Fără spațiu mental dimineața, alegi ce e ușor, nu ce mișcă businessul. Costul lunar: 5-10k€ oportunități ratate.' },
-      { icon: 'energy', label: 'Burnout garantat în 6-12 luni', detail: 'Cortizol ridicat toată ziua, somn prost, energie 4/10. Family & health primesc restul.' },
+    heroTitle: 'Te trezești în panică',
+    heroTitleAccent: 'în fiecare dimineață.',
+    heroSubtitle: 'Ești tipul Reactor. Și asta te sabotează zilnic.',
+    pain: [
+      'Telefonul, email-ul, știrile — toate îți spun ce să faci în primul minut.',
+      'Reacționezi toată ziua pentru că începi reactiv.',
+      'La finalul zilei ești epuizat, dar nu poți spune ce ai făcut cu adevărat.',
     ],
+    revelation: 'Nu-ți trebuie mai multă disciplină. Îți trebuie un ritual de tranziție între somn și lume.',
+    preview: 'Warrior Routine îți dă 5 pași simpli, în 20 de minute, care fac diferența între „reactiv" și „intenționat".',
+    steps: [
+      { day: 'Azi', text: 'NU deschide telefonul primul. Stai 5 minute în liniște. Doar respiră.' },
+      { day: 'Mâine', text: 'Bea 500ml apă înainte de orice. Hidratezi corpul, nu creierul cu cofeină.' },
+      { day: 'Poimâine', text: 'Întreabă-te cu voce tare: „Cum vreau să mă simt azi?" — răspunde 2 minute.' },
+    ],
+    testimonial: {
+      quote: 'Am trecut de la reactiv la intenționat. Diferența? 45 de minute dimineața pe care le-am respectat.',
+      author: 'Dan, CEO SaaS',
+    },
+    ctaTransition: 'reacționat',
   },
   disciplined: {
-    headline: 'Ești disciplinat, dar plafonat. Costul e mai subtil:',
-    items: [
-      { icon: 'time', label: 'Rutina nu se pliază pe realitate', detail: 'Faci pași corect, dar nu adaptezi. Rezultatul: efort mare, progres liniar când ar trebui exponențial.' },
-      { icon: 'money', label: 'Optimizezi execuția, nu direcția', detail: 'Faci lucrurile bine, dar nu neapărat pe cele care contează. 20-30% din energie merge în task-uri care nu mută viziunea.' },
-      { icon: 'energy', label: 'Risc mare de burnout „ascuns"', detail: 'Nu spargi ritmul, dar nici nu recuperezi. Într-un an, energia scade fără să realizezi de ce.' },
+    heroTitle: 'Faci totul perfect.',
+    heroTitleAccent: 'Dar nu simți că avansezi.',
+    heroSubtitle: 'Ești tipul Disciplined. Și asta te ține pe loc.',
+    pain: [
+      'Ai rutină. O urmezi zilnic. Faci totul „corect".',
+      'Dar la finalul zilei, te uiți înapoi și nu simți progres.',
+      'Nu e lipsă de disciplină. E lipsă de sens.',
     ],
+    revelation: 'Disciplina fără direcție e cel mai greu tip de oboseală.',
+    preview: 'Warrior Routine nu îți adaugă pași. Îți conectează pașii pe care deja îi faci la o viziune concretă pe 90 de zile.',
+    steps: [
+      { day: 'Azi', text: 'Scrie pe hârtie: „DE CE fac rutina asta?" Răspunde sincer, nu cu ce ar trebui.' },
+      { day: 'Mâine', text: 'Adaugă un element de bucurie în rutină: muzică, mișcare, creație. Disciplina nu trebuie să fie rigidă.' },
+      { day: 'Poimâine', text: 'Conectează fiecare pas la viziunea ta pe 90 de zile. Dacă n-o ai scrisă, n-o ai concretă.' },
+    ],
+    testimonial: {
+      quote: 'Am trecut de la „bifat task-uri" la „construit ceva". Aceeași rutină. Altă semnificație.',
+      author: 'Mihai, CEO Mind OS',
+    },
+    ctaTransition: 'bifat',
   },
   experimenter: {
-    headline: 'Testezi mult, dar nu compui. Iată ce te costă:',
-    items: [
-      { icon: 'time', label: '10 cărți începute, 0 aplicate', detail: 'Fiecare sistem nou = 2-4 săptămâni de „learning" fără rezultat. În 1 an = 6+ luni pierdute pe reset.' },
-      { icon: 'money', label: 'Zero compunere', detail: 'Sistemele fac bani doar prin repetiție. Tu resetezi înainte să vezi curba. Costul: growth linear, nu exponențial.' },
-      { icon: 'energy', label: 'Identitate difuză', detail: 'Nu te vezi ca „cineva care face X consistent". Fără identitate clară, orice sistem cade la primul obstacol.' },
+    heroTitle: 'Ai citit 10 cărți despre rutină,',
+    heroTitleAccent: 'dar n-ai terminat niciuna.',
+    heroSubtitle: 'Ești tipul Experimenter. Și asta te ține pe loc.',
+    pain: [
+      'Ai citit tot. Miracle Morning, Atomic Habits, The 5AM Club.',
+      'Ai testat 20 de sisteme. Ai reset-uit de 20 de ori.',
+      'Colectezi sisteme. Nu aplici niciunul.',
     ],
+    revelation: 'Nu e problemă de informație. E problemă de execuție. Experimentarea fără angajament e procrastinare cu bonus.',
+    preview: 'Warrior Routine îți oprește căutarea. Îți dă UN sistem specific tipului tău și te ține pe el 30 de zile.',
+    steps: [
+      { day: 'Azi', text: 'Alege UN singur sistem. Fă-l 30 de zile fără să schimbi nimic.' },
+      { day: 'Mâine', text: 'Măsoară UN singur lucru: „Mă simt mai bine?" Notează pe o scară de la 1 la 10.' },
+      { day: 'Poimâine', text: 'Fă un angajament public. Spune-i cuiva pe cine îl respecți: „30 de zile. Fără excepții."' },
+    ],
+    testimonial: {
+      quote: 'Am încetat să mai caut. Am început să fac. 30 de zile. Un singur sistem. Prima dată când am simțit progres real.',
+      author: 'Andrei, founder',
+    },
+    ctaTransition: 'citit',
   },
   warrior: {
-    headline: 'Ești deja aproape. Dar fără sistem, riști să pierzi ce ai construit:',
-    items: [
-      { icon: 'time', label: 'Rutina depinde de tine 100%', detail: 'Dacă ai o săptămână grea, tot sistemul cade. Fără infrastructură externă, ești vulnerabil.' },
-      { icon: 'money', label: 'Fără accountability, plateau', detail: 'Ai ajuns unde ești singur. Dar next level cere feedback loop pe care nu-l poți construi solo.' },
-      { icon: 'energy', label: 'Izolare la vârf', detail: 'Fondatori la nivelul tău au nevoie de sistem + tribe. Fără ele, „warrior" devine „lone wolf" → burnout.' },
+    heroTitle: 'Ai disciplina.',
+    heroTitleAccent: 'Îți lipsește direcția.',
+    heroSubtitle: 'Ești tipul Warrior. Acum îți trebuie sens.',
+    pain: [
+      'Rutina ta e solidă. O urmezi zilnic. Ești deja peste 90% dintre fondatori.',
+      'Dar ceva nu se simte ca progres. O faci mecanic, fără impact.',
+      'Puterea fără direcție e un treadmill: te obosești, dar nu ajungi nicăieri.',
     ],
+    revelation: 'Viziunea fără putere e un vis. Puterea fără viziune e un treadmill. Ai puterea. Acum îți trebuie direcția.',
+    preview: 'Warrior Routine conectează rutina ta la o viziune pe 90 de zile și un weekly review care îți arată exact ce mută businessul și ce nu.',
+    steps: [
+      { day: 'Azi', text: 'Scrie viziunea pe 90 de zile. 1 pagină, 3 paragrafe. Fără edit.' },
+      { day: 'Mâine', text: 'Conectează fiecare pas din rutină la viziune. Dacă un pas nu servește nimic — scoate-l.' },
+      { day: 'Poimâine', text: 'Adaugă un weekly review de 15 minute duminica. Ce a mișcat? Ce nu? Ce ajustezi?' },
+    ],
+    testimonial: {
+      quote: 'Am trecut de la execuție la construcție. Același efort. Alt impact. Diferența a fost weekly review-ul.',
+      author: 'Vlad, CEO tech',
+    },
+    ctaTransition: 'executat',
   },
 };
-
-const costIcon = (t: 'time' | 'money' | 'energy') =>
-  t === 'time' ? Clock : t === 'money' ? TrendingDown : Zap;
 
 const QuizRutinaResult = () => {
   const [params] = useSearchParams();
