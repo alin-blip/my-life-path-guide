@@ -116,15 +116,60 @@ async function runWinback() {
   return sent
 }
 
+async function runRoutineComeback() {
+  // Users whose last daily_flow_session is between 3 and 13 days ago; send once per 7 days.
+  const now = Date.now()
+  const min = new Date(now - 13 * 24 * 3600 * 1000).toISOString()
+  const max = new Date(now - 3 * 24 * 3600 * 1000).toISOString()
+  // Grab distinct user_ids with a last session in that window
+  const { data: rows, error } = await supabase
+    .from('daily_flow_sessions')
+    .select('user_id, date')
+    .gte('date', min.slice(0, 10))
+    .lte('date', max.slice(0, 10))
+    .order('date', { ascending: false })
+    .limit(500)
+  if (error) { log('comeback-query-error', { error: error.message }); return 0 }
+  const seen = new Set<string>()
+  let sent = 0
+  for (const r of rows ?? []) {
+    if (seen.has(r.user_id)) continue
+    seen.add(r.user_id)
+    // Ensure no session in last 2 days (still inactive)
+    const recentCutoff = new Date(now - 2 * 24 * 3600 * 1000).toISOString().slice(0, 10)
+    const { data: recent } = await supabase
+      .from('daily_flow_sessions')
+      .select('id')
+      .eq('user_id', r.user_id)
+      .gte('date', recentCutoff)
+      .limit(1)
+    if ((recent?.length ?? 0) > 0) continue
+    const { data: u } = await supabase.auth.admin.getUserById(r.user_id)
+    const email = u?.user?.email
+    if (!email) continue
+    if (await alreadySent(email, 'routine-comeback', 7 * 24)) continue
+    const lang = await getLanguage(r.user_id, email)
+    const name = (u.user.user_metadata as any)?.display_name || email.split('@')[0]
+    const daysMissed = Math.floor((now - new Date(r.date + 'T00:00:00Z').getTime()) / (24 * 3600 * 1000))
+    const { data: stats } = await supabase.from('user_statistics').select('longest_streak').eq('user_id', r.user_id).maybeSingle()
+    await enqueue('routine-comeback', email, `comeback-${r.user_id}-${new Date().toISOString().slice(0, 10)}`, {
+      name, language: lang, daysMissed, lastStreak: stats?.longest_streak ?? 0,
+    })
+    sent++
+    if (sent >= 100) break
+  }
+  return sent
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
   const authFail = await requireCronOrAdmin(req, corsHeaders);
   if (authFail) return authFail;
 
-    const [welcome, trial, winback] = await Promise.all([runWelcome(), runTrialReminder(), runWinback()])
-    log('done', { welcome, trial, winback })
-    return new Response(JSON.stringify({ ok: true, welcome, trial, winback }), {
+    const [welcome, trial, winback, comeback] = await Promise.all([runWelcome(), runTrialReminder(), runWinback(), runRoutineComeback()])
+    log('done', { welcome, trial, winback, comeback })
+    return new Response(JSON.stringify({ ok: true, welcome, trial, winback, comeback }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (e) {

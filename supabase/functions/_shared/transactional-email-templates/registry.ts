@@ -23,6 +23,9 @@ import { template as trialReminder } from './trial-reminder.tsx'
 import { template as subscriptionUpgraded } from './subscription-upgraded.tsx'
 import { template as retentionWinback } from './retention-winback.tsx'
 import { template as burnoutStory } from './burnout-story.tsx'
+import { template as streakMilestone } from './streak-milestone.tsx'
+import { template as routineComeback } from './routine-comeback.tsx'
+import { template as achievementUnlocked } from './achievement-unlocked.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'burnout-results': burnoutResults,
@@ -39,4 +42,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'trial-reminder': trialReminder,
   'subscription-upgraded': subscriptionUpgraded,
   'retention-winback': retentionWinback,
+  'streak-milestone': streakMilestone,
+  'routine-comeback': routineComeback,
+  'achievement-unlocked': achievementUnlocked,
 }
