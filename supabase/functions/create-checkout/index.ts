@@ -317,6 +317,9 @@ serve(async (req) => {
     } else if (plan === 'challenge-plus-trial-en') {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/ebook-upsell-en?canceled=true`;
+    } else if (plan === 'starter') {
+      successUrl = `${origin}/warrior/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}/warrior?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;
