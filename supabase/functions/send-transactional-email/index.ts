@@ -26,10 +26,12 @@ function generateToken(): string {
 }
 
 Deno.serve(async (req) => {
+  try {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
+
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
@@ -277,19 +279,44 @@ Deno.serve(async (req) => {
   }
 
   // 4. Render React Email template to HTML and plain text
-  const html = await renderAsync(
-    React.createElement(template.component, templateData)
-  )
-  const plainText = await renderAsync(
-    React.createElement(template.component, templateData),
-    { plainText: true }
-  )
+  let html: string
+  let plainText: string
+  let resolvedSubject: string
+  try {
+    html = await renderAsync(
+      React.createElement(template.component, templateData)
+    )
+    plainText = await renderAsync(
+      React.createElement(template.component, templateData),
+      { plainText: true }
+    )
+    resolvedSubject =
+      typeof template.subject === 'function'
+        ? template.subject(templateData)
+        : template.subject
+  } catch (renderErr) {
+    const msg = renderErr instanceof Error ? renderErr.message : String(renderErr)
+    console.error('Template render failed', {
+      templateName,
+      effectiveRecipient,
+      error: msg,
+    })
+    await supabase.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: templateName,
+      recipient_email: effectiveRecipient,
+      status: 'failed',
+      error_message: `Template render failed: ${msg}`,
+    })
+    return new Response(
+      JSON.stringify({ error: 'Template render failed', details: msg }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
+  }
 
-  // Resolve subject — supports static string or dynamic function
-  const resolvedSubject =
-    typeof template.subject === 'function'
-      ? template.subject(templateData)
-      : template.subject
 
   // 5. Enqueue the pre-rendered email for async processing by the dispatcher.
   // The dispatcher (process-email-queue) handles sending, retries, and rate-limit backoff.
@@ -350,4 +377,13 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     }
   )
+  } catch (unhandled) {
+    const msg = unhandled instanceof Error ? unhandled.message : String(unhandled)
+    console.error('Unhandled error in send-transactional-email', { error: msg })
+    return new Response(
+      JSON.stringify({ error: 'Internal error', details: msg }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
 })
+
