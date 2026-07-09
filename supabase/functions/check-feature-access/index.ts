@@ -17,10 +17,15 @@ interface FeatureLimit {
 }
 
 // Limits for FREE tier. Paid tiers get unlimited.
+// NOTE: mind_coach kept for analytics-only (no longer enforced as paywall);
+// gating strategy moved to feature-based locks (Vision Board, Belief Reprogrammer, Domino horizons)
+// combined with usage caps on stack_session + mind_shifting_session.
 const FEATURE_LIMITS: Record<string, FeatureLimit> = {
-  mind_coach: { key: 'mind_coach', limit: 3, period: 'month', label: 'Mind Coach sessions' },
+  mind_coach: { key: 'mind_coach', limit: 999, period: 'month', label: 'Mind Coach sessions' },
   brotherhood_post: { key: 'brotherhood_post', limit: 1, period: 'week', label: 'Brotherhood posts' },
   master_plan: { key: 'master_plan', limit: 1, period: 'month', label: 'Master Plans' },
+  stack_session: { key: 'stack_session', limit: 3, period: 'month', label: 'Stack sessions' },
+  mind_shifting_session: { key: 'mind_shifting_session', limit: 3, period: 'month', label: 'Mind Shifting sessions' },
 };
 
 function periodKeyFor(period: Period, now = new Date()): string {
