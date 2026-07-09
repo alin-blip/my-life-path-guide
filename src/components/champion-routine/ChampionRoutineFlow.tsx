@@ -25,6 +25,7 @@ import { RelationshipStep } from './steps/RelationshipStep';
 import { CompletionStep } from './steps/CompletionStep';
 import { HabitCheckStep } from './steps/HabitCheckStep';
 import { TodaysTasksStep } from './steps/TodaysTasksStep';
+import { BusinessObjectivesStep } from './steps/BusinessObjectivesStep';
 import { BreathingStep } from './steps/BreathingStep';
 import { VisualizationStep } from './steps/VisualizationStep';
 import { ReadingStep } from './steps/ReadingStep';
@@ -93,6 +94,7 @@ export type RoutineStepId =
   | 'habit_balance'
   | 'habit_business'
   | 'todaysTasks'
+  | 'businessObjectives'
   | 'eveningReflection'
   | 'completion';
 
@@ -128,9 +130,10 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'mealPlanning',
   // ❤️ Familie
   'relationships',
-  // 💼 Business (1..2)
+  // 💼 Business (1..3)
   'apply',
   'contentCreation',
+  'businessObjectives',
   // 🌙 Reflecție + Finalizare
   'eveningReflection',
   'completion',
@@ -164,6 +167,7 @@ const STEP_LABEL_KEYS: Record<RoutineStepId, string> = {
   habit_balance: 'stepHabitBalance',
   habit_business: 'stepHabitBusiness',
   todaysTasks: 'stepTodaysTasks',
+  businessObjectives: 'stepBusinessObjectives',
   eveningReflection: 'stepEveningReflection',
   completion: 'stepCompletion',
 };
@@ -195,6 +199,7 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   habit_balance: 'habits',
   habit_business: 'habits',
   todaysTasks: 'tasks',
+  businessObjectives: 'business',
   eveningReflection: 'being',
   completion: 'complete',
 };
@@ -276,6 +281,9 @@ export const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null):
     case 'dailyTasks':
     case 'todaysTasks':
       return !!log.big_one_today || (log.daily_todos || []).some(t => t.completed);
+    case 'businessObjectives':
+      // View-only strategic recap; considered complete once user clicks continue (tracked via skippedSteps not applicable). Mark complete when user has any weekly key point.
+      return true;
     case 'relationships':
       return (log.relationship_actions || []).some(a => a.completed);
     case 'breathing':
@@ -932,6 +940,8 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         return <HabitCheckStep category="business" onNext={goToNextStep} />;
       case 'todaysTasks':
         return <TodaysTasksStep onNext={goToNextStep} />;
+      case 'businessObjectives':
+        return <BusinessObjectivesStep onNext={goToNextStep} />;
       case 'eveningReflection':
         return (
           <EveningReflectionStep

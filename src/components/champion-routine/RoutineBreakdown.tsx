@@ -60,6 +60,7 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
   habit_balance: Heart,
   habit_business: ListTodo,
   todaysTasks: ListTodo,
+  businessObjectives: ListTodo,
   eveningReflection: PenLine,
   completion: Trophy,
 };
@@ -91,6 +92,7 @@ const STEP_LABELS: Record<RoutineStepId, string> = {
   habit_balance: 'Habits: Relații',
   habit_business: 'Habits: Business',
   todaysTasks: 'Sarcinile de Azi',
+  businessObjectives: 'Obiective Business',
   eveningReflection: 'Reflecție de Seară',
   completion: 'Finalizare',
 };
@@ -122,6 +124,7 @@ const STEP_CATEGORIES: Record<RoutineStepId, 'being' | 'body' | 'business' | 'ba
   habit_balance: 'habits',
   habit_business: 'habits',
   todaysTasks: 'tasks',
+  businessObjectives: 'business',
   eveningReflection: 'being',
   completion: 'complete',
 };
