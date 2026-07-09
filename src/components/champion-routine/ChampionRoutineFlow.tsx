@@ -25,6 +25,7 @@ import { RelationshipStep } from './steps/RelationshipStep';
 import { CompletionStep } from './steps/CompletionStep';
 import { HabitCheckStep } from './steps/HabitCheckStep';
 import { TodaysTasksStep } from './steps/TodaysTasksStep';
+import { BusinessObjectivesStep } from './steps/BusinessObjectivesStep';
 import { BreathingStep } from './steps/BreathingStep';
 import { VisualizationStep } from './steps/VisualizationStep';
 import { ReadingStep } from './steps/ReadingStep';
