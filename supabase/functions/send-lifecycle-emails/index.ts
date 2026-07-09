@@ -161,15 +161,59 @@ async function runRoutineComeback() {
   return sent
 }
 
+const APP_BASE = (Deno.env.get('APP_BASE_URL') || 'https://www.ceomindos.com').replace(/\/+$/, '')
+
+async function runWarriorDrip() {
+  // Drip cadence for warrior_funnel_leads based on hours since trial_started_at
+  const drips = [
+    { template: 'warrior-drip-day1', minH: 20, maxH: 44, cta: '/door' },
+    { template: 'warrior-drip-day3', minH: 68, maxH: 92, cta: '/mind-coach' },
+    { template: 'warrior-drip-day5', minH: 116, maxH: 140, cta: '/daily-flow' },
+    { template: 'warrior-drip-day14', minH: 332, maxH: 356, cta: '/settings/subscription' },
+  ]
+  const now = Date.now()
+  let sent = 0
+  for (const d of drips) {
+    const maxDate = new Date(now - d.minH * 3600 * 1000).toISOString()
+    const minDate = new Date(now - d.maxH * 3600 * 1000).toISOString()
+    const { data, error } = await supabase
+      .from('warrior_funnel_leads')
+      .select('email, user_id, warrior_type, language, trial_started_at')
+      .not('trial_started_at', 'is', null)
+      .gte('trial_started_at', minDate)
+      .lte('trial_started_at', maxDate)
+      .limit(500)
+    if (error) { log('warrior-drip-query-error', { template: d.template, error: error.message }); continue }
+    for (const lead of data ?? []) {
+      if (!lead.email) continue
+      if (await alreadySent(lead.email, d.template)) continue
+      const lang = (lead.language === 'en' ? 'en' : 'ro') as 'ro' | 'en'
+      const warriorName = lead.warrior_type || 'Warrior'
+      let currentStreak = 0
+      if (d.template === 'warrior-drip-day5' && lead.user_id) {
+        const { data: stats } = await supabase.from('user_statistics').select('current_streak').eq('user_id', lead.user_id).maybeSingle()
+        currentStreak = (stats as any)?.current_streak ?? 5
+      }
+      await enqueue(d.template, lead.email, `${d.template}-${lead.email}-${lead.trial_started_at}`, {
+        warriorName, ctaUrl: `${APP_BASE}${d.cta}`, language: lang, currentStreak,
+      })
+      sent++
+    }
+  }
+  return sent
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
   const authFail = await requireCronOrAdmin(req, corsHeaders);
   if (authFail) return authFail;
 
-    const [welcome, trial, winback, comeback] = await Promise.all([runWelcome(), runTrialReminder(), runWinback(), runRoutineComeback()])
-    log('done', { welcome, trial, winback, comeback })
-    return new Response(JSON.stringify({ ok: true, welcome, trial, winback, comeback }), {
+    const [welcome, trial, winback, comeback, warriorDrip] = await Promise.all([
+      runWelcome(), runTrialReminder(), runWinback(), runRoutineComeback(), runWarriorDrip(),
+    ])
+    log('done', { welcome, trial, winback, comeback, warriorDrip })
+    return new Response(JSON.stringify({ ok: true, welcome, trial, winback, comeback, warriorDrip }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (e) {
