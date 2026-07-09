@@ -10,6 +10,7 @@ import { WeeklySection } from '@/components/door/WeeklySection';
 import { CompactMissionCards } from '@/components/door/CompactMissionCards';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { TierLockOverlay } from '@/components/access/TierLockOverlay';
 
 export const CommandCenterTabs: React.FC = () => {
   const { language } = useLanguage();
