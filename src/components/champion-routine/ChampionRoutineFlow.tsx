@@ -130,9 +130,10 @@ const DEFAULT_ROUTINE_STEPS: RoutineStepId[] = [
   'mealPlanning',
   // ❤️ Familie
   'relationships',
-  // 💼 Business (1..2)
+  // 💼 Business (1..3)
   'apply',
   'contentCreation',
+  'businessObjectives',
   // 🌙 Reflecție + Finalizare
   'eveningReflection',
   'completion',
