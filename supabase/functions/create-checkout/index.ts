@@ -83,13 +83,17 @@ serve(async (req) => {
     let tier = "basic";
 
     switch (plan) {
-      case "starter":
-        unitAmount = 700; // €7
-        currency = "eur";
-        productName = "Warrior Starter (7-Day Free Trial)";
+      case "starter": {
+        const isEnStarter = language === "en";
+        unitAmount = isEnStarter ? 900 : 700; // $9 EN / €7 RO
+        currency = isEnStarter ? "usd" : "eur";
+        productName = isEnStarter
+          ? "Warrior Starter (7-Day Free Trial)"
+          : "Warrior Starter (Trial 7 zile)";
         tier = "starter";
         trialDays = 7;
         break;
+      }
 
       case "basic":
         unitAmount = 4900;
@@ -318,8 +322,9 @@ serve(async (req) => {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/ebook-upsell-en?canceled=true`;
     } else if (plan === 'starter') {
-      successUrl = `${origin}/warrior/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
-      cancelUrl = `${origin}/warrior?canceled=true`;
+      const enPrefix = language === 'en' ? '/en' : '';
+      successUrl = `${origin}${enPrefix}/warrior/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}${enPrefix}/warrior?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;
