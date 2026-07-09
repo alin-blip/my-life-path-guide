@@ -32,7 +32,7 @@ serve(async (req) => {
     const since30 = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
     const since7 = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
 
-    const [quizAll, quizActivated, flowAll, flowCompleted, features, achievements, stats] = await Promise.all([
+    const [quizAll, quizActivated, flowAll, flowCompleted, features, achievements, stats, funnelLeads, warriorSubs, dripEmails] = await Promise.all([
       admin.from('quiz_routine_results').select('warrior_type, activated_at, created_at'),
       admin.from('quiz_routine_results').select('id').not('activated_at', 'is', null),
       admin.from('daily_flow_sessions').select('id, user_id, completed_at, created_at').gte('created_at', since30),
@@ -40,6 +40,9 @@ serve(async (req) => {
       admin.from('feature_usage_log').select('feature_key, tier, used_at').gte('used_at', since30),
       admin.from('achievement_unlocks').select('achievement_key, unlocked_at'),
       admin.from('user_statistics').select('user_id, current_streak, longest_streak'),
+      admin.from('warrior_funnel_leads').select('email, warrior_type, report_sent_at, checkout_started_at, trial_started_at, routine_activated_at, status, created_at'),
+      admin.from('subscribers').select('email, subscription_tier, subscribed, subscription_status, created_at'),
+      admin.from('email_send_log').select('template_name, status, created_at').like('template_name', 'warrior-%').gte('created_at', since30),
     ]);
 
     // Quiz distribution
