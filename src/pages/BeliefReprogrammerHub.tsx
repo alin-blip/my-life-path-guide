@@ -9,6 +9,7 @@ import { reprogrammerService, ReprogrammerSession } from '@/services/reprogramme
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { TierLockOverlay } from '@/components/access/TierLockOverlay';
 
 const PHASE_LABEL: Record<string, string> = {
   audit: '1. Audit Istoric',
