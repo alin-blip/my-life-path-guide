@@ -83,6 +83,13 @@ const Core4LeadMagnet = () => {
       <Helmet>
         <title>CORE 4 Framework - Free PDF Download | CEO Mind OS</title>
         <meta name="description" content="Download the free CORE 4 Framework PDF and learn how to master your day with 4 simple daily actions." />
+        <link rel="canonical" href={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/core4'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/core4'}`} />
+        <meta property="og:title" content="CORE 4 Framework - Free PDF Download | CEO Mind OS" />
+        <meta property="og:description" content="Download the free CORE 4 Framework PDF and learn how to master your day with 4 simple daily actions." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">

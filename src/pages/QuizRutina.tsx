@@ -164,6 +164,9 @@ const QuizRutina = () => {
         <link rel="alternate" hrefLang="ro" href="https://ceomindos.com/quiz-rutina" />
         <link rel="alternate" hrefLang="en" href="https://ceomindos.com/en/quiz-rutina" />
         <link rel="alternate" hrefLang="x-default" href="https://ceomindos.com/quiz-rutina" />
+        <link rel="canonical" href={`https://ceomindos.com${isEn ? '/en/quiz-rutina' : '/quiz-rutina'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${isEn ? '/en/quiz-rutina' : '/quiz-rutina'}`} />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0B1733] via-[#0f1e42] to-[#0B1733] text-white flex flex-col">

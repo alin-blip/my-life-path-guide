@@ -229,6 +229,10 @@ Ne propunem să răspundem la toate solicitările în termen de 48 de ore.`
       <Helmet>
         <title>{language === 'en' ? 'Terms of Service | CEO Mind OS' : 'Termeni și Condiții | CEO Mind OS'}</title>
         <meta name="description" content={language === 'en' ? 'Terms of Service for CEO Mind OS personal development platform' : 'Termeni și Condiții pentru platforma de dezvoltare personală CEO Mind OS'} />
+        <link rel="canonical" href={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/terms'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/terms'}`} />
+        <meta property="og:title" content={language === 'en' ? 'Terms of Service | CEO Mind OS' : 'Termeni și Condiții | CEO Mind OS'} />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

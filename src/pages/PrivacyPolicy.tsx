@@ -337,6 +337,10 @@ Dacă crezi că nu am abordat adecvat preocupările tale de confidențialitate, 
       <Helmet>
         <title>{language === 'en' ? 'Privacy Policy | CEO Mind OS' : 'Politica de Confidențialitate | CEO Mind OS'}</title>
         <meta name="description" content={language === 'en' ? 'Privacy Policy for CEO Mind OS - how we collect, use, and protect your personal data' : 'Politica de Confidențialitate pentru CEO Mind OS - cum colectăm, folosim și protejăm datele tale personale'} />
+        <link rel="canonical" href={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/privacy'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/privacy'}`} />
+        <meta property="og:title" content={language === 'en' ? 'Privacy Policy | CEO Mind OS' : 'Politica de Confidențialitate | CEO Mind OS'} />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

@@ -39,6 +39,10 @@ const EbookLanding = () => {
         <meta property="og:title" content={seo.title} />
         <meta property="og:description" content={seo.desc} />
         <meta property="og:type" content="book" />
+        <link rel="canonical" href={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/ebook'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/ebook'}`} />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <EbookNav language={language} />

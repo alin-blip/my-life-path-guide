@@ -44,6 +44,14 @@ const WarriorWelcome = () => {
     <>
       <Helmet>
         <title>{isEn ? 'Welcome, Warrior! · CEO Mind OS' : 'Bun venit, Warrior! · CEO Mind OS'}</title>
+        <meta name="description" content={isEn ? 'Your Warrior routine is live. Log in with the magic link and begin day 1.' : 'Rutina ta de Warrior este activă. Autentifică-te cu magic link și începe ziua 1.'} />
+        <link rel="canonical" href={`https://ceomindos.com${isEn ? '/en/warrior/welcome' : '/warrior/welcome'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${isEn ? '/en/warrior/welcome' : '/warrior/welcome'}`} />
+        <meta property="og:title" content={isEn ? 'Welcome, Warrior! · CEO Mind OS' : 'Bun venit, Warrior! · CEO Mind OS'} />
+        <meta property="og:type" content="website" />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="alternate" hrefLang="ro" href="https://ceomindos.com/warrior/welcome" />
+        <link rel="alternate" hrefLang="en" href="https://ceomindos.com/en/warrior/welcome" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0B1733] via-[#0f1e42] to-[#0B1733] text-white flex items-center justify-center px-4">
