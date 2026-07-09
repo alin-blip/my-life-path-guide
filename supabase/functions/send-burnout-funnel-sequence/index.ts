@@ -73,6 +73,7 @@ Deno.serve(async (req) => {
           idempotencyKey: `burnout-story-${leadId}-day-${dayNumber}`,
           templateData: { name, language, dayNumber, trackingId },
         },
+        headers: { Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
       })
       if (error) throw error
       await supabase.from('email_sequence_log').insert({
