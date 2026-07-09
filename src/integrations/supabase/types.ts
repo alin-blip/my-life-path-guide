@@ -8982,8 +8982,6 @@ export type Database = {
           email: string | null
           last_seen_at: string | null
           stage: string | null
-          subscription_tier: string | null
-          user_id: string | null
           utm_campaign: string | null
           utm_source: string | null
         }

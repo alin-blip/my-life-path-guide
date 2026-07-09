@@ -1,0 +1,1 @@
+ALTER VIEW public.retargeting_audiences_v SET (security_invoker = true);
