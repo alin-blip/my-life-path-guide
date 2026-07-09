@@ -28,6 +28,10 @@ import { template as routineComeback } from './routine-comeback.tsx'
 import { template as achievementUnlocked } from './achievement-unlocked.tsx'
 import { template as warriorReport } from './warrior-report.tsx'
 import { template as warriorWelcome } from './warrior-welcome.tsx'
+import { template as warriorDripDay1 } from './warrior-drip-day1.tsx'
+import { template as warriorDripDay3 } from './warrior-drip-day3.tsx'
+import { template as warriorDripDay5 } from './warrior-drip-day5.tsx'
+import { template as warriorDripDay14 } from './warrior-drip-day14.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'burnout-results': burnoutResults,
@@ -49,4 +53,8 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'achievement-unlocked': achievementUnlocked,
   'warrior-report': warriorReport,
   'warrior-welcome': warriorWelcome,
+  'warrior-drip-day1': warriorDripDay1,
+  'warrior-drip-day3': warriorDripDay3,
+  'warrior-drip-day5': warriorDripDay5,
+  'warrior-drip-day14': warriorDripDay14,
 }
