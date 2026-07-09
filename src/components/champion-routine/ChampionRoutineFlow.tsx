@@ -94,6 +94,7 @@ export type RoutineStepId =
   | 'habit_balance'
   | 'habit_business'
   | 'todaysTasks'
+  | 'businessObjectives'
   | 'eveningReflection'
   | 'completion';
 
