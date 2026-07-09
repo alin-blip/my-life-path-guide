@@ -12,6 +12,7 @@ import { VisionBoardPreview } from '@/components/vision-board/VisionBoardPreview
 import { VisionBoardLanding } from '@/components/vision-board/VisionBoardLanding';
 import html2canvas from 'html2canvas';
 import type { WarriorPowerScores } from '@/data/warriorPowerQuestions';
+import { TierLockOverlay } from '@/components/access/TierLockOverlay';
 
 type Category = 'body' | 'being' | 'balance' | 'business';
 type Step = 'landing' | 'quiz' | 'generating' | 'preview';
