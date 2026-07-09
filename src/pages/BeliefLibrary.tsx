@@ -9,6 +9,7 @@ import { Helmet } from 'react-helmet-async';
 import { reprogrammerService, LibraryEntry } from '@/services/reprogrammerService';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { TierLockOverlay } from '@/components/access/TierLockOverlay';
 
 export default function BeliefLibrary() {
   const navigate = useNavigate();
