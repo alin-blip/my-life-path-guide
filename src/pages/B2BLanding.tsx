@@ -37,6 +37,12 @@ const B2BLanding = () => {
         <meta name="description" content={language === 'ro' 
           ? 'Câștigă 50% comision recurent oferind clienților tăi un sistem complet de transformare alimentat de AI.'
           : 'Earn 50% recurring commission by giving your clients a complete AI-powered transformation system.'} />
+        <link rel="canonical" href={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/partner-coach'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/partner-coach'}`} />
+        <meta property="og:title" content={language === 'ro' ? 'Partner Coach — Scalează-ți Practica de Coaching' : 'Partner Coach — Scale Your Coaching Practice'} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       {/* Language Selector */}
