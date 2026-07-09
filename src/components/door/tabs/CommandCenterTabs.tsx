@@ -95,15 +95,39 @@ export const CommandCenterTabs: React.FC = () => {
           <CollapsibleContent>
             <div className="container mx-auto">
               <TabsContent value="monthly" className="mt-0 outline-none">
-                <MonthlyMissionTab />
+                <TierLockOverlay
+                  requiredTier="basic"
+                  featureName={language === 'en' ? 'Monthly Mission (30 days)' : 'Misiunea Lunară (30 zile)'}
+                  teaser={language === 'en'
+                    ? 'Plan your monthly focus mission with milestones + weekly breakdown. Available on Basic.'
+                    : 'Planifică misiunea lunară de focus cu milestone-uri + defalcare săptămânală. Disponibil în Basic.'}
+                >
+                  <MonthlyMissionTab />
+                </TierLockOverlay>
               </TabsContent>
-              
+
               <TabsContent value="quarterly" className="mt-0 outline-none">
-                <QuarterlyGoalsTab />
+                <TierLockOverlay
+                  requiredTier="basic"
+                  featureName={language === 'en' ? '90-Day Goals' : 'Obiective 90 Zile'}
+                  teaser={language === 'en'
+                    ? 'Strategic 90-day objectives with quarterly review and progress tracking. Available on Basic.'
+                    : 'Obiective strategice pe 90 zile cu review trimestrial și progres. Disponibil în Basic.'}
+                >
+                  <QuarterlyGoalsTab />
+                </TierLockOverlay>
               </TabsContent>
-              
+
               <TabsContent value="annual" className="mt-0 outline-none">
-                <AnnualVisionTab />
+                <TierLockOverlay
+                  requiredTier="basic"
+                  featureName={language === 'en' ? 'Annual Vision' : 'Viziune Anuală'}
+                  teaser={language === 'en'
+                    ? 'Full 12-month vision, big goals, and life design. Available on Basic.'
+                    : 'Viziune completă pe 12 luni, obiective mari și design de viață. Disponibil în Basic.'}
+                >
+                  <AnnualVisionTab />
+                </TierLockOverlay>
               </TabsContent>
             </div>
           </CollapsibleContent>
