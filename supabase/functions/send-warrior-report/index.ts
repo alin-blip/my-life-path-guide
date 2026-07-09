@@ -111,7 +111,7 @@ serve(async (req) => {
 
     // Build checkout URL — anchored on the funnel origin.
     const origin = req.headers.get("origin") || `https://${req.headers.get("host") || "warriorsos.com"}`;
-    const checkoutUrl = `${origin}/warrior/checkout?email=${encodeURIComponent(email)}&type=${warriorType}&lead=${leadId}`;
+    const checkoutUrl = `${origin}/quiz-rutina/result?email=${encodeURIComponent(email)}&type=${warriorType}&lead=${leadId}`;
 
     // Fire the report via existing send-transactional-email
     const idempotencyKey = `warrior-report-${leadId}`;

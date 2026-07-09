@@ -38,6 +38,7 @@ interface MealPlanningStepProps {
   totalProtein: number;
   onChange: (meals: Meal[], calories: number, protein: number) => void;
   onNext: () => void;
+  requireSmoothie?: boolean;
 }
 
 const MEAL_TYPES = [
@@ -52,7 +53,8 @@ export function MealPlanningStep({
   totalCalories: initialCalories, 
   totalProtein: initialProtein,
   onChange, 
-  onNext 
+  onNext,
+  requireSmoothie = true,
 }: MealPlanningStepProps) {
   const { settings, isLoading: settingsLoading, saveSettings } = useNutritionSettings();
   const [showSetup, setShowSetup] = useState(false);
@@ -578,9 +580,9 @@ export function MealPlanningStep({
           onClick={onNext} 
           size="lg" 
           className="w-full gap-2"
-          disabled={!smoothieDone}
+          disabled={requireSmoothie && !smoothieDone}
         >
-          {smoothieDone ? 'Continuă' : 'Bifează smoothie-ul pentru a continua'}
+          {requireSmoothie && !smoothieDone ? 'Bifează smoothie-ul pentru a continua' : 'Continuă'}
           <ArrowRight className="h-5 w-5" />
         </Button>
       </Card>
