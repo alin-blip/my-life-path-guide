@@ -1826,10 +1826,17 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export const LanguageProvider: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+  /**
+   * When set (e.g. by URL locale prefix `/en`), the provider ignores localStorage,
+   * browser, and DB preferences and uses this locale. Switching language then triggers
+   * a full-page navigation to add/remove the URL prefix.
+   */
+  forcedLocale?: Language;
+}> = ({ children, forcedLocale }) => {
   // Initialize with language from localStorage. If none, detect from browser
   // (users outside RO/MD default to English). Falls back to 'ro' as last resort.
   const getInitialLanguage = (): Language => {
+    if (forcedLocale) return forcedLocale;
     try {
       const savedLanguage = localStorage.getItem('language') as Language;
       if (savedLanguage === 'en' || savedLanguage === 'ro') return savedLanguage;
@@ -1866,7 +1873,9 @@ export const LanguageProvider: React.FC<{
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load language preference from database when user is authenticated
+  // Load language preference from database when user is authenticated.
+  // When a URL locale prefix is active (forcedLocale), the URL is the source of truth —
+  // do not overwrite it from DB.
   useEffect(() => {
     const loadLanguageFromDB = async () => {
       if (!userId) {
@@ -1887,6 +1896,12 @@ export const LanguageProvider: React.FC<{
           return;
         }
 
+        // Skip DB override when URL forces locale.
+        if (forcedLocale) {
+          setIsLoading(false);
+          return;
+        }
+
         // Only apply DB value if the user hasn't explicitly picked a language
         // on this device. Otherwise a stale DB value ('ro') overwrites the user's
         // in-session choice ('en') right after login.
@@ -1903,41 +1918,57 @@ export const LanguageProvider: React.FC<{
     };
 
     loadLanguageFromDB();
-  }, [userId]);
+  }, [userId, forcedLocale]);
 
-  // Update language in both localStorage and database
+  // Update language in both localStorage and database.
+  // When switching between RO and EN, we navigate the browser to add/remove the
+  // `/en` URL prefix so the URL always reflects the active locale (SEO + shareable
+  // links). The full-page reload also re-mounts the app under the correct basename.
   const setLanguage = useCallback(async (newLanguage: Language) => {
-    // Update local state immediately
-    setLanguageState(newLanguage);
     localStorage.setItem('language', newLanguage);
     localStorage.setItem('language_explicit', '1'); // mark as user-chosen so DB load won't overwrite
-    // Reflect on <html lang> for SEO / a11y
-    if (typeof document !== 'undefined') {
-      document.documentElement.lang = newLanguage;
+
+    // Persist to DB in the background (fire-and-forget; we're about to navigate).
+    if (userId) {
+      supabase
+        .from('user_preferences')
+        .upsert(
+          {
+            user_id: userId,
+            language: newLanguage,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        )
+        .then(({ error }) => {
+          if (error) console.error('Error saving language preference:', error);
+        });
     }
 
-    // If user is authenticated, save to database
-    if (userId) {
-      try {
-        const { error } = await supabase
-          .from('user_preferences')
-          .upsert(
-            { 
-              user_id: userId, 
-              language: newLanguage,
-              updated_at: new Date().toISOString()
-            },
-            { 
-              onConflict: 'user_id' 
-            }
-          );
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const search = window.location.search;
+      const hash = window.location.hash;
+      const isCurrentlyEn = path === '/en' || path.startsWith('/en/');
 
-        if (error) {
-          console.error('Error saving language preference:', error);
-        }
-      } catch (err) {
-        console.error('Error saving language preference:', err);
+      if (newLanguage === 'en' && !isCurrentlyEn) {
+        // RO → EN: prepend /en to the current path.
+        const nextPath = path === '/' ? '/en' : `/en${path}`;
+        window.location.assign(`${nextPath}${search}${hash}`);
+        return;
       }
+      if (newLanguage === 'ro' && isCurrentlyEn) {
+        // EN → RO: strip the /en prefix.
+        const nextPath = path === '/en' ? '/' : path.replace(/^\/en/, '') || '/';
+        window.location.assign(`${nextPath}${search}${hash}`);
+        return;
+      }
+    }
+
+    // Same locale (no URL change needed) — update in place.
+    setLanguageState(newLanguage);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = newLanguage;
     }
   }, [userId]);
 

@@ -8,6 +8,14 @@ Disallow: /settings
 Disallow: /profile
 Disallow: /stack
 Disallow: /stack-library
+Disallow: /en/admin
+Disallow: /en/dashboard
+Disallow: /en/auth
+Disallow: /en/settings
+Disallow: /en/profile
+Disallow: /en/stack
+Disallow: /en/stack-library
 
 
 Sitemap: https://ceomindos.com/sitemap.xml
+

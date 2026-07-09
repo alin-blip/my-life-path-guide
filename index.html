@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="ro"><!-- lang is overridden by inline script below when URL starts with /en -->
   <head>
     <meta charset="UTF-8" />
     <meta name="color-scheme" content="light" />
@@ -38,10 +38,22 @@
         "sameAs": ["https://www.ceomindos.com", "https://warriorsos.com"]
       }
     </script>
-    <!-- hreflang -->
-    <link rel="alternate" hrefLang="ro" href="https://ceomindos.com/" />
-    <link rel="alternate" hrefLang="en" href="https://ceomindos.com/?lang=en" />
-    <link rel="alternate" hrefLang="x-default" href="https://ceomindos.com/" />
+    <!-- hreflang: Romanian on root, English under /en prefix -->
+    <link rel="alternate" hreflang="ro" href="https://ceomindos.com/" />
+    <link rel="alternate" hreflang="en" href="https://ceomindos.com/en" />
+    <link rel="alternate" hreflang="x-default" href="https://ceomindos.com/" />
+    <!-- Early locale detection: sets <html lang> before React mounts so crawlers
+         and screen readers see the right language on the initial HTML response. -->
+    <script>
+      (function () {
+        try {
+          var p = window.location.pathname;
+          if (p === '/en' || p.indexOf('/en/') === 0) {
+            document.documentElement.lang = 'en';
+          }
+        } catch (e) {}
+      })();
+    </script>
     <!-- Google Fonts - Fraunces + Inter, preload stylesheet for LCP text render -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
