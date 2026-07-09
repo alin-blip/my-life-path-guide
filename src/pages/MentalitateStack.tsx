@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { MentalitateStackFlow } from '@/components/mentalitate/MentalitateStackFlow';
 import { DeepDiveSelector } from '@/components/mentalitate/DeepDiveSelector';
 import { SessionHistory } from '@/components/mentalitate/SessionHistory';
+import { FeatureGate } from '@/components/access/FeatureGate';
 
 export default function MentalitateStack() {
   const navigate = useNavigate();
