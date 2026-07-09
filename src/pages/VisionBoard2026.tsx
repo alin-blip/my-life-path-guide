@@ -327,13 +327,21 @@ const VisionBoard2026 = () => {
       {step === 'quiz' && (
         <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background py-8 px-4">
           <div className="max-w-2xl mx-auto">
-            <Card className="p-6">
-              <VisionBoardQuiz
-                language={language}
-                onComplete={handleQuizComplete}
-                onBack={() => setStep('landing')}
-              />
-            </Card>
+            <TierLockOverlay
+              requiredTier="basic"
+              featureName={language === 'en' ? 'AI Vision Board 2026' : 'Vision Board AI 2026'}
+              teaser={language === 'en'
+                ? 'Turn your goals into a personalized AI-generated vision board. Available on Basic — starts at €7 trial.'
+                : 'Transformă-ți obiectivele într-un vision board personalizat generat de AI. Disponibil în Basic — trial €7.'}
+            >
+              <Card className="p-6">
+                <VisionBoardQuiz
+                  language={language}
+                  onComplete={handleQuizComplete}
+                  onBack={() => setStep('landing')}
+                />
+              </Card>
+            </TierLockOverlay>
           </div>
         </div>
       )}
