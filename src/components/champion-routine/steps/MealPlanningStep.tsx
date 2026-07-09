@@ -38,6 +38,7 @@ interface MealPlanningStepProps {
   totalProtein: number;
   onChange: (meals: Meal[], calories: number, protein: number) => void;
   onNext: () => void;
+  requireSmoothie?: boolean;
 }
 
 const MEAL_TYPES = [
@@ -52,7 +53,8 @@ export function MealPlanningStep({
   totalCalories: initialCalories, 
   totalProtein: initialProtein,
   onChange, 
-  onNext 
+  onNext,
+  requireSmoothie = true,
 }: MealPlanningStepProps) {
   const { settings, isLoading: settingsLoading, saveSettings } = useNutritionSettings();
   const [showSetup, setShowSetup] = useState(false);
