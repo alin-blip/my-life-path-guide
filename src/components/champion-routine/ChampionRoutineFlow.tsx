@@ -940,6 +940,10 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         return <HabitCheckStep category="business" onNext={goToNextStep} />;
       case 'todaysTasks':
         return <TodaysTasksStep onNext={goToNextStep} />;
+      case 'businessObjectives':
+        return <BusinessObjectivesStep onNext={goToNextStep} />;
+      case '__todaysTasks_placeholder__':
+        return <TodaysTasksStep onNext={goToNextStep} />;
       case 'eveningReflection':
         return (
           <EveningReflectionStep
