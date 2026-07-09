@@ -1,26 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <!-- Romanian (default) pages -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ceomindos.com/</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ceomindos.com/" />
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ceomindos.com/about</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/about" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/about" />
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ceomindos.com/pricing</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/pricing" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/pricing" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -46,15 +37,16 @@
   </url>
   <url>
     <loc>https://ceomindos.com/burnout-test</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/burnout-test" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/burnout-test" />
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://ceomindos.com/burnout-test-en</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://ceomindos.com/ebook</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/ebook" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/ebook" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -70,29 +62,16 @@
   </url>
   <url>
     <loc>https://ceomindos.com/mind-coach-transform</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/mind-coach-transform" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/mind-coach-transform" />
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ceomindos.com/warrior-launch-accelerator</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/warrior-launch-accelerator" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/warrior-launch-accelerator" />
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ceomindos.com/warrior</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/warrior" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/warrior" />
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://ceomindos.com/b2b</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/b2b" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/b2b" />
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -110,55 +89,5 @@
     <loc>https://ceomindos.com/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
-  </url>
-
-  <!-- English pages (URL prefix /en) -->
-  <url>
-    <loc>https://ceomindos.com/en</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ceomindos.com/" />
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/pricing</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/burnout-test</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/ebook</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/warrior</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/mind-coach-transform</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/warrior-launch-accelerator</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/en/b2b</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
 </urlset>
