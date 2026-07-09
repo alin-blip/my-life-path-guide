@@ -281,6 +281,9 @@ export const isStepCompleted = (stepId: RoutineStepId, log: ChampionLog | null):
     case 'dailyTasks':
     case 'todaysTasks':
       return !!log.big_one_today || (log.daily_todos || []).some(t => t.completed);
+    case 'businessObjectives':
+      // View-only strategic recap; considered complete once user clicks continue (tracked via skippedSteps not applicable). Mark complete when user has any weekly key point.
+      return true;
     case 'relationships':
       return (log.relationship_actions || []).some(a => a.completed);
     case 'breathing':
