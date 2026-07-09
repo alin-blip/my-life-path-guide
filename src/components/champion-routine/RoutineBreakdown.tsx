@@ -60,6 +60,7 @@ const STEP_ICONS: Record<RoutineStepId, React.ComponentType<{ className?: string
   habit_balance: Heart,
   habit_business: ListTodo,
   todaysTasks: ListTodo,
+  businessObjectives: ListTodo,
   eveningReflection: PenLine,
   completion: Trophy,
 };
