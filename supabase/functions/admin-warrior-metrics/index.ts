@@ -91,9 +91,52 @@ serve(async (req) => {
       if ((s.longest_streak ?? 0) > longestOverall) longestOverall = s.longest_streak ?? 0;
     }
 
+    // Funnel conversion (warrior_funnel_leads → subscribers)
+    const leads = funnelLeads.data ?? [];
+    const subs = warriorSubs.data ?? [];
+    const paidEmails = new Set(subs.filter(s => s.subscribed && s.subscription_tier && s.subscription_tier !== 'free').map(s => (s.email ?? '').toLowerCase()));
+    const funnel = {
+      leads_captured: leads.length,
+      report_sent: leads.filter(l => l.report_sent_at).length,
+      checkout_started: leads.filter(l => l.checkout_started_at).length,
+      trial_started: leads.filter(l => l.trial_started_at).length,
+      routine_activated: leads.filter(l => l.routine_activated_at).length,
+      paid_converted: leads.filter(l => paidEmails.has((l.email ?? '').toLowerCase())).length,
+    };
+    const pct = (n: number, d: number) => d > 0 ? Math.round((n / d) * 1000) / 10 : 0;
+    const funnelRates = {
+      lead_to_checkout_pct: pct(funnel.checkout_started, funnel.leads_captured),
+      checkout_to_trial_pct: pct(funnel.trial_started, funnel.checkout_started),
+      trial_to_paid_pct: pct(funnel.paid_converted, funnel.trial_started),
+      lead_to_paid_pct: pct(funnel.paid_converted, funnel.leads_captured),
+    };
+
+    // Drop-off per warrior type
+    const dropoffByType: Record<string, { leads: number; trials: number; paid: number }> = {};
+    for (const l of leads) {
+      const t = l.warrior_type ?? 'unknown';
+      dropoffByType[t] = dropoffByType[t] ?? { leads: 0, trials: 0, paid: 0 };
+      dropoffByType[t].leads++;
+      if (l.trial_started_at) dropoffByType[t].trials++;
+      if (paidEmails.has((l.email ?? '').toLowerCase())) dropoffByType[t].paid++;
+    }
+
+    // Drip email metrics
+    const dripStats: Record<string, { sent: number; failed: number }> = {};
+    for (const e of dripEmails.data ?? []) {
+      const k = e.template_name ?? 'unknown';
+      dripStats[k] = dripStats[k] ?? { sent: 0, failed: 0 };
+      if (e.status === 'sent' || e.status === 'delivered') dripStats[k].sent++;
+      else if (e.status === 'failed' || e.status === 'bounced') dripStats[k].failed++;
+    }
+
     return new Response(JSON.stringify({
       ok: true,
       generated_at: new Date().toISOString(),
+      funnel,
+      funnel_rates: funnelRates,
+      dropoff_by_type: dropoffByType,
+      drip_emails: dripStats,
       quiz: {
         total: quizTotal,
         activated: activatedCount,
