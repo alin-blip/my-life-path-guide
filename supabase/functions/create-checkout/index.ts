@@ -322,8 +322,9 @@ serve(async (req) => {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/ebook-upsell-en?canceled=true`;
     } else if (plan === 'starter') {
-      successUrl = `${origin}/warrior/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
-      cancelUrl = `${origin}/warrior?canceled=true`;
+      const enPrefix = language === 'en' ? '/en' : '';
+      successUrl = `${origin}${enPrefix}/warrior/welcome?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
+      cancelUrl = `${origin}${enPrefix}/warrior?canceled=true`;
     } else {
       successUrl = `${origin}/dashboard?checkout=success&plan=${plan}`;
       cancelUrl = `${origin}/pricing?canceled=true`;
