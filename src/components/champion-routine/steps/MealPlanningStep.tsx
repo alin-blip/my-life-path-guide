@@ -580,9 +580,9 @@ export function MealPlanningStep({
           onClick={onNext} 
           size="lg" 
           className="w-full gap-2"
-          disabled={!smoothieDone}
+          disabled={requireSmoothie && !smoothieDone}
         >
-          {smoothieDone ? 'Continuă' : 'Bifează smoothie-ul pentru a continua'}
+          {requireSmoothie && !smoothieDone ? 'Bifează smoothie-ul pentru a continua' : 'Continuă'}
           <ArrowRight className="h-5 w-5" />
         </Button>
       </Card>
