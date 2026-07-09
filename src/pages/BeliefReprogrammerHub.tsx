@@ -82,50 +82,58 @@ export default function BeliefReprogrammerHub() {
           </Card>
         </header>
 
-        <div className="flex flex-wrap gap-3">
-          <Button size="lg" onClick={startNew} disabled={creating} className="gap-2">
-            <Plus className="w-4 h-4" /> {creating ? 'Se inițializează...' : 'Începe o sesiune nouă'}
-          </Button>
-          <Button size="lg" variant="outline" onClick={() => navigate('/biblioteca-credintelor')} className="gap-2">
-            <Library className="w-4 h-4" /> Biblioteca mea de credințe
-          </Button>
-        </div>
-
-        <section className="space-y-3">
-          <h2 className="font-display text-lg font-semibold">Sesiuni anterioare</h2>
-          {loading ? (
-            <Card className="p-5 text-sm text-muted-foreground">Se încarcă...</Card>
-          ) : sessions.length === 0 ? (
-            <Card className="p-8 text-center">
-              <Sparkles className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground mb-4">Nicio sesiune încă. Începe prima — durează ~30-45 min, dar o poți relua oricând.</p>
-              <Button onClick={startNew} disabled={creating}>Începe primul Reprogramming</Button>
-            </Card>
-          ) : (
-            <div className="space-y-2">
-              {sessions.map((s) => (
-                <Card key={s.id} className="p-4 hover:border-fuchsia-500/40 cursor-pointer transition-colors" onClick={() => navigate(`/minte/credinte-fundamentale/reprogrammer/${s.id}`)}>
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-semibold truncate">{s.title || s.root_belief || 'Sesiune nouă'}</h4>
-                        <Badge variant={s.status === 'completed' ? 'default' : 'outline'} className="text-[10px]">
-                          {PHASE_LABEL[s.current_phase]}
-                        </Badge>
-                        {s.axis && <Badge variant="outline" className="text-[10px]">Axa {s.axis}</Badge>}
-                      </div>
-                      {s.root_belief && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">„{s.root_belief}"</p>}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-                      <Clock className="w-3 h-3" />
-                      {formatDistanceToNow(new Date(s.updated_at), { addSuffix: true, locale: ro })}
-                    </div>
-                  </div>
-                </Card>
-              ))}
+        <TierLockOverlay
+          requiredTier="basic"
+          featureName="Belief Reprogrammer — Protocolul Rădăcinii"
+          teaser="Protocolul 4-fazic (Audit → Decuplare → Iertare → Rescriere) rescrie credințele instalate în copilărie. Disponibil în Basic."
+        >
+          <div className="space-y-6">
+            <div className="flex flex-wrap gap-3">
+              <Button size="lg" onClick={startNew} disabled={creating} className="gap-2">
+                <Plus className="w-4 h-4" /> {creating ? 'Se inițializează...' : 'Începe o sesiune nouă'}
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => navigate('/biblioteca-credintelor')} className="gap-2">
+                <Library className="w-4 h-4" /> Biblioteca mea de credințe
+              </Button>
             </div>
-          )}
-        </section>
+
+            <section className="space-y-3">
+              <h2 className="font-display text-lg font-semibold">Sesiuni anterioare</h2>
+              {loading ? (
+                <Card className="p-5 text-sm text-muted-foreground">Se încarcă...</Card>
+              ) : sessions.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <Sparkles className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground mb-4">Nicio sesiune încă. Începe prima — durează ~30-45 min, dar o poți relua oricând.</p>
+                  <Button onClick={startNew} disabled={creating}>Începe primul Reprogramming</Button>
+                </Card>
+              ) : (
+                <div className="space-y-2">
+                  {sessions.map((s) => (
+                    <Card key={s.id} className="p-4 hover:border-fuchsia-500/40 cursor-pointer transition-colors" onClick={() => navigate(`/minte/credinte-fundamentale/reprogrammer/${s.id}`)}>
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-semibold truncate">{s.title || s.root_belief || 'Sesiune nouă'}</h4>
+                            <Badge variant={s.status === 'completed' ? 'default' : 'outline'} className="text-[10px]">
+                              {PHASE_LABEL[s.current_phase]}
+                            </Badge>
+                            {s.axis && <Badge variant="outline" className="text-[10px]">Axa {s.axis}</Badge>}
+                          </div>
+                          {s.root_belief && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">„{s.root_belief}"</p>}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                          <Clock className="w-3 h-3" />
+                          {formatDistanceToNow(new Date(s.updated_at), { addSuffix: true, locale: ro })}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
+        </TierLockOverlay>
       </div>
     </div>
   );
