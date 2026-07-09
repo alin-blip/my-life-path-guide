@@ -10,25 +10,61 @@ export type WarriorType = 'reactor' | 'disciplined' | 'experimenter' | 'warrior'
 export interface QuizQuestion {
   id: string;
   question: string;
+  question_en?: string;
   options: {
     label: string;
+    label_en?: string;
     /** Score deltas per warrior type (higher = closer match). */
     scores: Partial<Record<WarriorType, number>>;
   }[];
 }
 
+/** Resolve question + option labels for a given language. Falls back to RO. */
+export function localizeQuestions(
+  questions: QuizQuestion[],
+  language: 'ro' | 'en',
+): QuizQuestion[] {
+  if (language !== 'en') return questions;
+  return questions.map((q) => ({
+    ...q,
+    question: q.question_en || q.question,
+    options: q.options.map((o) => ({ ...o, label: o.label_en || o.label })),
+  }));
+}
+
+
 export interface WarriorTypeMeta {
   id: WarriorType;
   name: string;
+  name_en?: string;
   tagline: string;
+  tagline_en?: string;
   description: string;
+  description_en?: string;
   strengths: string;
+  strengths_en?: string;
   challenges: string;
+  challenges_en?: string;
   routineFocus: string;
+  routineFocus_en?: string;
   color: string;
   emoji: string;
   audiencePercent: number;
 }
+
+export function getWarriorMeta(meta: WarriorTypeMeta, language: 'ro' | 'en'): WarriorTypeMeta {
+  if (language !== 'en') return meta;
+  return {
+    ...meta,
+    name: meta.name_en || meta.name,
+    tagline: meta.tagline_en || meta.tagline,
+    description: meta.description_en || meta.description,
+    strengths: meta.strengths_en || meta.strengths,
+    challenges: meta.challenges_en || meta.challenges,
+    routineFocus: meta.routineFocus_en || meta.routineFocus,
+  };
+}
+
 
 export interface WarriorTemplate {
   routine_steps_order: string[];
@@ -52,84 +88,93 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q1_morning',
     question: 'Cum arată dimineața ta acum?',
+    question_en: 'What does your morning look like right now?',
     options: [
-      { label: 'Mă trezesc la alarmă, verific telefonul, mă simt reactiv toată ziua', scores: { reactor: 3 } },
-      { label: 'Am o rutină clară pe care o urmez zilnic', scores: { disciplined: 3 } },
-      { label: 'Încerc lucruri noi, dar nu mă țin de nimic mai mult de 2 săptămâni', scores: { experimenter: 3 } },
-      { label: 'Am o rutină aliniată la viziunea mea pe 90 de zile', scores: { warrior: 3 } },
+      { label: 'Mă trezesc la alarmă, verific telefonul, mă simt reactiv toată ziua', label_en: 'I wake to the alarm, check my phone, feel reactive all day', scores: { reactor: 3 } },
+      { label: 'Am o rutină clară pe care o urmez zilnic', label_en: 'I have a clear routine I follow every day', scores: { disciplined: 3 } },
+      { label: 'Încerc lucruri noi, dar nu mă țin de nimic mai mult de 2 săptămâni', label_en: 'I try new things but never stick with anything for more than 2 weeks', scores: { experimenter: 3 } },
+      { label: 'Am o rutină aliniată la viziunea mea pe 90 de zile', label_en: 'My routine is aligned to my 90-day vision', scores: { warrior: 3 } },
     ],
   },
   {
     id: 'q2_meditation',
     question: 'Ce simți despre meditație?',
+    question_en: 'How do you feel about meditation?',
     options: [
-      { label: 'Nu am timp / mi se pare plictisitoare', scores: { reactor: 3 } },
-      { label: 'Fac 10 minute în fiecare zi, standard', scores: { disciplined: 3 } },
-      { label: 'Testez tehnici diferite — binaural, Wim Hof, breath work', scores: { experimenter: 3 } },
-      { label: 'Fac 15+ minute profund, e non-negociabil', scores: { warrior: 3 } },
+      { label: 'Nu am timp / mi se pare plictisitoare', label_en: 'I don\'t have time / I find it boring', scores: { reactor: 3 } },
+      { label: 'Fac 10 minute în fiecare zi, standard', label_en: 'I do 10 minutes every day, standard', scores: { disciplined: 3 } },
+      { label: 'Testez tehnici diferite — binaural, Wim Hof, breath work', label_en: 'I test different techniques — binaural, Wim Hof, breath work', scores: { experimenter: 3 } },
+      { label: 'Fac 15+ minute profund, e non-negociabil', label_en: 'I do 15+ deep minutes, non-negotiable', scores: { warrior: 3 } },
     ],
   },
   {
     id: 'q3_workout',
     question: 'Cum abordezi mișcarea/antrenamentul?',
+    question_en: 'How do you approach movement / training?',
     options: [
-      { label: 'Aș vrea, dar nu găsesc timp', scores: { reactor: 3 } },
-      { label: 'Am un program clar, 4-5 zile/săptămână', scores: { disciplined: 3 } },
-      { label: 'Alternez între diverse discipline — gym, yoga, alergat', scores: { experimenter: 3 } },
-      { label: 'Antrenament greu 5-6 zile, planificat pe cicluri', scores: { warrior: 3 } },
+      { label: 'Aș vrea, dar nu găsesc timp', label_en: 'I\'d like to, but I can\'t find the time', scores: { reactor: 3 } },
+      { label: 'Am un program clar, 4-5 zile/săptămână', label_en: 'I have a clear program, 4–5 days/week', scores: { disciplined: 3 } },
+      { label: 'Alternez între diverse discipline — gym, yoga, alergat', label_en: 'I rotate disciplines — gym, yoga, running', scores: { experimenter: 3 } },
+      { label: 'Antrenament greu 5-6 zile, planificat pe cicluri', label_en: 'Heavy training 5–6 days, planned in cycles', scores: { warrior: 3 } },
     ],
   },
   {
     id: 'q4_reading',
     question: 'Câte cărți citești pe an?',
+    question_en: 'How many books do you read per year?',
     options: [
-      { label: '0-2 cărți', scores: { reactor: 3 } },
-      { label: '10-15 cărți, consistent', scores: { disciplined: 3 } },
-      { label: '20+ cărți, mix de genuri', scores: { experimenter: 3 } },
-      { label: '20+ cărți plus podcasturi + articole strategice', scores: { warrior: 3 } },
+      { label: '0-2 cărți', label_en: '0–2 books', scores: { reactor: 3 } },
+      { label: '10-15 cărți, consistent', label_en: '10–15 books, consistently', scores: { disciplined: 3 } },
+      { label: '20+ cărți, mix de genuri', label_en: '20+ books, mix of genres', scores: { experimenter: 3 } },
+      { label: '20+ cărți plus podcasturi + articole strategice', label_en: '20+ books plus podcasts + strategic articles', scores: { warrior: 3 } },
     ],
   },
   {
     id: 'q5_priorities',
     question: 'Cum îți alegi prioritățile zilei?',
+    question_en: 'How do you choose your daily priorities?',
     options: [
-      { label: 'Reactiv — ce apare în inbox / mesaje', scores: { reactor: 3 } },
-      { label: 'To-do list clar, îl bifez metodic', scores: { disciplined: 3 } },
-      { label: 'Îmi place să experimentez cu sisteme diferite (Eisenhower, ABCDE, etc.)', scores: { experimenter: 3 } },
-      { label: 'Un HIT strategic care mișcă viziunea pe 90 de zile', scores: { warrior: 3 } },
+      { label: 'Reactiv — ce apare în inbox / mesaje', label_en: 'Reactive — whatever appears in inbox / messages', scores: { reactor: 3 } },
+      { label: 'To-do list clar, îl bifez metodic', label_en: 'Clear to-do list, ticked methodically', scores: { disciplined: 3 } },
+      { label: 'Îmi place să experimentez cu sisteme diferite (Eisenhower, ABCDE, etc.)', label_en: 'I like experimenting with different systems (Eisenhower, ABCDE, etc.)', scores: { experimenter: 3 } },
+      { label: 'Un HIT strategic care mișcă viziunea pe 90 de zile', label_en: 'One strategic HIT that moves the 90-day vision', scores: { warrior: 3 } },
     ],
   },
   {
     id: 'q6_energy',
     question: 'Când ai cea mai multă energie mentală?',
+    question_en: 'When do you have the most mental energy?',
     options: [
-      { label: 'Habar n-am, oricând nu sunt obosit', scores: { reactor: 3 } },
-      { label: 'Dimineața, între 8-11', scores: { disciplined: 2, warrior: 2 } },
-      { label: 'Depinde de zi, e imprevizibil', scores: { experimenter: 3 } },
-      { label: 'Dimineața devreme, 5-8, deep work', scores: { warrior: 3 } },
+      { label: 'Habar n-am, oricând nu sunt obosit', label_en: 'No idea — whenever I\'m not tired', scores: { reactor: 3 } },
+      { label: 'Dimineața, între 8-11', label_en: 'Morning, 8–11 am', scores: { disciplined: 2, warrior: 2 } },
+      { label: 'Depinde de zi, e imprevizibil', label_en: 'Depends on the day, unpredictable', scores: { experimenter: 3 } },
+      { label: 'Dimineața devreme, 5-8, deep work', label_en: 'Early morning, 5–8 am, deep work', scores: { warrior: 3 } },
     ],
   },
   {
     id: 'q7_stack',
     question: 'Cum reacționezi când ești blocat emoțional (frică/mânie/rușine)?',
+    question_en: 'How do you react when you\'re emotionally stuck (fear / anger / shame)?',
     options: [
-      { label: 'Rămân blocat, ziua e pierdută', scores: { reactor: 3 } },
-      { label: 'Trec peste, mă concentrez pe task-uri', scores: { disciplined: 2 } },
-      { label: 'Încerc tehnici diferite până găsesc ce merge', scores: { experimenter: 3 } },
-      { label: 'Fac un stack (breath work + reframe + acțiune) — 15 min și trec', scores: { warrior: 3 } },
+      { label: 'Rămân blocat, ziua e pierdută', label_en: 'I stay stuck, the day is lost', scores: { reactor: 3 } },
+      { label: 'Trec peste, mă concentrez pe task-uri', label_en: 'I push through, focus on tasks', scores: { disciplined: 2 } },
+      { label: 'Încerc tehnici diferite până găsesc ce merge', label_en: 'I try different techniques until something works', scores: { experimenter: 3 } },
+      { label: 'Fac un stack (breath work + reframe + acțiune) — 15 min și trec', label_en: 'I run a stack (breath work + reframe + action) — 15 min and it\'s gone', scores: { warrior: 3 } },
     ],
   },
   {
     id: 'q8_vision',
     question: 'Ai o viziune clară pe 90 de zile / 12 luni?',
+    question_en: 'Do you have a clear 90-day / 12-month vision?',
     options: [
-      { label: 'Nu, trăiesc de pe o zi pe alta', scores: { reactor: 3 } },
-      { label: 'Am obiective SMART clare', scores: { disciplined: 3 } },
-      { label: 'Da, dar o schimb des pe măsură ce învăț', scores: { experimenter: 2 } },
-      { label: 'Da — viziune 12 luni + HIT-uri 90 zile + rutină aliniată', scores: { warrior: 3 } },
+      { label: 'Nu, trăiesc de pe o zi pe alta', label_en: 'No, I live day to day', scores: { reactor: 3 } },
+      { label: 'Am obiective SMART clare', label_en: 'I have clear SMART goals', scores: { disciplined: 3 } },
+      { label: 'Da, dar o schimb des pe măsură ce învăț', label_en: 'Yes, but I change it often as I learn', scores: { experimenter: 2 } },
+      { label: 'Da — viziune 12 luni + HIT-uri 90 zile + rutină aliniată', label_en: 'Yes — 12-month vision + 90-day HITs + aligned routine', scores: { warrior: 3 } },
     ],
   },
 ];
+
 
 // ---------- Warrior Type Metadata ----------
 
@@ -137,12 +182,19 @@ export const WARRIOR_TYPES: Record<WarriorType, WarriorTypeMeta> = {
   reactor: {
     id: 'reactor',
     name: 'Reactor',
+    name_en: 'Reactor',
     tagline: 'Trăiești reactiv. Rutina te va aduce în control.',
+    tagline_en: 'You live reactive. The routine puts you back in control.',
     description:
       'Ești în modul de supraviețuire — reacționezi la ce apare în jur. Nu e vina ta, dar te costă. Rutina Warrior te scoate din reactive-mode cu pași scurți, non-intimidanți, care construiesc momentum în 7 zile.',
+    description_en:
+      'You\'re in survival mode — reacting to whatever shows up. Not your fault, but it\'s costing you. The Warrior Routine pulls you out of reactive mode with short, non-intimidating steps that build momentum in 7 days.',
     strengths: 'Adaptabilitate, empatie, rezistență la haos',
+    strengths_en: 'Adaptability, empathy, resilience under chaos',
     challenges: 'Ziua ta e dictată de urgențe, nu de priorități',
+    challenges_en: 'Your day is dictated by urgencies, not priorities',
     routineFocus: 'Ritual scurt de tranziție dimineața (15-20 min) — micro-wins care schimbă starea rapid',
+    routineFocus_en: 'Short morning transition ritual (15–20 min) — micro-wins that shift your state fast',
     color: 'from-orange-500 to-red-500',
     emoji: '⚡',
     audiencePercent: 40,
@@ -150,12 +202,19 @@ export const WARRIOR_TYPES: Record<WarriorType, WarriorTypeMeta> = {
   disciplined: {
     id: 'disciplined',
     name: 'Disciplined',
+    name_en: 'Disciplined',
     tagline: 'Ești disciplinat. Rutina îți va da sens strategic.',
+    tagline_en: 'You\'re disciplined. The routine gives you strategic meaning.',
     description:
       'Ai deja obiceiuri solide și te ții de ele. Dar bifezi task-uri fără să simți că avansezi. Rutina Warrior aliniază disciplina ta la o viziune clară pe 90 zile — nu mai bifezi, ci construiești.',
+    description_en:
+      'You already have solid habits and stick to them. But you tick off tasks without feeling like you\'re moving. The Warrior Routine aligns your discipline to a clear 90-day vision — you stop ticking, you start building.',
     strengths: 'Consistență, execuție, focus',
+    strengths_en: 'Consistency, execution, focus',
     challenges: 'Bifezi task-uri fără sens, uneori burn-out ascuns',
+    challenges_en: 'You tick off tasks without meaning — sometimes hidden burnout',
     routineFocus: 'Rutină completă (30-40 min) cu focus pe sens și aliniere strategică',
+    routineFocus_en: 'Full routine (30–40 min) focused on meaning and strategic alignment',
     color: 'from-blue-500 to-indigo-600',
     emoji: '🎯',
     audiencePercent: 25,
@@ -163,12 +222,19 @@ export const WARRIOR_TYPES: Record<WarriorType, WarriorTypeMeta> = {
   experimenter: {
     id: 'experimenter',
     name: 'Experimenter',
+    name_en: 'Experimenter',
     tagline: 'Ești explorator. Rutina îți va da angajament.',
+    tagline_en: 'You\'re an explorer. The routine gives you commitment.',
     description:
       'Testezi tot — cărți, sisteme, tehnici. Dar sari de la una la alta și nu vezi rezultate compuse. Rutina Warrior îți dă un cadru fix pentru 30 zile ca să vezi ce funcționează cu adevărat pentru tine.',
+    description_en:
+      'You test everything — books, systems, techniques. But you jump from one to the next and never see compounding results. The Warrior Routine gives you a fixed 30-day frame so you finally see what actually works for you.',
     strengths: 'Curiozitate, învățare rapidă, creativitate',
+    strengths_en: 'Curiosity, fast learning, creativity',
     challenges: 'Sari între sisteme, nu vezi rezultate compuse',
+    challenges_en: 'You jump between systems, no compounding results',
     routineFocus: 'Cadru fix 30 zile cu varietate în conținut (nu în structură)',
+    routineFocus_en: 'Fixed 30-day frame with variety in content (not in structure)',
     color: 'from-purple-500 to-pink-500',
     emoji: '🔬',
     audiencePercent: 25,
@@ -176,17 +242,25 @@ export const WARRIOR_TYPES: Record<WarriorType, WarriorTypeMeta> = {
   warrior: {
     id: 'warrior',
     name: 'Warrior',
+    name_en: 'Warrior',
     tagline: 'Ești deja Warrior. Îți dăm sistemul complet.',
+    tagline_en: 'You\'re already a Warrior. We give you the full system.',
     description:
       'Ai deja o rutină serioasă și o viziune clară. Rutina Warrior CEO Mind OS îți dă infrastructura completă (XP, streak, achievements, Mind Coach, Brotherhood) ca să scalezi ce deja funcționează.',
+    description_en:
+      'You already have a serious routine and a clear vision. The Warrior Routine gives you the full infrastructure (XP, streaks, achievements, Mind Coach, Brotherhood) to scale what already works.',
     strengths: 'Viziune clară, execuție profundă, aliniere',
+    strengths_en: 'Clear vision, deep execution, alignment',
     challenges: 'Uneori intensitate excesivă, risc de over-optimization',
+    challenges_en: 'Occasional over-intensity, risk of over-optimization',
     routineFocus: 'Rutină deep (45-60 min) cu toate integrările — meditation, workout, learn, HIT strategic',
+    routineFocus_en: 'Deep routine (45–60 min) with full integrations — meditation, workout, learn, strategic HIT',
     color: 'from-amber-500 to-yellow-500',
     emoji: '⚔️',
     audiencePercent: 10,
   },
 };
+
 
 // ---------- Activation Templates ----------
 // Step IDs must match those in src/components/champion-routine/StepsOrderEditor.tsx
