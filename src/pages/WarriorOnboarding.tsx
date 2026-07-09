@@ -171,6 +171,13 @@ const WarriorOnboarding = () => {
         <link rel="alternate" hrefLang="ro" href="https://ceomindos.com/warrior" />
         <link rel="alternate" hrefLang="en" href="https://ceomindos.com/en/warrior" />
         <link rel="alternate" hrefLang="x-default" href="https://ceomindos.com/warrior" />
+        <link rel="canonical" href={`https://ceomindos.com${isEn ? '/en/warrior' : '/warrior'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${isEn ? '/en/warrior' : '/warrior'}`} />
+        <meta property="og:title" content={c.metaTitle} />
+        <meta property="og:description" content={c.metaDesc} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0B1733] via-[#0f1e42] to-[#0B1733] text-white">
