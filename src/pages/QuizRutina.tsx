@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,18 +7,81 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
 import { ArrowRight, ArrowLeft, Sword, Loader2 } from 'lucide-react';
-import { QUIZ_QUESTIONS } from '@/data/warriorTypes';
+import { QUIZ_QUESTIONS, localizeQuestions } from '@/data/warriorTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
 
 type Answer = { questionId: string; optionIndex: number };
 
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
+const COPY = {
+  ro: {
+    metaTitle: 'Quiz Rutină — Ce fel de Warrior ești? | CEO Mind OS',
+    metaDesc: 'Descoperă tipul tău de Warrior în 2 minute și primești o rutină de dimineață personalizată — 100% gratuit.',
+    ogTitle: 'Quiz Rutină Warrior — CEO Mind OS',
+    ogDesc: 'Descoperă tipul tău de Warrior și primești o rutină de dimineață personalizată.',
+    back: 'Înapoi',
+    lastStep: 'Ultima etapă',
+    question: (i: number, total: number) => `Întrebare ${i} / ${total}`,
+    introBadge: 'Quiz • 2 minute • Gratuit',
+    introTitle1: 'Ce fel de',
+    introTitle2: 'ești?',
+    introBody: (
+      <>8 întrebări. Îți descopăr tipul de personalitate în rutină și îți dau un template
+      de dimineață <strong>personalizat</strong> — pe care îl activezi cu un singur click.</>
+    ),
+    startBtn: 'Începe quiz-ul',
+    emailTitle: 'Ultimul pas ⚡',
+    emailBody: 'Lasă-mi email-ul ca să-ți trimit rezultatul personalizat + raportul complet.',
+    emailLabel: 'Email',
+    emailPlaceholder: 'tu@example.com',
+    seeResult: 'Vezi rezultatul',
+    noSpam: 'Fără spam. Doar rezultatul tău + rutina personalizată.',
+    invalidEmail: 'Ai nevoie de un email valid ca să primești rezultatul.',
+    submitError: 'Nu am putut trimite quiz-ul. Încearcă din nou.',
+    submitting: 'Îți calculez tipul de Warrior...',
+    unknownError: 'Eroare necunoscută',
+  },
+  en: {
+    metaTitle: 'Routine Quiz — What kind of Warrior are you? | CEO Mind OS',
+    metaDesc: 'Discover your Warrior type in 2 minutes and get a personalized morning routine — 100% free.',
+    ogTitle: 'Warrior Routine Quiz — CEO Mind OS',
+    ogDesc: 'Discover your Warrior type and get a personalized morning routine.',
+    back: 'Back',
+    lastStep: 'Final step',
+    question: (i: number, total: number) => `Question ${i} / ${total}`,
+    introBadge: 'Quiz • 2 minutes • Free',
+    introTitle1: 'What kind of',
+    introTitle2: 'are you?',
+    introBody: (
+      <>8 questions. I identify your routine personality and give you a
+      <strong> personalized</strong> morning template — activated with a single click.</>
+    ),
+    startBtn: 'Start the quiz',
+    emailTitle: 'Final step ⚡',
+    emailBody: 'Leave your email so I can send you the personalized result + full report.',
+    emailLabel: 'Email',
+    emailPlaceholder: 'you@example.com',
+    seeResult: 'See my result',
+    noSpam: 'No spam. Just your result + personalized routine.',
+    invalidEmail: 'You need a valid email to receive the result.',
+    submitError: 'We couldn\'t send the quiz. Please try again.',
+    submitting: 'Calculating your Warrior type...',
+    unknownError: 'Unknown error',
+  },
+} as const;
+
 const QuizRutina = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { language } = useLanguage();
+  const isEn = language === 'en';
+  const c = isEn ? COPY.en : COPY.ro;
+  const questions = useMemo(() => localizeQuestions(QUIZ_QUESTIONS, isEn ? 'en' : 'ro'), [isEn]);
+
   const autostart = searchParams.get('autostart') === '1';
   const [step, setStep] = useState<'intro' | number | 'email' | 'submitting'>(autostart ? 0 : 'intro');
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -29,20 +92,19 @@ const QuizRutina = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autostart]);
 
-  const totalQuestions = QUIZ_QUESTIONS.length;
+  const totalQuestions = questions.length;
   const currentIndex = typeof step === 'number' ? step : -1;
   const progress = currentIndex >= 0 ? ((currentIndex + 1) / (totalQuestions + 1)) * 100 : 0;
 
   const selectOption = (optionIndex: number) => {
     if (typeof step !== 'number') return;
-    const question = QUIZ_QUESTIONS[step];
+    const question = questions[step];
     const newAnswers = [
       ...answers.filter((a) => a.questionId !== question.id),
       { questionId: question.id, optionIndex },
     ];
     setAnswers(newAnswers);
 
-    // Auto-advance
     setTimeout(() => {
       if (step + 1 < totalQuestions) {
         setStep(step + 1);
@@ -60,7 +122,7 @@ const QuizRutina = () => {
 
   const submitQuiz = async () => {
     if (!EMAIL_RE.test(email.trim())) {
-      toast.error('Ai nevoie de un email valid ca să primești rezultatul.');
+      toast.error(c.invalidEmail);
       return;
     }
     setStep('submitting');
@@ -69,34 +131,39 @@ const QuizRutina = () => {
         body: {
           answers,
           email: email.trim().toLowerCase(),
-          language: 'ro',
+          language: isEn ? 'en' : 'ro',
           source: 'quiz-rutina',
         },
       });
       if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Eroare necunoscută');
+      if (!data?.success) throw new Error(data?.error || c.unknownError);
 
       const emailParam = encodeURIComponent(email.trim().toLowerCase());
-      navigate(`/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}&email=${emailParam}`);
+      const base = isEn ? '/en' : '';
+      navigate(`${base}/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}&email=${emailParam}`);
     } catch (e) {
       console.error(e);
-      toast.error('Nu am putut trimite quiz-ul. Încearcă din nou.');
+      toast.error(c.submitError);
       setStep('email');
     }
   };
 
   const selectedForCurrent =
-    typeof step === 'number' ? answers.find((a) => a.questionId === QUIZ_QUESTIONS[step].id)?.optionIndex : null;
+    typeof step === 'number' ? answers.find((a) => a.questionId === questions[step].id)?.optionIndex : null;
 
   return (
     <>
       <Helmet>
-        <title>Quiz Rutină — Ce fel de Warrior ești? | CEO Mind OS</title>
-        <meta name="description" content="Descoperă tipul tău de Warrior în 2 minute și primești o rutină de dimineață personalizată — 100% gratuit." />
-        <meta property="og:title" content="Quiz Rutină Warrior — CEO Mind OS" />
-        <meta property="og:description" content="Descoperă tipul tău de Warrior și primești o rutină de dimineață personalizată." />
+        <html lang={isEn ? 'en' : 'ro'} />
+        <title>{c.metaTitle}</title>
+        <meta name="description" content={c.metaDesc} />
+        <meta property="og:title" content={c.ogTitle} />
+        <meta property="og:description" content={c.ogDesc} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
+        <link rel="alternate" hrefLang="ro" href="https://ceomindos.com/quiz-rutina" />
+        <link rel="alternate" hrefLang="en" href="https://ceomindos.com/en/quiz-rutina" />
+        <link rel="alternate" hrefLang="x-default" href="https://ceomindos.com/quiz-rutina" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0B1733] via-[#0f1e42] to-[#0B1733] text-white flex flex-col">
@@ -108,7 +175,7 @@ const QuizRutina = () => {
           </div>
           {currentIndex >= 0 && (
             <button onClick={goBack} className="text-sm text-white/60 hover:text-white flex items-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> Înapoi
+              <ArrowLeft className="w-4 h-4" /> {c.back}
             </button>
           )}
         </header>
@@ -118,7 +185,7 @@ const QuizRutina = () => {
           <div className="px-4 md:px-6 max-w-4xl mx-auto w-full">
             <Progress value={progress} className="h-1 bg-white/10" />
             <div className="text-xs text-white/50 mt-1 text-right">
-              {step === 'email' ? 'Ultima etapă' : `Întrebare ${currentIndex + 1} / ${totalQuestions}`}
+              {step === 'email' ? c.lastStep : c.question(currentIndex + 1, totalQuestions)}
             </div>
           </div>
         )}
@@ -136,14 +203,13 @@ const QuizRutina = () => {
                   className="text-center space-y-6"
                 >
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4A84A]/10 border border-[#D4A84A]/30 text-[#D4A84A] text-xs uppercase tracking-wider">
-                    Quiz • 2 minute • Gratuit
+                    {c.introBadge}
                   </div>
                   <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                    Ce fel de <span className="text-[#D4A84A]">Warrior</span> ești?
+                    {c.introTitle1} <span className="text-[#D4A84A]">Warrior</span> {c.introTitle2}
                   </h1>
                   <p className="text-lg text-white/70 max-w-lg mx-auto">
-                    8 întrebări. Îți descopăr tipul de personalitate în rutină și îți dau un template
-                    de dimineață <strong>personalizat</strong> — pe care îl activezi cu un singur click.
+                    {c.introBody}
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 max-w-xl mx-auto text-xs">
                     {[
@@ -163,7 +229,7 @@ const QuizRutina = () => {
                     onClick={() => setStep(0)}
                     className="bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold px-8 h-12"
                   >
-                    Începe quiz-ul <ArrowRight className="ml-2 w-4 h-4" />
+                    {c.startBtn} <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </motion.div>
               )}
@@ -177,10 +243,10 @@ const QuizRutina = () => {
                   className="space-y-6"
                 >
                   <h2 className="text-2xl md:text-3xl font-semibold leading-snug">
-                    {QUIZ_QUESTIONS[step].question}
+                    {questions[step].question}
                   </h2>
                   <div className="space-y-3">
-                    {QUIZ_QUESTIONS[step].options.map((opt, i) => (
+                    {questions[step].options.map((opt, i) => (
                       <button
                         key={i}
                         onClick={() => selectOption(i)}
@@ -218,21 +284,21 @@ const QuizRutina = () => {
                   className="space-y-6"
                 >
                   <div className="text-center space-y-3">
-                    <h2 className="text-3xl font-bold">Ultimul pas ⚡</h2>
+                    <h2 className="text-3xl font-bold">{c.emailTitle}</h2>
                     <p className="text-white/70">
-                      Lasă-mi email-ul ca să-ți trimit rezultatul personalizat + raportul complet.
+                      {c.emailBody}
                     </p>
                   </div>
 
                   <Card className="bg-white/5 border-white/10 p-6 space-y-4">
                     <div>
-                      <label className="text-sm text-white/70 mb-2 block">Email</label>
+                      <label className="text-sm text-white/70 mb-2 block">{c.emailLabel}</label>
                       <Input
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="tu@example.com"
+                        placeholder={c.emailPlaceholder}
                         className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
                       />
                     </div>
@@ -242,10 +308,10 @@ const QuizRutina = () => {
                       disabled={!EMAIL_RE.test(email.trim())}
                       className="w-full bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-12 disabled:opacity-50"
                     >
-                      Vezi rezultatul <ArrowRight className="ml-2 w-4 h-4" />
+                      {c.seeResult} <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                     <p className="text-xs text-white/50 text-center">
-                      Fără spam. Doar rezultatul tău + rutina personalizată.
+                      {c.noSpam}
                     </p>
                   </Card>
 
@@ -260,7 +326,7 @@ const QuizRutina = () => {
                   className="text-center space-y-4"
                 >
                   <Loader2 className="w-12 h-12 mx-auto animate-spin text-[#D4A84A]" />
-                  <p className="text-white/70">Îți calculez tipul de Warrior...</p>
+                  <p className="text-white/70">{c.submitting}</p>
                 </motion.div>
               )}
             </AnimatePresence>

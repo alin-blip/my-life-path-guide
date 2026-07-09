@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ArrowRight, Check, Sword, Loader2, Lock, CheckCircle2, ShieldCheck } from 'lucide-react';
-import { WARRIOR_TYPES, WARRIOR_TEMPLATES, type WarriorType } from '@/data/warriorTypes';
+import { WARRIOR_TYPES, WARRIOR_TEMPLATES, getWarriorMeta, type WarriorType } from '@/data/warriorTypes';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+
 
 const EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
@@ -116,10 +118,181 @@ const RESULT_CONTENT: Record<WarriorType, {
   },
 };
 
+const RESULT_CONTENT_EN: typeof RESULT_CONTENT = {
+  reactor: {
+    heroTitle: 'You wake up in a rush',
+    heroTitleAccent: 'every single morning.',
+    heroSubtitle: 'You\'re the Reactor type. And it sabotages you daily.',
+    pain: [
+      'Phone, email, news — they all tell you what to do in the first minute.',
+      'You react all day because you start reactive.',
+      'By the end of the day you\'re drained, but can\'t say what you actually did.',
+    ],
+    revelation: 'You don\'t need more discipline. You need a transition ritual between sleep and the world.',
+    preview: 'Warrior Routine gives you 5 simple steps, 20 minutes, that make the difference between "reactive" and "intentional".',
+    steps: [
+      { day: 'Today', text: 'Do NOT open your phone first. Sit 5 minutes in silence. Just breathe.' },
+      { day: 'Tomorrow', text: 'Drink 500ml of water before anything else. Hydrate the body, not the brain with caffeine.' },
+      { day: 'Day 3', text: 'Ask yourself out loud: "How do I want to feel today?" — answer for 2 minutes.' },
+    ],
+    testimonial: {
+      quote: 'I shifted from reactive to intentional. The difference? 45 morning minutes I actually protected.',
+      author: 'Dan, SaaS CEO',
+    },
+    ctaTransition: 'reacting',
+  },
+  disciplined: {
+    heroTitle: 'You do everything perfectly.',
+    heroTitleAccent: 'But you don\'t feel like you\'re moving.',
+    heroSubtitle: 'You\'re the Disciplined type. And it keeps you stuck.',
+    pain: [
+      'You have a routine. You follow it daily. You do everything "right".',
+      'But at the end of the day, you look back and don\'t feel progress.',
+      'It\'s not lack of discipline. It\'s lack of meaning.',
+    ],
+    revelation: 'Discipline without direction is the hardest kind of fatigue.',
+    preview: 'Warrior Routine doesn\'t add steps. It connects the steps you already run to a concrete 90-day vision.',
+    steps: [
+      { day: 'Today', text: 'Write on paper: "WHY do I run this routine?" Answer honestly, not what you should say.' },
+      { day: 'Tomorrow', text: 'Add one element of joy to the routine: music, movement, creation. Discipline doesn\'t have to be rigid.' },
+      { day: 'Day 3', text: 'Connect every step to your 90-day vision. If it isn\'t written down, it isn\'t concrete.' },
+    ],
+    testimonial: {
+      quote: 'I went from "ticking tasks" to "building something". Same routine. Different meaning.',
+      author: 'Mihai, CEO Mind OS',
+    },
+    ctaTransition: 'ticking',
+  },
+  experimenter: {
+    heroTitle: 'You\'ve read 10 books on routines,',
+    heroTitleAccent: 'but finished none.',
+    heroSubtitle: 'You\'re the Experimenter type. And it keeps you stuck.',
+    pain: [
+      'You\'ve read it all. Miracle Morning, Atomic Habits, The 5AM Club.',
+      'You\'ve tested 20 systems. Reset 20 times.',
+      'You collect systems. You apply none.',
+    ],
+    revelation: 'It\'s not an information problem. It\'s an execution problem. Experimenting without commitment is procrastination with a bonus.',
+    preview: 'Warrior Routine stops the search. It gives you ONE system specific to your type and keeps you on it for 30 days.',
+    steps: [
+      { day: 'Today', text: 'Pick ONE system. Run it for 30 days without changing anything.' },
+      { day: 'Tomorrow', text: 'Measure ONE thing: "Do I feel better?" Note it on a 1–10 scale.' },
+      { day: 'Day 3', text: 'Make a public commitment. Tell someone you respect: "30 days. No exceptions."' },
+    ],
+    testimonial: {
+      quote: 'I stopped searching. I started doing. 30 days. One system. The first time I felt real progress.',
+      author: 'Andrei, founder',
+    },
+    ctaTransition: 'reading',
+  },
+  warrior: {
+    heroTitle: 'You have the discipline.',
+    heroTitleAccent: 'You\'re missing the direction.',
+    heroSubtitle: 'You\'re the Warrior type. Now you need meaning.',
+    pain: [
+      'Your routine is solid. You run it daily. You\'re already above 90% of founders.',
+      'But something doesn\'t feel like progress. You do it mechanically, without impact.',
+      'Power without direction is a treadmill: you tire, but you don\'t arrive.',
+    ],
+    revelation: 'Vision without power is a dream. Power without vision is a treadmill. You have the power. Now you need direction.',
+    preview: 'Warrior Routine connects your routine to a 90-day vision and a weekly review that shows exactly what moves the business and what doesn\'t.',
+    steps: [
+      { day: 'Today', text: 'Write your 90-day vision. 1 page, 3 paragraphs. No editing.' },
+      { day: 'Tomorrow', text: 'Connect every routine step to the vision. If a step serves nothing — remove it.' },
+      { day: 'Day 3', text: 'Add a 15-minute Sunday weekly review. What moved? What didn\'t? What do you adjust?' },
+    ],
+    testimonial: {
+      quote: 'I went from execution to construction. Same effort. Different impact. The difference was the weekly review.',
+      author: 'Vlad, CEO tech',
+    },
+    ctaTransition: 'executing',
+  },
+};
+
+const UI = {
+  ro: {
+    resultBadge: 'Rezultatul tău',
+    whyLabel: 'De ce rutina ta actuală nu funcționează',
+    whatDifferent: 'Ce e diferit la Warrior Routine',
+    unlockInAccount: 'Deblochează în cont',
+    lockedNote: (n: number) => `🔒 ${n} pași personalizați + focus rutină + autosuggestion`,
+    changeToday: 'Ce faci diferit începând de azi',
+    morningLabel: (day: string) => `→ ${day} dimineață:`,
+    ctaTitleA: 'Gata să treci de la',
+    ctaTitleB: 'la',
+    ctaBuilt: 'construit',
+    ctaBody1: 'Activează Warrior Starter.',
+    ctaFreeDays: '7 zile gratis.',
+    ctaBody2: 'Vezi diferența înainte să plătești ceva.',
+    emailPh: 'adresa@email.com',
+    startNow: 'Încep acum — 7 zile trial gratuit',
+    priceNote1: 'doar dacă continui. Anulezi oricând, fără întrebări.',
+    price: '7€',
+    reportSent: (e: string) => `Raport trimis pe ${e}`,
+    activateRoutine: 'Activează rutina — 7 zile trial gratuit',
+    guarantee: '100% garanție 7 zile',
+    guaranteeBody: 'Dacă nu simți progres în 7 zile, anulezi și nu plătești nimic. Fără telefon, fără explicații.',
+    retake: '← Refă quiz-ul',
+    invalidEmail: 'Email invalid',
+    reportOk: 'Raportul a fost trimis pe email 📧',
+    reportErr: 'Nu am putut trimite raportul. Încearcă din nou.',
+    checkoutErr: 'Nu am putut porni checkout-ul. Încearcă din nou.',
+    activating: 'Se activează...',
+    activateBtn: 'Activează-mi rutina Warrior',
+    activateOk: 'Rutina Warrior a fost activată! ⚔️',
+    activateErr: 'Nu am putut activa rutina. Încearcă din nou.',
+    stepsHeader: (n: number) => `Rutina ta (${n} pași)`,
+    strengths: 'Puncte forte',
+    challenges: 'Provocări',
+    youAre: 'Ești',
+  },
+  en: {
+    resultBadge: 'Your result',
+    whyLabel: 'Why your current routine doesn\'t work',
+    whatDifferent: 'What\'s different about Warrior Routine',
+    unlockInAccount: 'Unlock inside account',
+    lockedNote: (n: number) => `🔒 ${n} personalized steps + routine focus + autosuggestion`,
+    changeToday: 'What you do differently starting today',
+    morningLabel: (day: string) => `→ ${day} morning:`,
+    ctaTitleA: 'Ready to go from',
+    ctaTitleB: 'to',
+    ctaBuilt: 'built',
+    ctaBody1: 'Activate Warrior Starter.',
+    ctaFreeDays: '7 days free.',
+    ctaBody2: 'See the difference before you pay anything.',
+    emailPh: 'you@example.com',
+    startNow: 'Start now — 7-day free trial',
+    priceNote1: 'only if you continue. Cancel anytime, no questions.',
+    price: '€7',
+    reportSent: (e: string) => `Report sent to ${e}`,
+    activateRoutine: 'Activate my routine — 7-day free trial',
+    guarantee: '100% guarantee — 7 days',
+    guaranteeBody: 'If you don\'t feel progress in 7 days, cancel and pay nothing. No call, no explanations.',
+    retake: '← Retake the quiz',
+    invalidEmail: 'Invalid email',
+    reportOk: 'Report sent to your email 📧',
+    reportErr: 'We couldn\'t send the report. Please try again.',
+    checkoutErr: 'We couldn\'t start checkout. Please try again.',
+    activating: 'Activating...',
+    activateBtn: 'Activate my Warrior routine',
+    activateOk: 'Warrior routine activated! ⚔️',
+    activateErr: 'We couldn\'t activate the routine. Please try again.',
+    stepsHeader: (n: number) => `Your routine (${n} steps)`,
+    strengths: 'Strengths',
+    challenges: 'Challenges',
+    youAre: 'You are',
+  },
+} as const;
+
+
 const QuizRutinaResult = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { language } = useLanguage();
+  const isEn = language === 'en';
+  const u = isEn ? UI.en : UI.ro;
+  const langPrefix = isEn ? '/en' : '';
 
   const warriorType = params.get('type') as WarriorType | null;
   const resultId = params.get('rid');
@@ -134,18 +307,22 @@ const QuizRutinaResult = () => {
   const [leadId, setLeadId] = useState<string | null>(null);
   const [autoSendAttempted, setAutoSendAttempted] = useState(false);
 
-  const meta = warriorType ? WARRIOR_TYPES[warriorType] : null;
+  const rawMeta = warriorType ? WARRIOR_TYPES[warriorType] : null;
+  const meta = rawMeta ? getWarriorMeta(rawMeta, isEn ? 'en' : 'ro') : null;
   const template = warriorType ? WARRIOR_TEMPLATES[warriorType] : null;
+  const resultContent = isEn ? RESULT_CONTENT_EN : RESULT_CONTENT;
 
   // Preview: show only first 3 steps in the soft-gate variant
   const previewSteps = useMemo(() => template?.active_steps.slice(0, 3) ?? [], [template]);
   const lockedStepsCount = (template?.active_steps.length ?? 0) - previewSteps.length;
 
+
   useEffect(() => {
     if (!warriorType || !WARRIOR_TYPES[warriorType]) {
-      navigate('/quiz-rutina', { replace: true });
+      navigate(`${langPrefix}/quiz-rutina`, { replace: true });
     }
-  }, [warriorType, navigate]);
+  }, [warriorType, navigate, langPrefix]);
+
 
   // Auto-activate if logged in user came back with a pending activation
   useEffect(() => {
@@ -169,15 +346,16 @@ const QuizRutinaResult = () => {
         body: { warrior_type: warriorType, result_id: resultId },
       });
       if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Eroare necunoscută');
-      toast.success('Rutina Warrior a fost activată! ⚔️');
-      navigate(data.redirect_url || '/daily-flow?new=1');
+      if (!data?.success) throw new Error(data?.error || 'Error');
+      toast.success(u.activateOk);
+      navigate(data.redirect_url || `${langPrefix}/daily-flow?new=1`);
     } catch (e) {
       console.error(e);
-      toast.error('Nu am putut activa rutina. Încearcă din nou.');
+      toast.error(u.activateErr);
       setActivating(false);
     }
   };
+
 
   // Auto-send report if email arrived from the quiz step
   useEffect(() => {
@@ -195,7 +373,8 @@ const QuizRutinaResult = () => {
             email: emailFromQuiz.toLowerCase(),
             warrior_type: warriorType,
             result_id: resultId,
-            language: (navigator.language || 'ro').startsWith('en') ? 'en' : 'ro',
+            language: isEn ? 'en' : 'ro',
+
             utm: { ...utm, source },
           },
         });
@@ -215,7 +394,7 @@ const QuizRutinaResult = () => {
   const submitEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!EMAIL_RE.test(email.trim())) {
-      toast.error('Email invalid');
+      toast.error(u.invalidEmail);
       return;
     }
     setEmailSubmitting(true);
@@ -228,22 +407,23 @@ const QuizRutinaResult = () => {
           email: email.trim().toLowerCase(),
           warrior_type: warriorType,
           result_id: resultId,
-          language: (navigator.language || 'ro').startsWith('en') ? 'en' : 'ro',
+          language: isEn ? 'en' : 'ro',
           utm: { ...utm, source },
         },
       });
       if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Eroare');
+      if (!data?.success) throw new Error(data?.error || 'Error');
       setLeadId(data.lead_id);
       setEmailSent(true);
-      toast.success('Raportul a fost trimis pe email 📧');
+      toast.success(u.reportOk);
     } catch (err) {
       console.error(err);
-      toast.error('Nu am putut trimite raportul. Încearcă din nou.');
+      toast.error(u.reportErr);
     } finally {
       setEmailSubmitting(false);
     }
   };
+
 
   const goToCheckout = async () => {
     setCheckoutLoading(true);
@@ -256,7 +436,7 @@ const QuizRutinaResult = () => {
           plan: 'starter',
           source: 'warrior-onboarding',
           guest_email: email.trim().toLowerCase() || undefined,
-          language: (navigator.language || 'ro').startsWith('en') ? 'en' : 'ro',
+          language: isEn ? 'en' : 'ro',
           utm: { ...utm, warrior_type: warriorType, lead_id: leadId },
         },
       });
@@ -273,8 +453,9 @@ const QuizRutinaResult = () => {
       window.location.href = data.url;
     } catch (e) {
       console.error(e);
-      toast.error('Nu am putut porni checkout-ul. Încearcă din nou.');
+      toast.error(u.checkoutErr);
       setCheckoutLoading(false);
+
     }
   };
 
@@ -291,7 +472,8 @@ const QuizRutinaResult = () => {
     return (
       <>
         <Helmet>
-          <title>Ești {meta.name} — Rutina ta Warrior | CEO Mind OS</title>
+          <html lang={isEn ? 'en' : 'ro'} />
+          <title>{`${u.youAre} ${meta.name} — Warrior Routine | CEO Mind OS`}</title>
         </Helmet>
         <div className="min-h-screen bg-gradient-to-br from-[#0B1733] via-[#0f1e42] to-[#0B1733] text-white">
           <header className="p-4 md:p-6 max-w-4xl mx-auto flex items-center gap-2">
@@ -302,7 +484,7 @@ const QuizRutinaResult = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
               <div className="text-7xl">{meta.emoji}</div>
               <h1 className="text-4xl md:text-5xl font-bold">
-                Ești <span className={cn('bg-gradient-to-r bg-clip-text text-transparent', meta.color)}>{meta.name}</span>
+                {u.youAre} <span className={cn('bg-gradient-to-r bg-clip-text text-transparent', meta.color)}>{meta.name}</span>
               </h1>
               <p className="text-xl text-white/80 max-w-xl mx-auto">{meta.tagline}</p>
             </motion.div>
@@ -310,18 +492,18 @@ const QuizRutinaResult = () => {
               <p className="text-white/90 leading-relaxed">{meta.description}</p>
               <div className="grid md:grid-cols-2 gap-4 pt-2">
                 <div className="p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-                  <div className="text-xs uppercase tracking-wider text-emerald-400 mb-1">Puncte forte</div>
+                  <div className="text-xs uppercase tracking-wider text-emerald-400 mb-1">{u.strengths}</div>
                   <div className="text-sm text-white/85">{meta.strengths}</div>
                 </div>
                 <div className="p-4 rounded-lg bg-red-500/5 border border-red-500/20">
-                  <div className="text-xs uppercase tracking-wider text-red-400 mb-1">Provocări</div>
+                  <div className="text-xs uppercase tracking-wider text-red-400 mb-1">{u.challenges}</div>
                   <div className="text-sm text-white/85">{meta.challenges}</div>
                 </div>
               </div>
             </Card>
             <Card className="bg-white/5 border-white/10 p-6">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                <Sword className="w-4 h-4 text-[#D4A84A]" /> Rutina ta ({template.active_steps.length} pași)
+                <Sword className="w-4 h-4 text-[#D4A84A]" /> {u.stepsHeader(template.active_steps.length)}
               </h3>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 {template.active_steps.map((step) => (
@@ -335,8 +517,8 @@ const QuizRutinaResult = () => {
             <div className="text-center space-y-3">
               <Button size="lg" onClick={activateDirect} disabled={activating}
                 className="bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-14 px-8 text-base w-full md:w-auto">
-                {activating ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> Se activează...</>
-                  : <>Activează-mi rutina Warrior <ArrowRight className="ml-2 w-4 h-4" /></>}
+                {activating ? <><Loader2 className="mr-2 w-4 h-4 animate-spin" /> {u.activating}</>
+                  : <>{u.activateBtn} <ArrowRight className="ml-2 w-4 h-4" /></>}
               </Button>
             </div>
           </main>
@@ -345,12 +527,14 @@ const QuizRutinaResult = () => {
     );
   }
 
+
   // ------- Anon user: soft-gate variant -------
   return (
     <>
       <Helmet>
-        <title>Ești {meta.name} — Rutina ta Warrior | CEO Mind OS</title>
-        <meta name="description" content={`Ești tip ${meta.name}: ${meta.tagline}`} />
+        <html lang={isEn ? 'en' : 'ro'} />
+        <title>{`${u.youAre} ${meta.name} — Warrior Routine | CEO Mind OS`}</title>
+        <meta name="description" content={`${u.youAre} ${meta.name}: ${meta.tagline}`} />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-[#0B1733] via-[#0f1e42] to-[#0B1733] text-white">
@@ -361,13 +545,15 @@ const QuizRutinaResult = () => {
 
         <main className="max-w-3xl mx-auto px-4 py-4 md:py-8 space-y-10">
           {(() => {
-            const c = RESULT_CONTENT[warriorType as WarriorType];
+            const c = resultContent[warriorType as WarriorType];
+
             return (
               <>
                 {/* 1. HERO — emotional headline */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-4">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4A84A]/10 border border-[#D4A84A]/30 text-[#D4A84A] text-xs uppercase tracking-wider">
-                    <span className="text-base leading-none">{meta.emoji}</span> Rezultatul tău: {meta.name}
+                    <span className="text-base leading-none">{meta.emoji}</span> {u.resultBadge}: {meta.name}
+
                   </div>
                   <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] max-w-3xl mx-auto">
                     {c.heroTitle}
@@ -394,7 +580,7 @@ const QuizRutinaResult = () => {
 
                 {/* 3. REVELAȚIE */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="text-center space-y-2">
-                  <div className="text-xs uppercase tracking-wider text-[#D4A84A]">De ce rutina ta actuală nu funcționează</div>
+                  <div className="text-xs uppercase tracking-wider text-[#D4A84A]">{u.whyLabel}</div>
                   <p className="text-2xl md:text-3xl font-bold leading-snug max-w-2xl mx-auto">
                     {c.revelation}
                   </p>
@@ -404,7 +590,7 @@ const QuizRutinaResult = () => {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                   <Card className="bg-gradient-to-br from-[#D4A84A]/8 to-transparent border-[#D4A84A]/20 p-6 md:p-8 space-y-3">
                     <h3 className="text-xl md:text-2xl font-bold flex items-center gap-2">
-                      <Sword className="w-5 h-5 text-[#D4A84A]" /> Ce e diferit la Warrior Routine
+                      <Sword className="w-5 h-5 text-[#D4A84A]" /> {u.whatDifferent}
                     </h3>
                     <p className="text-white/85 leading-relaxed">{c.preview}</p>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm pt-3 mt-3 border-t border-white/10">
@@ -417,13 +603,13 @@ const QuizRutinaResult = () => {
                       {lockedStepsCount > 0 && Array.from({ length: Math.min(lockedStepsCount, 4) }).map((_, i) => (
                         <div key={`locked-${i}`} className="flex items-center gap-2 text-white/30">
                           <Lock className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span className="italic">Deblochează în cont</span>
+                          <span className="italic">{u.unlockInAccount}</span>
                         </div>
                       ))}
                     </div>
                     {lockedStepsCount > 0 && (
                       <div className="text-xs text-center text-[#D4A84A]/80 pt-1">
-                        🔒 {template.active_steps.length} pași personalizați + focus rutină + autosuggestion
+                        {u.lockedNote(template.active_steps.length)}
                       </div>
                     )}
                   </Card>
@@ -432,8 +618,9 @@ const QuizRutinaResult = () => {
                 {/* 5. 3 PAȘI PENTRU AZI — actionable */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="space-y-4">
                   <h2 className="text-2xl md:text-3xl font-bold text-center">
-                    Ce faci diferit începând de azi
+                    {u.changeToday}
                   </h2>
+
                   <div className="space-y-3">
                     {c.steps.map((s) => (
                       <Card key={s.day} className="bg-white/5 border-white/10 p-5 flex gap-4">
@@ -441,7 +628,7 @@ const QuizRutinaResult = () => {
                           {s.day.slice(0, 3)}
                         </div>
                         <div className="space-y-1">
-                          <div className="text-sm font-semibold text-[#D4A84A]">→ {s.day} dimineață:</div>
+                          <div className="text-sm font-semibold text-[#D4A84A]">{u.morningLabel(s.day)}</div>
                           <p className="text-white/85 leading-relaxed">{s.text}</p>
                         </div>
                       </Card>
@@ -463,12 +650,13 @@ const QuizRutinaResult = () => {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
                   <Card className="bg-gradient-to-br from-[#D4A84A]/15 to-[#D4A84A]/5 border-[#D4A84A]/40 p-6 md:p-10 space-y-5 text-center">
                     <h2 className="text-2xl md:text-4xl font-bold leading-tight">
-                      Gata să treci de la <span className="text-white/50 line-through">{c.ctaTransition}</span>{' '}
-                      la <span className="text-[#D4A84A]">construit</span>?
+                      {u.ctaTitleA} <span className="text-white/50 line-through">{c.ctaTransition}</span>{' '}
+                      {u.ctaTitleB} <span className="text-[#D4A84A]">{u.ctaBuilt}</span>?
                     </h2>
                     <p className="text-white/80 max-w-md mx-auto">
-                      Activează Warrior Starter. <span className="text-[#D4A84A] font-semibold">7 zile gratis.</span> Vezi diferența înainte să plătești ceva.
+                      {u.ctaBody1} <span className="text-[#D4A84A] font-semibold">{u.ctaFreeDays}</span> {u.ctaBody2}
                     </p>
+
 
                     {!emailSent ? (
                       <form onSubmit={submitEmail} className="space-y-3 max-w-md mx-auto pt-2">
@@ -476,7 +664,7 @@ const QuizRutinaResult = () => {
                           type="email"
                           value={email}
                           onChange={e => setEmail(e.target.value)}
-                          placeholder="adresa@email.com"
+                          placeholder={u.emailPh}
                           required
                           className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-12"
                         />
@@ -486,16 +674,17 @@ const QuizRutinaResult = () => {
                           disabled={emailSubmitting}
                           className="w-full bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-14 text-base"
                         >
-                          {emailSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Încep acum — 7 zile trial gratuit <ArrowRight className="ml-2 w-4 h-4" /></>}
+                          {emailSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>{u.startNow} <ArrowRight className="ml-2 w-4 h-4" /></>}
                         </Button>
                         <p className="text-xs text-white/60">
-                          <span className="text-[#D4A84A] font-semibold">7€</span> doar dacă continui. Anulezi oricând, fără întrebări.
+                          <span className="text-[#D4A84A] font-semibold">{u.price}</span> {u.priceNote1}
                         </p>
+
                       </form>
                     ) : (
                       <div className="space-y-4 pt-2">
                         <div className="inline-flex items-center gap-2 text-emerald-400 text-sm">
-                          <CheckCircle2 className="w-5 h-5" /> Raport trimis pe {email}
+                          <CheckCircle2 className="w-5 h-5" /> {u.reportSent(email)}
                         </div>
                         <Button
                           onClick={goToCheckout}
@@ -504,11 +693,12 @@ const QuizRutinaResult = () => {
                           className="w-full max-w-md mx-auto flex bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-14 text-base"
                         >
                           {checkoutLoading ? <Loader2 className="w-5 h-5 animate-spin" />
-                            : <>Activează rutina — 7 zile trial gratuit <ArrowRight className="ml-2 w-4 h-4" /></>}
+                            : <>{u.activateRoutine} <ArrowRight className="ml-2 w-4 h-4" /></>}
                         </Button>
                         <p className="text-xs text-white/60">
-                          <span className="text-[#D4A84A] font-semibold">7€</span> doar dacă continui. Anulezi oricând, fără întrebări.
+                          <span className="text-[#D4A84A] font-semibold">{u.price}</span> {u.priceNote1}
                         </p>
+
                       </div>
                     )}
                   </Card>
@@ -519,10 +709,11 @@ const QuizRutinaResult = () => {
                   <Card className="bg-emerald-500/5 border-emerald-500/20 p-5 flex items-start gap-4">
                     <ShieldCheck className="w-8 h-8 text-emerald-400 flex-shrink-0" />
                     <div>
-                      <div className="font-semibold text-emerald-400 mb-1">100% garanție 7 zile</div>
+                      <div className="font-semibold text-emerald-400 mb-1">{u.guarantee}</div>
                       <p className="text-sm text-white/75 leading-relaxed">
-                        Dacă nu simți progres în 7 zile, anulezi și nu plătești nimic. Fără telefon, fără explicații.
+                        {u.guaranteeBody}
                       </p>
+
                     </div>
                   </Card>
                 </motion.div>
@@ -531,7 +722,7 @@ const QuizRutinaResult = () => {
           })()}
 
           <div className="text-center pt-2">
-            <Link to="/quiz-rutina" className="text-xs text-white/40 hover:text-white/70">← Refă quiz-ul</Link>
+            <Link to={`${langPrefix}/quiz-rutina`} className="text-xs text-white/40 hover:text-white/70">{u.retake}</Link>
           </div>
         </main>
 
