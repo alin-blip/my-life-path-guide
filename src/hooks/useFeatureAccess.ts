@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
-export type FeatureKey = 'mind_coach' | 'brotherhood_post' | 'master_plan';
+export type FeatureKey = 'mind_coach' | 'brotherhood_post' | 'master_plan' | 'stack_session' | 'mind_shifting_session';
 
 export interface FeatureAccessStatus {
   allowed: boolean;

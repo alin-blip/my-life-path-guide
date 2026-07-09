@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { MentalitateStackFlow } from '@/components/mentalitate/MentalitateStackFlow';
 import { DeepDiveSelector } from '@/components/mentalitate/DeepDiveSelector';
 import { SessionHistory } from '@/components/mentalitate/SessionHistory';
+import { FeatureGate } from '@/components/access/FeatureGate';
 
 export default function MentalitateStack() {
   const navigate = useNavigate();
@@ -72,12 +73,20 @@ export default function MentalitateStack() {
           </TabsList>
 
           <TabsContent value="daily" className="mt-4">
-            <MentalitateStackFlow
-              key={`daily-${flowKey}`}
-              mode="daily"
-              source="stack_page"
-              onComplete={() => setFlowKey((k) => k + 1)}
-            />
+            <FeatureGate
+              featureKey="mind_shifting_session"
+              featureName="Reconstrucția Mentală — sesiune zilnică"
+              teaser="Sesiuni nelimitate + Deep-Dive pe fiecare axă disponibile în Basic."
+              autoConsume
+              key={`gate-daily-${flowKey}`}
+            >
+              <MentalitateStackFlow
+                key={`daily-${flowKey}`}
+                mode="daily"
+                source="stack_page"
+                onComplete={() => setFlowKey((k) => k + 1)}
+              />
+            </FeatureGate>
           </TabsContent>
 
           <TabsContent value="deep" className="mt-4 space-y-4">
@@ -86,13 +95,21 @@ export default function MentalitateStack() {
                 <Button variant="ghost" size="sm" onClick={() => setDeepDiveAxis(undefined)}>
                   <ArrowLeft className="w-3 h-3 mr-1" /> Schimbă axa
                 </Button>
-                <MentalitateStackFlow
-                  key={`deep-${deepDiveAxis}-${flowKey}`}
-                  mode="deep_dive"
-                  deepDiveAxis={deepDiveAxis}
-                  source="stack_page_deep"
-                  onComplete={() => { setDeepDiveAxis(undefined); setFlowKey((k) => k + 1); }}
-                />
+                <FeatureGate
+                  featureKey="mind_shifting_session"
+                  featureName="Reconstrucția Mentală — Deep-Dive"
+                  teaser="Sesiuni nelimitate + Deep-Dive pe fiecare axă disponibile în Basic."
+                  autoConsume
+                  key={`gate-deep-${deepDiveAxis}-${flowKey}`}
+                >
+                  <MentalitateStackFlow
+                    key={`deep-${deepDiveAxis}-${flowKey}`}
+                    mode="deep_dive"
+                    deepDiveAxis={deepDiveAxis}
+                    source="stack_page_deep"
+                    onComplete={() => { setDeepDiveAxis(undefined); setFlowKey((k) => k + 1); }}
+                  />
+                </FeatureGate>
               </>
             ) : (
               <>
