@@ -154,6 +154,7 @@ const Nutrition = () => {
           totalProtein={totalProtein}
           onChange={handleChange}
           onNext={handleComplete}
+          requireSmoothie={false}
         />
       </div>
     </Layout>
