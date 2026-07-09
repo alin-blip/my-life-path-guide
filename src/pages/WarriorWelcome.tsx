@@ -6,8 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Loader2, Sword, CheckCircle2, ArrowRight, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/context/LanguageContext';
 
 const WarriorWelcome = () => {
+  const { language } = useLanguage();
+  const isEn = language === 'en';
+  const authUrl = isEn ? '/en/auth' : '/auth';
   const [params] = useSearchParams();
   const sessionId = params.get('session_id');
   const [status, setStatus] = useState<'processing' | 'ready' | 'error'>('processing');
