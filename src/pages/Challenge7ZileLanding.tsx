@@ -391,6 +391,12 @@ const Challenge7ZileLanding = () => {
           ? 'Stop procrastination, break free from burnout and build real momentum in 7 days. Free challenge.'
           : 'Oprești procrastinarea, ieși din burnout și construiești momentum real în 7 zile. Challenge gratuit.'
         } />
+        <link rel="canonical" href={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/challenge-7-zile'}`} />
+        <meta property="og:url" content={`https://ceomindos.com${typeof window !== 'undefined' ? window.location.pathname : '/challenge-7-zile'}`} />
+        <meta property="og:title" content={language === 'en' ? 'Break Free from Burnout in 7 Days | Free Challenge' : 'Ieși din Burnout în 7 Zile | Challenge Gratuit'} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
