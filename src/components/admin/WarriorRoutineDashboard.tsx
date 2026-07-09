@@ -3,12 +3,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Users, Trophy, Flame, Zap, Target } from 'lucide-react';
+import { Loader2, RefreshCw, Users, Trophy, Flame, Zap, Target, TrendingDown, Mail, DollarSign } from 'lucide-react';
 import { ACHIEVEMENT_MAP } from '@/data/achievements';
 import { WARRIOR_TYPES } from '@/data/warriorTypes';
 
 interface Metrics {
   generated_at: string;
+  funnel?: { leads_captured: number; report_sent: number; checkout_started: number; trial_started: number; routine_activated: number; paid_converted: number };
+  funnel_rates?: { lead_to_checkout_pct: number; checkout_to_trial_pct: number; trial_to_paid_pct: number; lead_to_paid_pct: number };
+  dropoff_by_type?: Record<string, { leads: number; trials: number; paid: number }>;
+  drip_emails?: Record<string, { sent: number; failed: number }>;
   quiz: { total: number; activated: number; activation_rate_pct: number; distribution: Record<string, number> };
   routine: { sessions_30d: number; completed_30d: number; completion_rate_pct: number; unique_users_30d: number; unique_users_7d: number };
   streaks: { buckets: Record<string, number>; longest_overall: number; total_users_tracked: number };
