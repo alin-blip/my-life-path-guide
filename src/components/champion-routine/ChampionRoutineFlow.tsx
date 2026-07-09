@@ -942,8 +942,6 @@ export function ChampionRoutineFlow({ onComplete, initialStep }: ChampionRoutine
         return <TodaysTasksStep onNext={goToNextStep} />;
       case 'businessObjectives':
         return <BusinessObjectivesStep onNext={goToNextStep} />;
-      case '__todaysTasks_placeholder__':
-        return <TodaysTasksStep onNext={goToNextStep} />;
       case 'eveningReflection':
         return (
           <EveningReflectionStep
