@@ -164,6 +164,24 @@ const queryClient = new QueryClient({
   },
 });
 
+// Locale routing: URL prefix `/en` serves the English site under the same route tree.
+// We detect it once at module load, set the router basename accordingly, and force
+// the language context to 'en'. All existing <Route path="/..."> definitions stay
+// unchanged — react-router strips the basename before matching.
+const detectLocaleFromPath = (): { locale: 'en' | 'ro'; basename: string } => {
+  if (typeof window === 'undefined') return { locale: 'ro', basename: '/' };
+  const p = window.location.pathname;
+  if (p === '/en' || p.startsWith('/en/')) return { locale: 'en', basename: '/en' };
+  return { locale: 'ro', basename: '/' };
+};
+
+const { locale: initialLocale, basename: routerBasename } = detectLocaleFromPath();
+
+// Reflect on <html lang> as early as possible for SEO / a11y.
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = initialLocale;
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -172,10 +190,10 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter basename={routerBasename}>
               <ScrollToTop />
               <AuthProvider>
-                  <LanguageProvider>
+                  <LanguageProvider forcedLocale={initialLocale === 'en' ? 'en' : undefined}>
                     <TourProvider>
                     <SecurityProvider>
                       <DoorProvider>
