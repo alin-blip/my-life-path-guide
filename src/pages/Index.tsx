@@ -107,7 +107,25 @@ const Index = () => {
           <LogoCloud />
           <ProblemSectionNew />
           <InlineCTA headlineRo="Ai recunoscut problema? Instalează soluția." headlineEn="Recognized the problem? Install the solution." />
-          {language === 'en' && <WarriorRoutineVideoSection variant="light" location="index_en" />}
+          {language === 'en' && (
+            <>
+              <WarriorRoutineVideoSection variant="light" location="index_en" />
+              <div className="flex justify-center pb-16 md:pb-24 -mt-8 md:-mt-12 px-4">
+                <a
+                  href="/en/quiz-rutina"
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-4 text-base md:text-lg font-semibold text-primary-foreground shadow-lg hover:opacity-90 transition"
+                  onClick={() => {
+                    try {
+                      (window as any).fbq?.('track', 'Lead', { content_name: 'index_en_video_cta', location: 'index_en' });
+                    } catch {}
+                    console.log('[Analytics] index_en_video_cta_click');
+                  }}
+                >
+                  Take the 2-Minute Warrior Quiz →
+                </a>
+              </div>
+            </>
+          )}
           <FeatureShowcase />
           <MethodologySection />
           <FounderSectionNew />
