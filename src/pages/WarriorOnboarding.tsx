@@ -229,6 +229,9 @@ const WarriorOnboarding = () => {
             </div>
           </motion.section>
 
+          {/* Warrior Routine Video */}
+          <WarriorRoutineVideoSection variant="dark" />
+
           {/* Pain points */}
           <section className="space-y-6 max-w-2xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-center">
