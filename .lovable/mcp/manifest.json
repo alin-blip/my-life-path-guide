@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://exsbnfmaadjyfblperas.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "ceo-mind-os-mcp",
+      "version": "0.1.0",
+      "title": "CEO Mind OS"
+    },
+    "tools": [
+      {
+        "name": "whoami",
+        "title": "Who am I",
+        "description": "Return the signed-in CEO Mind OS user's id and email.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_notes",
+        "title": "List notes",
+        "description": "List the signed-in user's notes, most recent first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Max notes to return (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "category": {
+              "description": "Filter by category.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_note",
+        "title": "Create note",
+        "description": "Create a new note for the signed-in CEO Mind OS user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Note title."
+            },
+            "content": {
+              "description": "Note body.",
+              "type": "string"
+            },
+            "category": {
+              "description": "Optional category label.",
+              "type": "string"
+            },
+            "pinned": {
+              "description": "Pin the note to the top.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "title"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_journal_entries",
+        "title": "List journal entries",
+        "description": "List the signed-in user's journal entries, most recent first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Max entries to return (default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "from_date": {
+              "description": "Include entries with entry_date >= this ISO date (YYYY-MM-DD).",
+              "type": "string"
+            },
+            "to_date": {
+              "description": "Include entries with entry_date <= this ISO date (YYYY-MM-DD).",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_journal_entry",
+        "title": "Create journal entry",
+        "description": "Create a journal entry for the signed-in CEO Mind OS user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Entry title."
+            },
+            "content": {
+              "description": "Journal body / reflection.",
+              "type": "string"
+            },
+            "lesson": {
+              "description": "Key lesson or insight.",
+              "type": "string"
+            },
+            "entry_date": {
+              "description": "Date of the entry (YYYY-MM-DD). Defaults to today.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
