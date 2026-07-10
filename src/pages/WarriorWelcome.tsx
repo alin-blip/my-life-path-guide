@@ -11,7 +11,7 @@ import { useLanguage } from '@/context/LanguageContext';
 const WarriorWelcome = () => {
   const { language } = useLanguage();
   const isEn = language === 'en';
-  const authUrl = isEn ? '/en/auth' : '/auth';
+  const authUrl = '/auth'; // BrowserRouter basename handles /en prefix
   const [params] = useSearchParams();
   const sessionId = params.get('session_id');
   const [status, setStatus] = useState<'processing' | 'ready' | 'error'>('processing');

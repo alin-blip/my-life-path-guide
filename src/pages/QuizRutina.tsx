@@ -139,8 +139,7 @@ const QuizRutina = () => {
       if (!data?.success) throw new Error(data?.error || c.unknownError);
 
       const emailParam = encodeURIComponent(email.trim().toLowerCase());
-      const base = isEn ? '/en' : '';
-      navigate(`${base}/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}&email=${emailParam}`);
+      navigate(`/quiz-rutina/result?type=${data.warrior_type}&rid=${data.result_id}&email=${emailParam}`);
     } catch (e) {
       console.error(e);
       toast.error(c.submitError);
