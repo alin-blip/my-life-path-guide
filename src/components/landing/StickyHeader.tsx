@@ -115,6 +115,9 @@ export const StickyHeader = () => {
                 </button>
               ))}
               <div className="pt-5 flex flex-col gap-3">
+                <div className="flex justify-center pb-2">
+                  <LanguageSelector />
+                </div>
                 <Button
                   variant="outline"
                   onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
@@ -129,6 +132,7 @@ export const StickyHeader = () => {
                   {language === 'ro' ? 'Start Gratuit' : 'Start Free'}
                 </Button>
               </div>
+
             </nav>
           </motion.div>
         )}
