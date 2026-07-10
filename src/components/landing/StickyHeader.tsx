@@ -65,8 +65,10 @@ export const StickyHeader = () => {
 
             {/* CTAs */}
             <div className="hidden md:flex items-center gap-2">
+              <LanguageSelector />
               <Button
                 variant="ghost"
+                size="sm"
                 onClick={() => navigate('/auth')}
                 className="text-muted-foreground hover:text-foreground"
               >
@@ -74,11 +76,13 @@ export const StickyHeader = () => {
               </Button>
               <Button
                 variant="default"
+                size="sm"
                 onClick={() => navigate('/auth')}
               >
                 {language === 'ro' ? 'Start Gratuit' : 'Start Free'}
               </Button>
             </div>
+
 
             {/* Mobile toggle */}
             <button
