@@ -268,16 +268,68 @@ const Pricing: React.FC = () => {
   // Get base plan ID for pricing lookup (remove -annual suffix)
   const getBasePlanId = (planId: string) => planId.replace('-annual', '');
 
+  const pricingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "CEO Mind OS Membership",
+    description: texts.metaDescription,
+    brand: { "@type": "Brand", name: "CEO Mind OS" },
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "EUR",
+      lowPrice: "49",
+      highPrice: "297",
+      offerCount: 3,
+      offers: [
+        {
+          "@type": "Offer",
+          name: "Basic",
+          price: "49",
+          priceCurrency: "EUR",
+          url: "https://ceomindos.com/pricing",
+          availability: "https://schema.org/InStock",
+          category: "subscription",
+        },
+        {
+          "@type": "Offer",
+          name: "Pro",
+          price: "97",
+          priceCurrency: "EUR",
+          url: "https://ceomindos.com/pricing",
+          availability: "https://schema.org/InStock",
+          category: "subscription",
+        },
+        {
+          "@type": "Offer",
+          name: "Elite",
+          price: "297",
+          priceCurrency: "EUR",
+          url: "https://ceomindos.com/pricing",
+          availability: "https://schema.org/InStock",
+          category: "subscription",
+        },
+      ],
+    },
+  };
+
+  const pricingPath = language === 'en' ? '/en/pricing' : '/pricing';
+
   return (
     <Layout>
       <Helmet>
         <title>{texts.pageTitle}</title>
         <meta name="description" content={texts.metaDescription} />
-        <link rel="canonical" href="https://ceomindos.com/pricing" />
+        <link rel="canonical" href={`https://ceomindos.com${pricingPath}`} />
         <meta property="og:title" content={texts.pageTitle} />
         <meta property="og:description" content={texts.metaDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://ceomindos.com/pricing" />
+        <meta property="og:url" content={`https://ceomindos.com${pricingPath}`} />
+        <meta property="og:image" content="https://ceomindos.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="alternate" hrefLang="ro" href="https://ceomindos.com/pricing" />
+        <link rel="alternate" hrefLang="en" href="https://ceomindos.com/en/pricing" />
+        <link rel="alternate" hrefLang="x-default" href="https://ceomindos.com/pricing" />
+        <script type="application/ld+json">{JSON.stringify(pricingJsonLd)}</script>
       </Helmet>
       <div className="min-h-screen bg-hero-gradient">
         <div className="max-w-6xl mx-auto px-4 py-12">

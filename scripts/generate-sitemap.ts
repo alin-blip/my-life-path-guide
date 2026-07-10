@@ -21,9 +21,16 @@ const entries: SitemapEntry[] = [
   { path: "/about", changefreq: "monthly", priority: "0.6" },
   { path: "/pricing", changefreq: "monthly", priority: "0.8" },
   { path: "/blog", changefreq: "weekly", priority: "0.7" },
+  // RO blog posts — Romanian content only
   { path: "/blog/rutina-razboinicului-ceo-mind-os", changefreq: "monthly", priority: "0.7", roOnly: true },
-  { path: "/blog/startup-burnout-prevention", changefreq: "monthly", priority: "0.7" },
-  { path: "/blog/entrepreneur-morning-routine-guide", changefreq: "monthly", priority: "0.7" },
+  { path: "/blog/walking-dead-antreprenor", changefreq: "monthly", priority: "0.7", roOnly: true },
+  { path: "/blog/de-ce-sistemele-esueaza", changefreq: "monthly", priority: "0.7", roOnly: true },
+  { path: "/blog/viziune-napoleon-hill-ceo", changefreq: "monthly", priority: "0.7", roOnly: true },
+  { path: "/blog/framework-4b-body-being-balance-business", changefreq: "monthly", priority: "0.7", roOnly: true },
+  { path: "/blog/domino-door-planificare-strategica", changefreq: "monthly", priority: "0.7", roOnly: true },
+  // EN blog posts — English content only, live at /en/blog/<slug>
+  { path: "/blog/startup-burnout-prevention", changefreq: "monthly", priority: "0.7", enOnly: true },
+  { path: "/blog/entrepreneur-morning-routine-guide", changefreq: "monthly", priority: "0.7", enOnly: true },
   { path: "/warrior", changefreq: "weekly", priority: "0.9" },
   { path: "/quiz-rutina", changefreq: "monthly", priority: "0.8" },
   { path: "/burnout-test", changefreq: "monthly", priority: "0.9", roOnly: true },
