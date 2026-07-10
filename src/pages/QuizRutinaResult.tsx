@@ -292,7 +292,7 @@ const QuizRutinaResult = () => {
   const { language } = useLanguage();
   const isEn = language === 'en';
   const u = isEn ? UI.en : UI.ro;
-  const langPrefix = isEn ? '/en' : '';
+  const langPrefix = ''; // BrowserRouter basename handles /en prefix
 
   const warriorType = params.get('type') as WarriorType | null;
   const resultId = params.get('rid');
