@@ -191,43 +191,40 @@ const WarriorOnboarding = () => {
           <Link to={authUrl} className="text-xs text-white/60 hover:text-white/90">{c.login}</Link>
         </header>
 
-        <main className="max-w-4xl mx-auto px-4 py-8 md:py-12 space-y-16">
+        <main className="max-w-4xl mx-auto px-4 py-6 md:py-12 space-y-14 md:space-y-16">
           {/* Hero */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-6"
+            className="text-center space-y-4 md:space-y-6"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4A84A]/10 border border-[#D4A84A]/30 text-[#D4A84A] text-xs uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4A84A]/10 border border-[#D4A84A]/30 text-[#D4A84A] text-[10px] md:text-xs uppercase tracking-wider">
               <Sparkles className="w-3 h-3" /> {c.badge}
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] max-w-3xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold leading-[1.1] max-w-3xl mx-auto">
               {c.hero1a}
               <span className="bg-gradient-to-r from-[#D4A84A] to-[#e8c56a] bg-clip-text text-transparent">{c.heroWorks}</span>
               {c.hero1b}
-              <span className="block mt-2">
+              <span className="block mt-1 md:mt-2">
                 {c.hero2a}
                 <span className="bg-gradient-to-r from-[#D4A84A] to-[#e8c56a] bg-clip-text text-transparent">{c.heroSabo}</span>
                 {c.hero2b}
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-white/85 max-w-2xl mx-auto font-medium">
+            <p className="text-lg md:text-2xl text-white/85 max-w-2xl mx-auto font-medium">
               {c.heroSub1}
             </p>
-            <p className="text-base text-white/70 max-w-xl mx-auto">
-              {c.heroSub2}
-            </p>
 
-            {/* Warrior Routine Video — placed inside the hero, right after subheadline */}
-            <div className="pt-4">
-              <WarriorRoutineVideoSection variant="dark" location="warrior_en" />
+            {/* Warrior Routine Video — right under subheadline, no extra text */}
+            <div className="pt-2 md:pt-4">
+              <WarriorRoutineVideoSection variant="dark" location="warrior_en" hideHeader compact />
             </div>
 
             <div className="pt-2 flex flex-col items-center gap-2">
               <Button
                 size="lg"
                 onClick={goToQuiz}
-                className="bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-14 px-10 text-base"
+                className="bg-[#D4A84A] hover:bg-[#c4993d] text-[#0B1733] font-semibold h-14 px-10 text-base w-full sm:w-auto"
               >
                 {c.ctaHero} <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
