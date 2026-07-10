@@ -94,10 +94,8 @@ const Index = () => {
         <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
       </Helmet>
 
-      {/* Language Selector */}
-      <div className="fixed top-4 right-20 md:top-6 md:right-24 z-[60]">
-        <LanguageSelector />
-      </div>
+
+
 
       <StickyHeader />
       <main>
