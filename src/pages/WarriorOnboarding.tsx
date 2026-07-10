@@ -141,9 +141,10 @@ const WarriorOnboarding = () => {
   const { language } = useLanguage();
   const isEn = language === 'en';
   const c = isEn ? COPY.en : COPY.ro;
-  const quizUrl = `${isEn ? '/en' : ''}/quiz-rutina?source=warrior-onboarding&autostart=1`;
-  const authUrl = isEn ? '/en/auth' : '/auth';
-  const pricingUrl = isEn ? '/en/pricing' : '/pricing';
+  // BrowserRouter basename already handles /en prefix — pass basename-relative paths.
+  const quizUrl = `/quiz-rutina?source=warrior-onboarding&autostart=1`;
+  const authUrl = '/auth';
+  const pricingUrl = '/pricing';
   const goToQuiz = () => navigate(quizUrl);
 
   useEffect(() => {
