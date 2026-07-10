@@ -582,7 +582,7 @@ serve(async (req) => {
                     warriorName: warriorType
                       ? warriorType.charAt(0).toUpperCase() + warriorType.slice(1)
                       : "Warrior",
-                    magicLink: linkData?.properties?.action_link || `${origin}/auth`,
+                    magicLink: linkData?.properties?.action_link || `${origin}${langPrefix}/auth`,
                     language,
                   },
                 },
