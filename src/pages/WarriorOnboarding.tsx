@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowRight, Sword, Check, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { WarriorRoutineVideoSection } from '@/components/landing/WarriorRoutineVideoSection';
 
 const COPY = {
   ro: {
@@ -227,6 +228,9 @@ const WarriorOnboarding = () => {
               <p className="text-xs text-white/50">{c.ctaNote}</p>
             </div>
           </motion.section>
+
+          {/* Warrior Routine Video */}
+          <WarriorRoutineVideoSection variant="dark" />
 
           {/* Pain points */}
           <section className="space-y-6 max-w-2xl mx-auto">

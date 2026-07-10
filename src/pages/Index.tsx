@@ -21,6 +21,7 @@ const PricingComparison = lazy(() => import("@/components/landing/PricingCompari
 const FeatureShowcase = lazy(() => import("@/components/landing/FeatureShowcase").then(m => ({ default: m.FeatureShowcase })));
 const FAQSection = lazy(() => import("@/components/landing/FAQSection").then(m => ({ default: m.FAQSection })));
 const NewFooter = lazy(() => import("@/components/landing/NewFooter").then(m => ({ default: m.NewFooter })));
+const WarriorRoutineVideoSection = lazy(() => import("@/components/landing/WarriorRoutineVideoSection").then(m => ({ default: m.WarriorRoutineVideoSection })));
 
 const Index = () => {
   const { t, language } = useLanguage();
@@ -106,6 +107,7 @@ const Index = () => {
           <LogoCloud />
           <ProblemSectionNew />
           <InlineCTA headlineRo="Ai recunoscut problema? Instalează soluția." headlineEn="Recognized the problem? Install the solution." />
+          {language === 'en' && <WarriorRoutineVideoSection variant="light" />}
           <FeatureShowcase />
           <MethodologySection />
           <FounderSectionNew />
