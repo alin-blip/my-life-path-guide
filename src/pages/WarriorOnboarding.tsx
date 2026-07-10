@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowRight, Sword, Check, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { WarriorRoutineVideoSection } from '@/components/landing/WarriorRoutineVideoSection';
 
 const COPY = {
   ro: {
