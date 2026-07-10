@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { LanguageSelector } from "@/components/LanguageSelector";
+
 
 export const StickyHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -49,7 +51,7 @@ export const StickyHeader = () => {
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-10">
+            <nav className="hidden lg:flex items-center gap-8">
               {navItems.map((item) => (
                 <button
                   key={item.href}
@@ -63,8 +65,10 @@ export const StickyHeader = () => {
 
             {/* CTAs */}
             <div className="hidden md:flex items-center gap-2">
+              <LanguageSelector />
               <Button
                 variant="ghost"
+                size="sm"
                 onClick={() => navigate('/auth')}
                 className="text-muted-foreground hover:text-foreground"
               >
@@ -72,11 +76,13 @@ export const StickyHeader = () => {
               </Button>
               <Button
                 variant="default"
+                size="sm"
                 onClick={() => navigate('/auth')}
               >
                 {language === 'ro' ? 'Start Gratuit' : 'Start Free'}
               </Button>
             </div>
+
 
             {/* Mobile toggle */}
             <button
@@ -109,6 +115,9 @@ export const StickyHeader = () => {
                 </button>
               ))}
               <div className="pt-5 flex flex-col gap-3">
+                <div className="flex justify-center pb-2">
+                  <LanguageSelector />
+                </div>
                 <Button
                   variant="outline"
                   onClick={() => { navigate('/auth'); setIsMobileMenuOpen(false); }}
@@ -123,6 +132,7 @@ export const StickyHeader = () => {
                   {language === 'ro' ? 'Start Gratuit' : 'Start Free'}
                 </Button>
               </div>
+
             </nav>
           </motion.div>
         )}
