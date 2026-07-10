@@ -146,6 +146,7 @@ const EbookLanding = lazy(() => import("./pages/EbookLanding"));
 const EbookThankYou = lazy(() => import("./pages/EbookThankYou"));
 const EbookUpsell = lazy(() => import("./pages/EbookUpsell"));
 const EbookPaymentSuccess = lazy(() => import("./pages/EbookPaymentSuccess"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
@@ -201,6 +202,7 @@ const App = () => (
                         <Suspense fallback={<LoadingFallback />}>
                         <Routes>
                     <Route path="/" element={<Index />} />
+                    <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/dashboard" element={
                       <ProtectedRoute>
