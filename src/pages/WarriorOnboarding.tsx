@@ -217,6 +217,12 @@ const WarriorOnboarding = () => {
             <p className="text-base text-white/70 max-w-xl mx-auto">
               {c.heroSub2}
             </p>
+
+            {/* Warrior Routine Video — placed inside the hero, right after subheadline */}
+            <div className="pt-4">
+              <WarriorRoutineVideoSection variant="dark" location="warrior_en" />
+            </div>
+
             <div className="pt-2 flex flex-col items-center gap-2">
               <Button
                 size="lg"
@@ -228,9 +234,6 @@ const WarriorOnboarding = () => {
               <p className="text-xs text-white/50">{c.ctaNote}</p>
             </div>
           </motion.section>
-
-          {/* Warrior Routine Video */}
-          <WarriorRoutineVideoSection variant="dark" location="warrior_en" />
 
           {/* Pain points */}
           <section className="space-y-6 max-w-2xl mx-auto">
