@@ -1,13 +1,19 @@
+import { useRef } from "react";
 import videoAsset from "@/assets/warrior-routine.mp4.asset.json";
 import { useLanguage } from "@/context/LanguageContext";
+import { trackEvent } from "@/lib/facebook-pixel";
 
 interface Props {
   variant?: "light" | "dark";
+  /** Where this section is rendered (e.g. "index_en", "warrior_en"). Used for analytics. */
+  location?: string;
 }
 
-export const WarriorRoutineVideoSection = ({ variant = "light" }: Props) => {
+export const WarriorRoutineVideoSection = ({ variant = "light", location = "unknown" }: Props) => {
   const { language } = useLanguage();
   const isEn = language === "en";
+  const playedRef = useRef(false);
+  const endedRef = useRef(false);
 
   const title = isEn
     ? "The Warrior Routine — 45-Minute Morning System"
@@ -17,6 +23,32 @@ export const WarriorRoutineVideoSection = ({ variant = "light" }: Props) => {
     : "Elimină burnout-ul și construiește-ți zilele cu intenție. Vezi cum funcționează sistemul.";
 
   const isDark = variant === "dark";
+
+  const handlePlay = () => {
+    if (playedRef.current) return;
+    playedRef.current = true;
+    const payload = {
+      content_name: "warrior_routine_video",
+      content_category: "video",
+      location,
+      language,
+    };
+    trackEvent("VideoPlay", payload);
+    console.log("[Analytics] warrior_routine_video_play", payload);
+  };
+
+  const handleEnded = () => {
+    if (endedRef.current) return;
+    endedRef.current = true;
+    const payload = {
+      content_name: "warrior_routine_video",
+      content_category: "video",
+      location,
+      language,
+    };
+    trackEvent("VideoComplete", payload);
+    console.log("[Analytics] warrior_routine_video_complete", payload);
+  };
 
   return (
     <section
@@ -54,6 +86,8 @@ export const WarriorRoutineVideoSection = ({ variant = "light" }: Props) => {
             controls
             preload="metadata"
             playsInline
+            onPlay={handlePlay}
+            onEnded={handleEnded}
           >
             <source src={videoAsset.url} type="video/mp4" />
           </video>
