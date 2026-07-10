@@ -70,34 +70,37 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ceomindos.com/blog/startup-burnout-prevention</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/blog/startup-burnout-prevention"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/blog/startup-burnout-prevention"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ceomindos.com/blog/startup-burnout-prevention"/>
+    <loc>https://ceomindos.com/blog/walking-dead-antreprenor</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ceomindos.com/blog/de-ce-sistemele-esueaza</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ceomindos.com/blog/viziune-napoleon-hill-ceo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ceomindos.com/blog/framework-4b-body-being-balance-business</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ceomindos.com/blog/domino-door-planificare-strategica</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ceomindos.com/en/blog/startup-burnout-prevention</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/blog/startup-burnout-prevention"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/blog/startup-burnout-prevention"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ceomindos.com/blog/startup-burnout-prevention"/>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://ceomindos.com/blog/entrepreneur-morning-routine-guide</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/blog/entrepreneur-morning-routine-guide"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/blog/entrepreneur-morning-routine-guide"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ceomindos.com/blog/entrepreneur-morning-routine-guide"/>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ceomindos.com/en/blog/entrepreneur-morning-routine-guide</loc>
-    <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/blog/entrepreneur-morning-routine-guide"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/blog/entrepreneur-morning-routine-guide"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://ceomindos.com/blog/entrepreneur-morning-routine-guide"/>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
