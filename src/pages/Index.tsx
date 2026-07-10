@@ -107,7 +107,7 @@ const Index = () => {
           <LogoCloud />
           <ProblemSectionNew />
           <InlineCTA headlineRo="Ai recunoscut problema? Instalează soluția." headlineEn="Recognized the problem? Install the solution." />
-          {language === 'en' && <WarriorRoutineVideoSection variant="light" />}
+          {language === 'en' && <WarriorRoutineVideoSection variant="light" location="index_en" />}
           <FeatureShowcase />
           <MethodologySection />
           <FounderSectionNew />
