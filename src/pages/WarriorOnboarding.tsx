@@ -230,7 +230,7 @@ const WarriorOnboarding = () => {
           </motion.section>
 
           {/* Warrior Routine Video */}
-          <WarriorRoutineVideoSection variant="dark" />
+          <WarriorRoutineVideoSection variant="dark" location="warrior_en" />
 
           {/* Pain points */}
           <section className="space-y-6 max-w-2xl mx-auto">
