@@ -572,7 +572,7 @@ serve(async (req) => {
                 email: customerEmail,
                 options: { redirectTo: `${origin}${langPrefix}/daily-flow?new=1` },
               });
-              await supabaseService.functions.invoke("send-transactional-email", {
+              const welcomeInvoke = await supabaseService.functions.invoke("send-transactional-email", {
                 headers: svcInvokeHeaders,
                 body: {
                   templateName: "warrior-welcome",
@@ -587,6 +587,13 @@ serve(async (req) => {
                   },
                 },
               });
+              if (welcomeInvoke.error) {
+                console.error("[stripe-webhook] warrior-welcome invoke failed", {
+                  email: customerEmail,
+                  error: welcomeInvoke.error,
+                  data: welcomeInvoke.data,
+                });
+              }
 
               // 5. Mark lead as converted
               if (lead?.id) {
