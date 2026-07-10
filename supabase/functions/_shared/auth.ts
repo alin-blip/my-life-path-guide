@@ -35,6 +35,9 @@ export function parseJwtClaims(token: string): Record<string, unknown> | null {
 }
 
 export function isServiceRoleToken(token: string): boolean {
+  if (!token) return false;
+  // Support new (non-JWT) service_role secret formats: direct match wins.
+  if (SUPABASE_SERVICE_ROLE_KEY && token === SUPABASE_SERVICE_ROLE_KEY) return true;
   const claims = parseJwtClaims(token);
   return claims?.role === "service_role";
 }
