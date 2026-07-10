@@ -52,7 +52,7 @@ export const missionSchema = z.object({
   period: z.string().optional(),
   missionType: z.enum(['monthly', 'annual']),
   isImpossibleGame: z.boolean().optional(),
-  goalData: z.record(z.any()).optional()
+  goalData: z.record(z.string(), z.any()).optional()
 });
 
 // Objectives validation schemas
@@ -116,7 +116,7 @@ export function validateAndSanitize<T>(
     return { success: true, data: validated };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { success: false, error: error.errors[0].message };
+      return { success: false, error: error.issues[0].message };
     }
     return { success: false, error: 'Validation failed' };
   }

@@ -21,7 +21,7 @@ const leadFormSchema = z.object({
     .min(10, 'Număr de telefon invalid')
     .max(20, 'Numărul de telefon nu poate depăși 20 caractere')
     .regex(/^[+]?[0-9\s\-()]+$/, 'Număr de telefon invalid'),
-  gender: z.enum(['male', 'female'], { required_error: 'Selectează genul' }),
+  gender: z.enum(['male', 'female'], { message: 'Selectează genul' }),
   password: z.string()
     .min(8, 'Parola trebuie să aibă cel puțin 8 caractere')
     .regex(/[A-Z]/, 'Parola trebuie să conțină cel puțin o majusculă')
@@ -62,7 +62,7 @@ export function WarriorPowerLeadForm({ onSubmit, isLoading }: WarriorPowerLeadFo
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
+        error.issues.forEach(err => {
           if (err.path[0]) {
             newErrors[err.path[0] as string] = err.message;
           }
