@@ -7,9 +7,13 @@ interface Props {
   variant?: "light" | "dark";
   /** Where this section is rendered (e.g. "index_en", "warrior_en"). Used for analytics. */
   location?: string;
+  /** Hide the section header (title + subtitle). Useful when embedding under a hero. */
+  hideHeader?: boolean;
+  /** Reduce vertical padding for compact placements (e.g. inside hero). */
+  compact?: boolean;
 }
 
-export const WarriorRoutineVideoSection = ({ variant = "light", location = "unknown" }: Props) => {
+export const WarriorRoutineVideoSection = ({ variant = "light", location = "unknown", hideHeader = false, compact = false }: Props) => {
   const { language } = useLanguage();
   const isEn = language === "en";
   const playedRef = useRef(false);
