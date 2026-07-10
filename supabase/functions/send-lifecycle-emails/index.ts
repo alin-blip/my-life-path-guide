@@ -195,7 +195,7 @@ async function runWarriorDrip() {
         currentStreak = (stats as any)?.current_streak ?? 5
       }
       await enqueue(d.template, lead.email, `${d.template}-${lead.email}-${lead.trial_started_at}`, {
-        warriorName, ctaUrl: `${APP_BASE}${d.cta}`, language: lang, currentStreak,
+        warriorName, ctaUrl: `${APP_BASE}${lang === 'en' ? '/en' : ''}${d.cta}`, language: lang, currentStreak,
       })
       sent++
     }

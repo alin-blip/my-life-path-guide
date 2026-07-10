@@ -565,11 +565,12 @@ serve(async (req) => {
               }
 
               // 4. Send welcome email with magic link
-              const origin = req.headers.get("origin") || "https://ceomindos.com";
+              const origin = "https://www.ceomindos.com";
+              const langPrefix = language === "en" ? "/en" : "";
               const { data: linkData } = await supabaseService.auth.admin.generateLink({
                 type: "magiclink",
                 email: customerEmail,
-                options: { redirectTo: `${origin}/daily-flow?new=1` },
+                options: { redirectTo: `${origin}${langPrefix}/daily-flow?new=1` },
               });
               await supabaseService.functions.invoke("send-transactional-email", {
                 headers: svcInvokeHeaders,
@@ -581,7 +582,7 @@ serve(async (req) => {
                     warriorName: warriorType
                       ? warriorType.charAt(0).toUpperCase() + warriorType.slice(1)
                       : "Warrior",
-                    magicLink: linkData?.properties?.action_link || `${origin}/auth`,
+                    magicLink: linkData?.properties?.action_link || `${origin}${langPrefix}/auth`,
                     language,
                   },
                 },
