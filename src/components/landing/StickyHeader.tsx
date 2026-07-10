@@ -51,7 +51,7 @@ export const StickyHeader = () => {
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-10">
+            <nav className="hidden lg:flex items-center gap-8">
               {navItems.map((item) => (
                 <button
                   key={item.href}
