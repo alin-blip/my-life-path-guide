@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
+import SeoHead from "@/components/seo/SeoHead";
 
 const NotFound = () => {
   const location = useLocation();
@@ -14,6 +15,11 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-6">
+      <SeoHead
+        title="404 — Pagina nu există | CEO Mind OS"
+        description="Ruta cerută nu face parte din CEO Mind OS. Întoarce-te la pagina principală pentru a continua."
+        noindex
+      />
       <div className="text-center max-w-md">
         <div className="font-display text-primary text-7xl md:text-8xl font-semibold tracking-tight mb-4">
           404
