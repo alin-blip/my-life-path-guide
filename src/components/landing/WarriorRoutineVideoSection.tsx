@@ -56,27 +56,29 @@ export const WarriorRoutineVideoSection = ({ variant = "light", location = "unkn
 
   return (
     <section
-      className={`py-16 md:py-24 ${
+      className={`${compact ? "py-0" : "py-16 md:py-24"} ${
         isDark ? "" : "bg-background"
       }`}
     >
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-8 md:mb-10 space-y-3">
-          <h2
-            className={`text-3xl md:text-5xl font-bold ${
-              isDark ? "text-white" : "text-foreground"
-            }`}
-          >
-            {title}
-          </h2>
-          <p
-            className={`text-base md:text-lg ${
-              isDark ? "text-white/70" : "text-muted-foreground"
-            } max-w-2xl mx-auto`}
-          >
-            {subtitle}
-          </p>
-        </div>
+      <div className={`${compact ? "max-w-3xl" : "max-w-4xl"} mx-auto ${compact ? "px-0" : "px-4"}`}>
+        {!hideHeader && (
+          <div className="text-center mb-8 md:mb-10 space-y-3">
+            <h2
+              className={`text-3xl md:text-5xl font-bold ${
+                isDark ? "text-white" : "text-foreground"
+              }`}
+            >
+              {title}
+            </h2>
+            <p
+              className={`text-base md:text-lg ${
+                isDark ? "text-white/70" : "text-muted-foreground"
+              } max-w-2xl mx-auto`}
+            >
+              {subtitle}
+            </p>
+          </div>
+        )}
 
         <div
           className={`relative rounded-2xl overflow-hidden shadow-2xl ${
