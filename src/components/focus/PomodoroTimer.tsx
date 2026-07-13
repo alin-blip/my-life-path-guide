@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Coffee, Brain, Settings } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Play, Pause, RotateCcw, Coffee, Brain, Settings, Music, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBinauralBeats, type BinauralType } from '@/hooks/useBinauralBeats';
 
 type TimerMode = 'focus' | 'shortBreak' | 'longBreak';
 
@@ -27,6 +29,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [pomodorosCompleted, setPomodorosCompleted] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { start: startBeats, stop: stopBeats, changeVolume, isPlaying: beatsPlaying, currentType, volume: beatsVolume, availableTypes, getDescription } = useBinauralBeats();
 
   const totalTime = TIMER_PRESETS[mode];
   const progress = ((totalTime - timeLeft) / totalTime) * 100;
@@ -256,6 +259,68 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
             )}
           />
         ))}
+      </div>
+
+      {/* Focus Sounds / Meditation Beats */}
+      <div className="mt-8 pt-6 border-t border-border">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Music className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">
+              {language === 'en' ? 'Focus Sounds' : 'Sunete de Focus'}
+            </span>
+          </div>
+          {beatsPlaying && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={stopBeats}
+              className="gap-1 h-7 text-xs"
+            >
+              <VolumeX className="w-3 h-3" />
+              {language === 'en' ? 'Stop' : 'Oprește'}
+            </Button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+          {availableTypes.map((type) => (
+            <Button
+              key={type}
+              variant={beatsPlaying && currentType === type ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => beatsPlaying && currentType === type ? stopBeats() : startBeats(type)}
+              className="flex-col h-auto py-2 gap-0.5"
+            >
+              <span className="text-xs font-semibold capitalize">{type}</span>
+              <span className="text-[10px] opacity-70 leading-tight">
+                {getDescription(type)}
+              </span>
+            </Button>
+          ))}
+        </div>
+
+        {beatsPlaying && (
+          <div className="flex items-center gap-2 px-1">
+            <Volume2 className="w-3 h-3 text-muted-foreground" />
+            <Slider
+              value={[beatsVolume * 100]}
+              onValueChange={([v]) => changeVolume(v / 100)}
+              max={100}
+              step={5}
+              className="flex-1"
+            />
+            <span className="text-xs text-muted-foreground w-8 text-right">
+              {Math.round(beatsVolume * 100)}%
+            </span>
+          </div>
+        )}
+
+        <p className="text-[11px] text-muted-foreground text-center mt-2">
+          {language === 'en'
+            ? '🎧 Use headphones for best binaural effect'
+            : '🎧 Folosește căștile pentru efect binaural optim'}
+        </p>
       </div>
     </div>
   );
