@@ -29,8 +29,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [pomodorosCompleted, setPomodorosCompleted] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const totalTime = TIMER_PRESETS[mode];
+  const { start: startBeats, stop: stopBeats, changeVolume, isPlaying: beatsPlaying, currentType, volume: beatsVolume, availableTypes, getDescription } = useBinauralBeats();
   const progress = ((totalTime - timeLeft) / totalTime) * 100;
 
   const formatTime = (seconds: number) => {
