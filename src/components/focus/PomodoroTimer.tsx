@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Coffee, Brain, Settings } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Play, Pause, RotateCcw, Coffee, Brain, Settings, Music, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBinauralBeats, type BinauralType } from '@/hooks/useBinauralBeats';
 
 type TimerMode = 'focus' | 'shortBreak' | 'longBreak';
 
