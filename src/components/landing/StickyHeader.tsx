@@ -102,7 +102,7 @@ export const StickyHeader = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="fixed inset-x-0 top-16 z-40 bg-background border-b border-border md:hidden"
+            className="fixed inset-x-0 top-16 z-40 bg-background border-b border-border lg:hidden"
           >
             <nav className="container mx-auto px-6 py-6 flex flex-col gap-1">
               {navItems.map((item) => (
