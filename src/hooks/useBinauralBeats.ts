@@ -177,14 +177,22 @@ export function useBinauralBeats() {
     currentType,
     volume,
     availableTypes: Object.keys(BEAT_FREQUENCIES) as BinauralType[],
-    getDescription: (type: BinauralType) => {
-      const descriptions: Record<BinauralType, string> = {
-        delta: 'Somn profund, vindecare',
-        theta: 'Relaxare profundă, meditație',
-        alpha: 'Calm, focus lin',
-        gamma: 'Concentrare intensă, insight',
+    getDescription: (type: BinauralType, lang: 'en' | 'ro' = 'ro') => {
+      const descriptions: Record<'en' | 'ro', Record<BinauralType, string>> = {
+        ro: {
+          delta: 'Somn profund, vindecare',
+          theta: 'Relaxare profundă, meditație',
+          alpha: 'Calm, focus lin',
+          gamma: 'Concentrare intensă, insight',
+        },
+        en: {
+          delta: 'Deep sleep, healing',
+          theta: 'Deep relaxation, meditation',
+          alpha: 'Calm, smooth focus',
+          gamma: 'Intense focus, insight',
+        },
       };
-      return descriptions[type];
+      return descriptions[lang][type];
     }
   };
 }
