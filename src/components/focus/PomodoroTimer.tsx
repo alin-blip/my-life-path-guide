@@ -294,7 +294,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
             >
               <span className="text-xs font-semibold capitalize">{type}</span>
               <span className="text-[10px] opacity-70 leading-tight">
-                {getDescription(type)}
+                {getDescription(type, language)}
               </span>
             </Button>
           ))}
