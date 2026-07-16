@@ -112,14 +112,25 @@ export const MindShiftingMethodStep: React.FC<Props> = ({ onComplete, onSkip, al
     markMindShiftDone('stack_action_saved', method);
     try {
       const weekKey = getActiveWeekKey();
+      const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'] as const;
+      const today = days[new Date().getDay()];
+      // Kill It Today (and other stacks) extract actionable tasks — put them
+      // in today's HIT list so they show up in "Sarcinile de azi" (Door),
+      // matching what the stack UI promises.
+      const category: 'hit' | 'hot' = method === 'kill-it-today' ? 'hit' : 'hot';
       await doorUserTasksService.addIdeaToWeek(weekKey, {
-        id: `routine-stack-${Date.now()}`,
+        id: `routine-stack-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         text: actionText,
-        category: 'hot',
-        priority: 'none' as any,
+        category,
+        priority: category === 'hit' ? ('urgent-important' as any) : ('none' as any),
+        day: category === 'hit' ? (today as any) : undefined,
       });
       window.dispatchEvent(new CustomEvent('doorDataUpdated', { detail: { type: 'ideaAdded' } }));
-      toast.success('Acțiune adăugată în HIT List');
+      toast.success(
+        category === 'hit'
+          ? 'Adăugat în Sarcinile de azi'
+          : 'Acțiune adăugată în HIT List'
+      );
     } catch (e: any) {
       console.error(e);
       toast.error('Nu am putut salva acțiunea.');
