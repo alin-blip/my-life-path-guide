@@ -209,7 +209,27 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
 
       // Auto-play if enabled
       if (autoPlay) {
-        await audio.play();
+        try {
+          await audio.play();
+        } catch (playErr: any) {
+          console.error('❌ Audio play() rejected:', playErr?.name, playErr?.message);
+          isSpeakingRef.current = false;
+          currentTextRef.current = null;
+          setIsLoading(false);
+          if (playErr?.name === 'NotAllowedError') {
+            toast({
+              title: '🔇 Redare blocată',
+              description: 'Browserul a blocat redarea automată. Apasă din nou Play.',
+              variant: 'destructive',
+            });
+          } else if (playErr?.name !== 'AbortError') {
+            toast({
+              title: '⚠️ Eroare redare',
+              description: playErr?.message || 'Nu s-a putut reda audio.',
+              variant: 'destructive',
+            });
+          }
+        }
       }
 
     } catch (error) {
@@ -223,12 +243,13 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
       if (error instanceof Error && !error.message.includes('API_KEY')) {
         toast({
           title: '⚠️ Eroare TTS',
-          description: 'Nu s-a putut genera audio. Verifică conexiunea.',
+          description: error.message || 'Nu s-a putut genera audio. Verifică conexiunea.',
           variant: 'destructive',
         });
       }
     }
   }, [isSpeaking, voiceId, autoPlay, onSpeakingStart, onSpeakingEnd, playbackRate, cleanup, toast]);
+
 
   const pause = useCallback(() => {
     if (audioRef.current && !audioRef.current.paused) {
