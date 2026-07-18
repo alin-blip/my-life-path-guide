@@ -114,6 +114,17 @@ export function EmpowermentMeditationPlayer({
     };
   }, []);
 
+  // Prefetch narration audio as soon as the script/voice is known so the
+  // first Play tap plays instantly (avoids iOS Safari gesture-expiry
+  // NotAllowedError when the network fetch takes several seconds).
+  useEffect(() => {
+    if (meditationScript && meditationScript.trim().length > 0) {
+      tts.prefetch(meditationScript);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meditationScript, selectedVoice]);
+
+
   // Start binaural when playing and enabled
   useEffect(() => {
     if (isPlaying && binauralEnabled && !binauralStartedRef.current) {
