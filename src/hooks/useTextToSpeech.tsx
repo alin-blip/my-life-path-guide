@@ -300,8 +300,52 @@ export const useTextToSpeech = (options: UseTextToSpeechOptions = {}) => {
     audioQueueRef.current = [];
   }, []);
 
+  // Prefetch audio into the cache without playing it. Safe to call on mount:
+  // no user gesture is required because we never call audio.play() here.
+  // The next speak(text) with the same voice + text will use the cached blob
+  // and play instantly, avoiding iOS Safari gesture-expiry issues.
+  const prefetch = useCallback(async (text: string) => {
+    if (!text || text.trim().length === 0) return;
+    const currentVoiceId = voiceIdRef.current;
+    const cacheKey = `${currentVoiceId}:${text}`;
+    if (ttsCache.has(cacheKey)) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/text-to-speech`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ text, voiceId: currentVoiceId }),
+        }
+      );
+
+      if (!response.ok) {
+        console.warn('TTS prefetch failed:', response.status);
+        return;
+      }
+
+      const audioBlob = await response.blob();
+      if (!audioBlob || audioBlob.size === 0) return;
+
+      const audioUrl = URL.createObjectURL(audioBlob);
+      ttsCache.set(cacheKey, { url: audioUrl, blob: audioBlob });
+      console.log('💾 Prefetched TTS audio (', audioBlob.size, 'bytes)');
+    } catch (err) {
+      console.warn('TTS prefetch error:', err);
+    }
+  }, []);
+
   return {
     speak,
+    prefetch,
     stop,
     pause,
     resume,
