@@ -536,6 +536,12 @@ Răspunde în română cu un ton cald și profesionist.`;
     setIsLoading(true);
 
     try {
+      // Ensure a fresh session token before invoking (avoids "Invalid token" after expiry)
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        await supabase.auth.refreshSession();
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-live-coaching', {
         body: {
           messages: [...messages, userMessage].map(msg => ({
@@ -547,7 +553,22 @@ Răspunde în română cu un ton cald și profesionist.`;
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        const ctx: any = (error as any)?.context;
+        const status: number | undefined = ctx?.status;
+        let serverMsg: string | undefined;
+        try {
+          if (ctx && typeof ctx.json === 'function') {
+            const body = await ctx.json();
+            serverMsg = body?.error;
+          } else if (ctx && typeof ctx.text === 'function') {
+            serverMsg = await ctx.text();
+          }
+        } catch { /* ignore parse errors */ }
+        const err: any = new Error(serverMsg || (error as any)?.message || 'Request failed');
+        err.status = status;
+        throw err;
+      }
 
       const assistantMessage: Message = {
         role: 'assistant',
@@ -568,13 +589,31 @@ Răspunde în română cu un ton cald și profesionist.`;
           }
         }, 300);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
-      toast({
-        title: "Eroare",
-        description: "Nu am putut trimite mesajul. Te rog încearcă din nou.",
-        variant: "destructive"
-      });
+      const status = error?.status;
+      const msg: string = error?.message || '';
+      let title = 'Eroare';
+      let description = 'Nu am putut trimite mesajul. Te rog încearcă din nou.';
+
+      if (status === 401 || /invalid token|unauthorized/i.test(msg)) {
+        title = 'Sesiune expirată';
+        description = 'Te rog reîmprospătează pagina sau autentifică-te din nou.';
+      } else if (status === 402 || /credite|payment required/i.test(msg)) {
+        title = 'Credite AI epuizate';
+        description = 'Reîncarcă creditele Lovable AI din Settings → Workspace → Usage.';
+      } else if (status === 429 || /rate limit/i.test(msg)) {
+        title = 'Prea multe cereri';
+        description = 'Te rog așteaptă câteva secunde și încearcă din nou.';
+      } else if (msg) {
+        description = msg;
+      }
+
+      // Restore the user's text so they don't have to retype, and remove the failed bubble
+      setCurrentMessage(userMessage.content);
+      setMessages(prev => prev.filter(m => m !== userMessage));
+
+      toast({ title, description, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
