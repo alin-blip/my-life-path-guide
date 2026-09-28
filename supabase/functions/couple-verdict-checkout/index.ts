@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
       allow_promotion_codes: true,
       metadata: {
         plan_id: plan, source: "couple-verdict", lead_token: token, language: lead.language,
-        guest_email: lead.email, guest_name: lead.name, tier: monthly ? "starter" : "couple-plan",
+        guest_email: lead.email, guest_name: lead.name, tier: is7d ? "couple-plan" : "starter",
       },
       success_url: `${origin}${path}?t=${token}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}${path}?t=${token}&canceled=1`,
