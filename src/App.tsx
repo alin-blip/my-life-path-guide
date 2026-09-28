@@ -122,6 +122,7 @@ const MarriageAudit = lazy(() => import("./pages/MarriageAudit"));
 const MarriageProfilePage = lazy(() => import("./pages/MarriageProfile"));
 const MarriageTimelinePage = lazy(() => import("./pages/MarriageTimeline"));
 const MarriageQuiz = lazy(() => import("./pages/MarriageQuiz"));
+const CoupleVerdict = lazy(() => import("./pages/CoupleVerdict"));
 const Parenting = lazy(() => import("./pages/Parenting"));
 const ParentingProfilePage = lazy(() => import("./pages/ParentingProfile"));
 const ParentingLibrary = lazy(() => import("./pages/ParentingLibrary"));
@@ -555,6 +556,8 @@ const App = () => (
                     <Route path="/mind-coach-transform" element={<MindCoachLanding />} />
                     <Route path="/chat" element={<Navigate to="/mind-coach" replace />} />
                     <Route path="/marriage-quiz" element={<MarriageQuiz />} />
+                    <Route path="/cine-are-dreptate" element={<CoupleVerdict />} />
+                    <Route path="/who-is-right" element={<CoupleVerdict />} />
                     <Route path="/marriage" element={
                       <ProtectedRoute>
                         <Marriage />

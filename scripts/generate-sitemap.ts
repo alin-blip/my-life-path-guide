@@ -35,6 +35,8 @@ const entries: SitemapEntry[] = [
   { path: "/quiz-rutina", changefreq: "monthly", priority: "0.8" },
   { path: "/burnout-test", changefreq: "monthly", priority: "0.9", roOnly: true },
   { path: "/burnout-test-en", changefreq: "monthly", priority: "0.8", enOnly: true },
+  { path: "/cine-are-dreptate", changefreq: "monthly", priority: "0.8", roOnly: true },
+  { path: "/who-is-right", changefreq: "monthly", priority: "0.8", enOnly: true },
   { path: "/ebook", changefreq: "monthly", priority: "0.8" },
   { path: "/challenge-7-zile", changefreq: "monthly", priority: "0.8", roOnly: true },
   { path: "/challenge-en", changefreq: "monthly", priority: "0.7", enOnly: true },

@@ -32,6 +32,7 @@ import { template as warriorDripDay1 } from './warrior-drip-day1.tsx'
 import { template as warriorDripDay3 } from './warrior-drip-day3.tsx'
 import { template as warriorDripDay5 } from './warrior-drip-day5.tsx'
 import { template as warriorDripDay14 } from './warrior-drip-day14.tsx'
+import { template as coupleVerdict } from './couple-verdict.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'burnout-results': burnoutResults,
@@ -57,4 +58,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'warrior-drip-day3': warriorDripDay3,
   'warrior-drip-day5': warriorDripDay5,
   'warrior-drip-day14': warriorDripDay14,
+  'couple-verdict': coupleVerdict,
 }
