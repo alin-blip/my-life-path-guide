@@ -171,3 +171,15 @@ project_id = "exsbnfmaadjyfblperas"
     verify_jwt = false
   [functions.whisper-transcribe]
     verify_jwt = false
+
+[functions.couple-verdict-analyze]
+  verify_jwt = false
+
+[functions.couple-verdict-get]
+  verify_jwt = false
+
+[functions.couple-verdict-checkout]
+  verify_jwt = false
+
+[functions.couple-verdict-followups]
+  verify_jwt = false
