@@ -218,8 +218,8 @@ serve(async (req) => {
             stripe_session_id: session.id,
           }).eq("access_token", session.metadata.lead_token);
           log("Couple verdict lead unlocked", { plan: session.metadata.plan_id });
-          // One-time 7-day plan does not grant a platform subscription
-          if (session.mode === "payment") break;
+          // Couple verdict plans (7-day weekly + monthly) unlock the lead only — no platform subscription
+          break;
         }
 
         // PRIORITY: Get tier from metadata (most reliable)

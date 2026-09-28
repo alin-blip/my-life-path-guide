@@ -27,15 +27,19 @@ Deno.serve(async (req) => {
     const currency = isEn ? "usd" : "eur";
     const origin = req.headers.get("origin") || "https://www.ceomindos.com";
     const path = isEn ? "/en/who-is-right" : "/cine-are-dreptate";
-    const monthly = plan === "couple-monthly";
-    const name = monthly
-      ? (isEn ? "Marriage Stack — monthly access" : "Marriage Stack — acces lunar")
-      : (isEn ? "7-Day De-escalation Plan" : "Plan de de-escaladare 7 zile");
-    const price: any = { currency, product_data: { name }, unit_amount: monthly ? 997 : 500 };
-    if (monthly) price.recurring = { interval: "month" };
+    const is7d = plan === "couple-plan-7d";
+    const name = is7d
+      ? (isEn ? "7-Day De-escalation Plan" : "Plan de de-escaladare 7 zile")
+      : (isEn ? "Marriage Stack — monthly access" : "Marriage Stack — acces lunar");
+    const price: any = {
+      currency,
+      product_data: { name },
+      unit_amount: is7d ? 500 : 997,
+      recurring: { interval: is7d ? "week" : "month" },
+    };
 
     const session = await stripe.checkout.sessions.create({
-      mode: monthly ? "subscription" : "payment",
+      mode: "subscription",
       customer_email: lead.email,
       line_items: [{ price_data: price, quantity: 1 }],
       allow_promotion_codes: true,
