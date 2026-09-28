@@ -2085,6 +2085,75 @@ export type Database = {
         }
         Relationships: []
       }
+      couple_verdict_leads: {
+        Row: {
+          access_token: string
+          created_at: string
+          email: string
+          followup_sent: Json
+          id: string
+          ip_hash: string | null
+          language: string
+          marketing_consent: boolean
+          my_perspective: string
+          name: string
+          paid: boolean
+          paid_at: string | null
+          paid_plan: string | null
+          partner_perspective: string
+          plan: Json | null
+          situation: string
+          stripe_session_id: string | null
+          updated_at: string
+          utm: Json | null
+          verdict: Json | null
+        }
+        Insert: {
+          access_token?: string
+          created_at?: string
+          email: string
+          followup_sent?: Json
+          id?: string
+          ip_hash?: string | null
+          language?: string
+          marketing_consent?: boolean
+          my_perspective: string
+          name: string
+          paid?: boolean
+          paid_at?: string | null
+          paid_plan?: string | null
+          partner_perspective: string
+          plan?: Json | null
+          situation: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          utm?: Json | null
+          verdict?: Json | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          email?: string
+          followup_sent?: Json
+          id?: string
+          ip_hash?: string | null
+          language?: string
+          marketing_consent?: boolean
+          my_perspective?: string
+          name?: string
+          paid?: boolean
+          paid_at?: string | null
+          paid_plan?: string | null
+          partner_perspective?: string
+          plan?: Json | null
+          situation?: string
+          stripe_session_id?: string | null
+          updated_at?: string
+          utm?: Json | null
+          verdict?: Json | null
+        }
+        Relationships: []
+      }
       course_modules: {
         Row: {
           course_id: string
