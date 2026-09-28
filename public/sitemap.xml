@@ -147,6 +147,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://ceomindos.com/cine-are-dreptate</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ceomindos.com/en/who-is-right</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://ceomindos.com/ebook</loc>
     <xhtml:link rel="alternate" hreflang="ro" href="https://ceomindos.com/ebook"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://ceomindos.com/en/ebook"/>
