@@ -209,6 +209,19 @@ serve(async (req) => {
           break;
         }
 
+        // "Who is right?" couple lead magnet — unlock the lead's plan
+        if (session.metadata?.source === "couple-verdict" && session.metadata?.lead_token) {
+          await supabaseService.from("couple_verdict_leads").update({
+            paid: true,
+            paid_plan: session.metadata.plan_id || null,
+            paid_at: new Date().toISOString(),
+            stripe_session_id: session.id,
+          }).eq("access_token", session.metadata.lead_token);
+          log("Couple verdict lead unlocked", { plan: session.metadata.plan_id });
+          // One-time 7-day plan does not grant a platform subscription
+          if (session.mode === "payment") break;
+        }
+
         // PRIORITY: Get tier from metadata (most reliable)
         let subscriptionTier = session.metadata?.tier || "basic";
         let subscriptionEnd: Date | null = null;
