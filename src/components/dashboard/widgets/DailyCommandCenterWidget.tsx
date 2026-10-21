@@ -172,7 +172,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
     { label: 'Corp', done: coreAreas.body },
     { label: 'Spiritualitate', done: coreAreas.spirit },
     { label: 'Relații', done: coreAreas.relations },
-    { label: 'Business', done: coreAreas.business },
+    { label: 'Business', done: coreAreas.business || tasksCompleted > 0 },
   ];
   const coreDone = coreList.filter(i => i.done).length;
   const bizLabels: Record<string, string> = { video: 'Video', text: 'Text', audio: 'Audio', image: 'Imagine' };
