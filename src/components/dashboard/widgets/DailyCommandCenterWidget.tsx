@@ -93,6 +93,7 @@ export const DailyCommandCenterWidget: React.FC = () => {
   const [customCategories, setCustomCategories] = useState<string[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [openPanel, setOpenPanel] = useState<'core' | 'biz' | null>(null);
 
   // Get all unique categories from habits (including custom ones)
   const allCategories = useMemo(() => {
@@ -325,27 +326,53 @@ export const DailyCommandCenterWidget: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => navigate('/champion-routine')}
-              className="flex flex-col items-center p-2 rounded-lg bg-background/30 hover:bg-background/60 transition-colors cursor-pointer"
-              aria-label="Deschide Rutina Campion (Core 4)"
+              onClick={() => setOpenPanel(openPanel === 'core' ? null : 'core')}
+              aria-expanded={openPanel === 'core'}
+              className={cn("flex flex-col items-center p-2 rounded-lg transition-colors cursor-pointer", openPanel === 'core' ? "bg-primary/15 ring-1 ring-primary/40" : "bg-background/30 hover:bg-background/60")}
+              aria-label="Core 4"
             >
               <span className="text-xs text-muted-foreground">Core 4</span>
-              <span className="text-sm font-semibold">
-                {progress.core.completed}/{progress.core.total}
+              <span className={cn("text-sm font-semibold", coreDone === 4 && "text-green-500")}>
+                {coreDone === 4 ? '✓ ' : ''}{coreDone}/4
               </span>
             </button>
             <button
               type="button"
-              onClick={() => navigate('/biz4-report')}
-              className="flex flex-col items-center p-2 rounded-lg bg-background/30 hover:bg-background/60 transition-colors cursor-pointer"
-              aria-label="Deschide Raport Biz 4"
+              onClick={() => setOpenPanel(openPanel === 'biz' ? null : 'biz')}
+              aria-expanded={openPanel === 'biz'}
+              className={cn("flex flex-col items-center p-2 rounded-lg transition-colors cursor-pointer", openPanel === 'biz' ? "bg-primary/15 ring-1 ring-primary/40" : "bg-background/30 hover:bg-background/60")}
+              aria-label="Biz 4"
             >
               <span className="text-xs text-muted-foreground">Biz 4</span>
-              <span className="text-sm font-semibold">
+              <span className={cn("text-sm font-semibold", progress.biz.completed >= 4 && "text-green-500")}>
                 {progress.biz.completed}/{progress.biz.total}
               </span>
             </button>
           </div>
+
+          {openPanel && (
+            <div className="mb-4 rounded-lg border border-primary/20 bg-background/40 p-3 animate-fade-in">
+              <ul className="grid grid-cols-2 gap-2">
+                {(openPanel === 'core' ? coreList : bizList).map((item) => (
+                  <li key={item.label} className="flex items-center gap-2 text-sm">
+                    {item.done
+                      ? <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+                      : <Circle className="h-5 w-5 text-muted-foreground shrink-0" />}
+                    <span className={cn(item.done ? "text-foreground" : "text-muted-foreground")}>{item.label}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full mt-3"
+                onClick={() => navigate(openPanel === 'core' ? '/champion-routine' : '/biz4-report')}
+              >
+                {openPanel === 'core' ? 'Deschide Rutina' : 'Deschide Biz 4'}
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          )}
 
           {/* Main Action Button - Start Routine */}
           <Button 

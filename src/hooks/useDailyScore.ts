@@ -30,6 +30,8 @@ export interface DailyScoreData {
   bigOne: BigOne;
   nextAction: NextAction;
   progress: ProgressSection;
+  coreAreas: { body: boolean; spirit: boolean; relations: boolean; business: boolean };
+  bizItems: { id: string; completed: boolean }[];
   streak: number;
   xpLevel: number;
   greeting: string;
