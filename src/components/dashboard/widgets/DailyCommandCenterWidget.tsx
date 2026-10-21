@@ -167,6 +167,19 @@ export const DailyCommandCenterWidget: React.FC = () => {
   }
 
   const { totalScore, bigOne, nextAction, progress, streak, xpLevel, greeting } = data;
+  const coreAreas = data.coreAreas;
+  const coreList = [
+    { label: 'Corp', done: coreAreas.body },
+    { label: 'Spiritualitate', done: coreAreas.spirit },
+    { label: 'Relații', done: coreAreas.relations },
+    { label: 'Business', done: coreAreas.business },
+  ];
+  const coreDone = coreList.filter(i => i.done).length;
+  const bizLabels: Record<string, string> = { video: 'Video', text: 'Text', audio: 'Audio', image: 'Imagine' };
+  const bizList = ['video', 'text', 'audio', 'image'].map(id => ({
+    label: bizLabels[id],
+    done: data.bizItems.find(b => b.id === id)?.completed || false,
+  }));
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-500';
