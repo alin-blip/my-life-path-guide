@@ -11,14 +11,18 @@ import { useTourContext } from '@/context/TourContext';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { cn } from '@/lib/utils';
 
-export const GlobalTopBar: React.FC = () => {
+interface GlobalTopBarProps {
+  onMenuClick?: () => void;
+}
+
+export const GlobalTopBar: React.FC<GlobalTopBarProps> = ({ onMenuClick }) => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadTotal } = useDirectMessages();
-  const { openMobileMenu } = useTourContext();
+  useTourContext();
 
   const isActive = (path: string) => {
     if (path === '/programs?tab=community') {
@@ -45,12 +49,28 @@ export const GlobalTopBar: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-30 backdrop-blur-md bg-background/80 border-b border-primary/15">
-      <div className="flex items-center justify-between h-14 px-4 gap-2">
-        {/* subtle gold hairline */}
+    <header
+      className="sticky top-0 z-30 backdrop-blur-md bg-background/90 border-b border-primary/15"
+      style={{
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
+    >
+      <div className="relative flex items-center justify-between h-14 px-3 md:px-4 gap-2">
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        {/* Left: Logo (hamburger is a floating overlay handled in Layout) */}
-        <div className={cn("flex items-center gap-1 shrink-0", isMobile && "ml-12")}>
+        <div className="flex items-center gap-1 shrink-0">
+          {isMobile && onMenuClick && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Open menu"
+              onClick={onMenuClick}
+              className="h-11 w-11 text-foreground"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           <Link to="/dashboard" className="flex items-center gap-2 group">
           <img
             src="/lovable-uploads/236c59b1-2cb5-46b5-95db-d302a15e2dfb.png"
@@ -92,7 +112,8 @@ export const GlobalTopBar: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="relative h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
+            aria-label="Messages"
+            className="relative h-11 w-11 md:h-9 md:w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
             onClick={() => navigate('/messages')}
           >
             <MessageCircle className="h-4.5 w-4.5" />
