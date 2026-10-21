@@ -48,6 +48,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   }, [isMobile, registerMobileMenuControl, openMobileMenuHandler, closeMobileMenuHandler]);
 
+  // Lock body scroll while mobile drawer is open
+  useEffect(() => {
+    if (!isMobile) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : prev || '';
+    return () => { document.body.style.overflow = prev; };
+  }, [isMobile, isMobileMenuOpen]);
+
   if (isAuthPage) {
     return <>{children}</>;
   }
@@ -61,32 +69,35 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex min-h-screen mesh-gradient overflow-x-hidden overflow-y-auto max-w-[100vw]">
+    <div className={`flex min-h-[100dvh] mesh-gradient overflow-x-hidden max-w-[100vw] ${isMobile ? '' : 'overflow-y-auto'}`}>
       <ReferralTracker />
       <ReferralClientOnboarding />
       
       {/* Mobile Overlay */}
       {isMobile && isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-30 transition-opacity" 
+          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40 transition-opacity" 
           onClick={() => setIsMobileMenuOpen(false)} 
         />
       )}
       
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         ${isMobile 
-          ? `fixed top-0 left-0 h-screen z-40 w-[280px] transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}` 
+          ? `fixed top-0 left-0 h-[100dvh] z-50 w-[280px] overflow-y-auto overscroll-contain transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}` 
           : `fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-20 ${isMenuCollapsed ? 'w-[70px]' : 'w-[260px]'}`
         } glass-sidebar
-      `}>
+      `}
+        style={isMobile ? { paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : undefined}
+      >
         <SideMenu 
           isCollapsed={!isMobile && isMenuCollapsed} 
           onItemClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined} 
         />
       </div>
       
-      {/* Menu Toggle Button - desktop only (mobile uses floating overlay) */}
+      {/* Menu Toggle Button - desktop only */}
       <button
         onClick={toggleMenu}
         className={`
@@ -97,28 +108,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         {isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
-
-      {/* Floating hamburger overlay - mobile, always visible (even over hero) */}
-      {isMobile && !isMobileMenuOpen && (
-        <button
-          onClick={() => setIsMobileMenuOpen(true)}
-          aria-label="Open menu"
-          className="md:hidden fixed left-3 z-50 h-10 w-10 flex items-center justify-center rounded-full bg-background/85 backdrop-blur-md border border-border shadow-lg text-foreground hover:bg-background transition-colors"
-          style={{ top: 'max(0.5rem, env(safe-area-inset-top))' }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-      )}
       
       {/* Main Content */}
       <div className={`
-        flex-1 transition-all duration-300 ease-in-out w-full overflow-x-hidden overflow-y-auto
-        ${isMobile ? 'ml-0' : isMenuCollapsed ? 'ml-[70px]' : 'ml-[260px]'}
+        flex-1 min-w-0 transition-all duration-300 ease-in-out w-full overflow-x-hidden
+        ${isMobile ? 'ml-0' : `overflow-y-auto ${isMenuCollapsed ? 'ml-[70px]' : 'ml-[260px]'}`}
       `}>
-        {/* Global Top Bar */}
-        <GlobalTopBar />
+        <GlobalTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
         
-        <div className={`${isMobile ? 'px-4 py-4 pt-4 pb-24 safe-x safe-bottom' : 'p-8'} overflow-x-hidden min-h-full`}>
+        <div
+          className={`${isMobile ? 'px-4 py-4 safe-x' : 'p-8'} overflow-x-hidden min-h-full`}
+          style={isMobile ? { paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' } : undefined}
+        >
           <main className="animate-fade-in">{children}</main>
         </div>
       </div>

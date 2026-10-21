@@ -36,10 +36,11 @@ export const StickyHeader = () => {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ${
-          isScrolled
+          isScrolled || isMobileMenuOpen
             ? "bg-background/85 backdrop-blur-md border-b border-border"
             : "bg-transparent"
         }`}
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
@@ -102,7 +103,8 @@ export const StickyHeader = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="fixed inset-x-0 top-16 z-40 bg-background border-b border-border lg:hidden"
+            className="fixed inset-x-0 z-40 bg-background border-b border-border lg:hidden max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
+            style={{ top: 'calc(4rem + env(safe-area-inset-top, 0px))' }}
           >
             <nav className="container mx-auto px-6 py-6 flex flex-col gap-1">
               {navItems.map((item) => (
@@ -138,7 +140,7 @@ export const StickyHeader = () => {
         )}
       </AnimatePresence>
 
-      <div className="h-16 md:h-20" />
+      <div className="h-16 md:h-20" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }} />
     </>
   );
 };

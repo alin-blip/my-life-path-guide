@@ -40,7 +40,7 @@ export const ProgramsLayout: React.FC<ProgramsLayoutProps> = ({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-[100dvh] bg-background">
       {/* Global Top Bar */}
       <GlobalTopBar />
 
@@ -50,7 +50,7 @@ export const ProgramsLayout: React.FC<ProgramsLayoutProps> = ({
       )}
 
       {/* Content Area with optional sidebar */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className={`flex-1 flex ${isMobile ? '' : 'overflow-hidden'}`}>
         {/* Desktop Sidebar */}
         {sidebar && !isMobile && (
           <aside className="w-72 lg:w-80 border-r border-border/60 bg-card/50 overflow-y-auto shrink-0">
@@ -61,7 +61,7 @@ export const ProgramsLayout: React.FC<ProgramsLayoutProps> = ({
         {/* Mobile Sidebar Sheet */}
         {sidebar && isMobile && (
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetContent side="left" className="w-[300px] p-0">
+            <SheetContent side="left" className="w-[300px] p-0" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
               <SheetHeader className="sr-only">
                 <SheetTitle>Lecții</SheetTitle>
               </SheetHeader>
@@ -71,10 +71,16 @@ export const ProgramsLayout: React.FC<ProgramsLayoutProps> = ({
         )}
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main
+          className={`flex-1 min-w-0 ${isMobile ? '' : 'overflow-y-auto'}`}
+          style={isMobile ? { paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : undefined}
+        >
           {/* Mobile: sidebar toggle */}
           {sidebar && isMobile && (
-            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/60 p-3 flex items-center gap-3">
+            <div
+              className="sticky z-10 bg-background/95 backdrop-blur-sm border-b border-border/60 p-3 flex items-center gap-3"
+              style={{ top: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
+            >
               <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="h-8 w-8">
                 <Menu className="h-5 w-5" />
               </Button>
