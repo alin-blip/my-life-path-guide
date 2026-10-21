@@ -30,6 +30,8 @@ export interface DailyScoreData {
   bigOne: BigOne;
   nextAction: NextAction;
   progress: ProgressSection;
+  coreAreas: { body: boolean; spirit: boolean; relations: boolean; business: boolean };
+  bizItems: { id: string; completed: boolean }[];
   streak: number;
   xpLevel: number;
   greeting: string;
@@ -48,6 +50,7 @@ export const useDailyScore = () => {
   
   const [routineCompleted, setRoutineCompleted] = useState(false);
   const [routineStepsCompleted, setRoutineStepsCompleted] = useState(0);
+  const [coreAreas, setCoreAreas] = useState({ body: false, spirit: false, relations: false, business: false });
   const [readingCompleted, setReadingCompleted] = useState(false);
   const [bigOne, setBigOne] = useState<BigOne>({ text: null, completed: false });
   const [streak, setStreak] = useState(0);
@@ -105,8 +108,15 @@ export const useDailyScore = () => {
         const routineComplete = completedSteps >= Math.floor(totalSteps * 0.7);
         setRoutineCompleted(routineComplete);
         setRoutineStepsCompleted(completedSteps);
+        setCoreAreas({
+          body: !!routineData.exercise_completed || (Array.isArray(mealsLogged) && mealsLogged.length > 0) || !!routineData.water_drunk,
+          spirit: (routineData.meditation_duration_seconds || 0) > 0 || !!routineData.breathing_completed || !!routineData.visualization_completed || !!routineData.autosuggestion_completed || (Array.isArray(gratitudeItems) && gratitudeItems.some((i: string) => i?.trim())),
+          relations: Array.isArray(relationshipActions) && relationshipActions.some((a: any) => a?.completed),
+          business: !!routineData.content_script || (routineData.pomodoro_sessions || 0) > 0,
+        });
       } else {
         setRoutineStepsCompleted(0);
+        setCoreAreas({ body: false, spirit: false, relations: false, business: false });
       }
 
       // Fetch Big One for today - Priority order:
@@ -386,11 +396,13 @@ export const useDailyScore = () => {
       bigOne,
       nextAction: getNextAction(progress),
       progress,
+      coreAreas,
+      bizItems: (dailyFourData[selectedDay]?.dailyActivities || []).map((a: any) => ({ id: a.id, completed: !!a.completed })),
       streak,
       xpLevel,
       greeting: getGreeting()
     };
-  }, [calculateScore, getNextAction, bigOne, streak, xpLevel]);
+  }, [calculateScore, getNextAction, bigOne, streak, xpLevel, coreAreas, dailyFourData, selectedDay]);
 
   const refetch = useCallback(async () => {
     setLoading(true);
