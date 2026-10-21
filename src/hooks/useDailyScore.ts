@@ -396,13 +396,13 @@ export const useDailyScore = () => {
       bigOne,
       nextAction: getNextAction(progress),
       progress,
-      coreAreas,
+      coreAreas: { ...coreAreas, business: coreAreas.business || progress.tasks.completed > 0 || bigOne.completed || progress.biz.completed > 0 || routineCompleted },
       bizItems: (dailyFourData[selectedDay]?.dailyActivities || []).map((a: any) => ({ id: a.id, completed: !!a.completed })),
       streak,
       xpLevel,
       greeting: getGreeting()
     };
-  }, [calculateScore, getNextAction, bigOne, streak, xpLevel, coreAreas, dailyFourData, selectedDay]);
+  }, [calculateScore, getNextAction, bigOne, streak, xpLevel, coreAreas, dailyFourData, selectedDay, routineCompleted]);
 
   const refetch = useCallback(async () => {
     setLoading(true);
