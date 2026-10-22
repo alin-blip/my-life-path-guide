@@ -53,24 +53,31 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .order('mission_type', { ascending: true });
 
-    // 2. Fetch current weekly plan (Domino Door)
+    // 2. Fetch THIS week's plan only (Domino Door) — never an older week
+    const today = new Date();
+    const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = days[today.getDay()];
+    const dayOfWeek = today.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() + mondayOffset);
+    const weekKey = `door-week-${weekStart.getFullYear()}-${String(Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1).padStart(2, '0')}`;
+
     const { data: weeklyPlan } = await supabaseClient
       .from('weekly_planning')
       .select('domino_title, key_points, week_key, category')
       .eq('user_id', user.id)
+      .eq('week_key', weekKey)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    // 3. Fetch today's pending tasks
-    const today = new Date();
-    const days = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
-    const todayAbbrev = days[today.getDay()];
-    
+    // 3. Fetch today's pending tasks (current week only)
     const { data: todayTasks } = await supabaseClient
       .from('user_tasks')
       .select('title, completed, priority, is_key_point, scheduled_time, duration_minutes')
       .eq('user_id', user.id)
+      .eq('week_key', weekKey)
       .eq('day_of_week', todayAbbrev)
       .eq('completed', false)
       .order('scheduled_time', { ascending: true, nullsFirst: false })
