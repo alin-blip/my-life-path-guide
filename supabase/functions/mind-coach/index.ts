@@ -137,8 +137,10 @@ serve(async (req) => {
     }
 
     if (weeklyPlan && weeklyPlan.domino_title) {
-      userContext += '\n\n🎲 FOCUS SĂPTĂMÂNAL:\n';
+      userContext += `\n\n🎲 FOCUS SĂPTĂMÂNAL (săptămâna curentă, ${weekKey}):\n`;
       userContext += `Obiectiv principal: ${weeklyPlan.domino_title}\n`;
+    } else {
+      userContext += '\n\n⚠️ NU EXISTĂ plan săptămânal pentru săptămâna curentă. NU cita taskuri sau chei din alte surori — nu ai acces la ele. Întreabă utilizatorul ce are pe lista lui de azi.\n';
     }
 
     if (todayBreakthroughs && todayBreakthroughs.length > 0) {
