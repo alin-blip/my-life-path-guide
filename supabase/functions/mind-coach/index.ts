@@ -64,7 +64,17 @@ serve(async (req) => {
     const activeCluster = cluster || emotionClusterMap[emotion] || 'positive';
 
     // ========== FETCH USER CONTEXT FROM DATABASE ==========
-    
+
+    // Compute current Door week key first — everything below is scoped to THIS week
+    const dayNames = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = dayNames[new Date().getDay()];
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + mondayOffset);
+    const weekKey = `door-week-${weekStart.getFullYear()}-${String(Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1).padStart(2, '0')}`;
+
     // 1. Fetch user's missions (annual, quarterly, monthly objectives)
     const { data: missions } = await supabaseClient
       .from('missions')
@@ -72,11 +82,12 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .order('mission_type', { ascending: true });
 
-    // 2. Fetch current weekly plan (Domino Door)
+    // 2. Fetch THIS week's plan only (Domino Door) — never an older week
     const { data: weeklyPlan } = await supabaseClient
       .from('weekly_planning')
       .select('domino_title, key_points, week_key, category')
       .eq('user_id', user.id)
+      .eq('week_key', weekKey)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -90,16 +101,6 @@ serve(async (req) => {
       .gte('created_at', today)
       .order('created_at', { ascending: false })
       .limit(3);
-
-    // 4. Fetch today's tasks (HIT List + DO List)
-    const dayNames = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
-    const todayAbbrev = dayNames[new Date().getDay()];
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() + mondayOffset);
-    const weekKey = `door-week-${weekStart.getFullYear()}-${String(Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1).padStart(2, '0')}`;
 
     const { data: todayTasks } = await supabaseClient
       .from('user_tasks')
