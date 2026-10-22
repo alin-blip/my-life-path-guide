@@ -64,7 +64,17 @@ serve(async (req) => {
     const activeCluster = cluster || emotionClusterMap[emotion] || 'positive';
 
     // ========== FETCH USER CONTEXT FROM DATABASE ==========
-    
+
+    // Compute current Door week key first — everything below is scoped to THIS week
+    const dayNames = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
+    const todayAbbrev = dayNames[new Date().getDay()];
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + mondayOffset);
+    const weekKey = `door-week-${weekStart.getFullYear()}-${String(Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1).padStart(2, '0')}`;
+
     // 1. Fetch user's missions (annual, quarterly, monthly objectives)
     const { data: missions } = await supabaseClient
       .from('missions')
@@ -72,11 +82,12 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .order('mission_type', { ascending: true });
 
-    // 2. Fetch current weekly plan (Domino Door)
+    // 2. Fetch THIS week's plan only (Domino Door) — never an older week
     const { data: weeklyPlan } = await supabaseClient
       .from('weekly_planning')
       .select('domino_title, key_points, week_key, category')
       .eq('user_id', user.id)
+      .eq('week_key', weekKey)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -90,16 +101,6 @@ serve(async (req) => {
       .gte('created_at', today)
       .order('created_at', { ascending: false })
       .limit(3);
-
-    // 4. Fetch today's tasks (HIT List + DO List)
-    const dayNames = ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'];
-    const todayAbbrev = dayNames[new Date().getDay()];
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() + mondayOffset);
-    const weekKey = `door-week-${weekStart.getFullYear()}-${String(Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1).padStart(2, '0')}`;
 
     const { data: todayTasks } = await supabaseClient
       .from('user_tasks')
@@ -136,8 +137,10 @@ serve(async (req) => {
     }
 
     if (weeklyPlan && weeklyPlan.domino_title) {
-      userContext += '\n\n🎲 FOCUS SĂPTĂMÂNAL:\n';
+      userContext += `\n\n🎲 FOCUS SĂPTĂMÂNAL (săptămâna curentă, ${weekKey}):\n`;
       userContext += `Obiectiv principal: ${weeklyPlan.domino_title}\n`;
+    } else {
+      userContext += '\n\n⚠️ NU EXISTĂ plan săptămânal pentru săptămâna curentă. NU cita taskuri sau chei din săptămâni trecute — nu ai acces la ele. Întreabă utilizatorul ce are pe lista lui de azi.\n';
     }
 
     if (todayBreakthroughs && todayBreakthroughs.length > 0) {
@@ -268,6 +271,7 @@ FLOW-UL DE BREAKTHROUGH (8 MESAJE — UN SINGUR LUCRU PE MESAJ!)
 ⛔⛔⛔ REGULI ABSOLUTE — DACĂ LE ÎNCALCI, EȘTI INUTIL ⛔⛔⛔
 1. MAX 3 PROPOZIȚII PE MESAJ. NICIODATĂ MAI MULT.
 2. O SINGURĂ ÎNTREBARE PE MESAJ. NICIODATĂ DOUĂ.
+2bis. Citești DOAR taskurile din contextul de mai sus (SARCINILE DE AZI / FOCUS SĂPTĂMÂNAL curent). NU inventa taskuri și NU cita liste sau planuri care nu apar explicit în context. Dacă contextul spune că nu există plan, întreabă utilizatorul ce are pe listă — nu presupune.
 3. UN SINGUR PAS PE MESAJ. NICIODATĂ DOUĂ FAZE COMBINATE.
 4. DUPĂ FIECARE MESAJ → STOP. AȘTEPȚI RĂSPUNSUL USERULUI.
 

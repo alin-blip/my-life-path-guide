@@ -327,11 +327,19 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .limit(10);
 
-    // Fetch weekly plan
+    // Fetch THIS week's plan only — never an older week
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + mondayOffset);
+    const weekKey = `door-week-${weekStart.getFullYear()}-${String(Math.ceil((weekStart.getTime() - new Date(weekStart.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1).padStart(2, '0')}`;
+
     const { data: weeklyPlan } = await supabaseClient
       .from('weekly_planning')
       .select('domino_title, key_points')
       .eq('user_id', user.id)
+      .eq('week_key', weekKey)
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
