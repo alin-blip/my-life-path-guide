@@ -52,7 +52,6 @@ export const GlobalTopBar: React.FC<GlobalTopBarProps> = ({ onMenuClick }) => {
     <header
       className="sticky top-0 z-30 backdrop-blur-md bg-background/90 border-b border-primary/15"
       style={{
-        paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 'env(safe-area-inset-left, 0px)',
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}

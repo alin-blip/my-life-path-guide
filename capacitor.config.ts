@@ -5,7 +5,9 @@ const config: CapacitorConfig = {
   appName: 'CEO Mind OS',
   webDir: 'dist',
   ios: {
-    contentInset: 'never',
+    // Keep web content below the Dynamic Island / status bar. Individual
+    // fixed overlays still use CSS safe-area environment values.
+    contentInset: 'automatic',
   },
 };
 
