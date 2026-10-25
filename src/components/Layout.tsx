@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTourContext } from '@/context/TourContext';
 import { GlobalTopBar } from './global/GlobalTopBar';
 import { MobileGlobalNav } from './global/MobileGlobalNav';
+import { SectionErrorBoundary } from './SectionErrorBoundary';
 
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import { lazy, Suspense } from 'react';
@@ -29,7 +30,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isChallengeRoute = location.pathname.startsWith('/challenge');
   const { user } = useAuth();
   const { registerMobileMenuControl } = useTourContext();
-  
+
   // Activity tracker - tracks page views and sessions automatically
   useActivityTracker();
 
@@ -70,33 +71,39 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className={`flex min-h-[100dvh] mesh-gradient overflow-x-hidden max-w-[100vw] ${isMobile ? '' : 'overflow-y-auto'}`}>
-      <ReferralTracker />
-      <ReferralClientOnboarding />
-      
+      <SectionErrorBoundary name="Referral tracking" fallbackHeight="0px">
+        <ReferralTracker />
+      </SectionErrorBoundary>
+      <SectionErrorBoundary name="Referral onboarding" fallbackHeight="0px">
+        <ReferralClientOnboarding />
+      </SectionErrorBoundary>
+
       {/* Mobile Overlay */}
       {isMobile && isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40 transition-opacity" 
-          onClick={() => setIsMobileMenuOpen(false)} 
+        <div
+          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40 transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-      
+
       {/* Sidebar */}
       <div
         className={`
-        ${isMobile 
-          ? `fixed top-0 left-0 h-[100dvh] z-50 w-[280px] overflow-y-auto overscroll-contain transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}` 
+        ${isMobile
+          ? `fixed top-0 left-0 h-[100dvh] z-50 w-[280px] overflow-y-auto overscroll-contain transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`
           : `fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-20 ${isMenuCollapsed ? 'w-[70px]' : 'w-[260px]'}`
         } glass-sidebar
       `}
         style={isMobile ? { paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : undefined}
       >
-        <SideMenu 
-          isCollapsed={!isMobile && isMenuCollapsed} 
-          onItemClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined} 
-        />
+        <SectionErrorBoundary name="Navigation menu" fallbackHeight="0px">
+          <SideMenu
+            isCollapsed={!isMobile && isMenuCollapsed}
+            onItemClick={isMobile ? () => setIsMobileMenuOpen(false) : undefined}
+          />
+        </SectionErrorBoundary>
       </div>
-      
+
       {/* Menu Toggle Button - desktop only */}
       <button
         onClick={toggleMenu}
@@ -108,14 +115,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       >
         {isMenuCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
-      
+
       {/* Main Content */}
       <div className={`
         flex-1 min-w-0 transition-all duration-300 ease-in-out w-full overflow-x-hidden
         ${isMobile ? 'ml-0' : `overflow-y-auto ${isMenuCollapsed ? 'ml-[70px]' : 'ml-[260px]'}`}
       `}>
-        <GlobalTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
-        
+        <SectionErrorBoundary name="Top navigation" fallbackHeight="0px">
+          <GlobalTopBar onMenuClick={() => setIsMobileMenuOpen(true)} />
+        </SectionErrorBoundary>
+
         <div
           className={`${isMobile ? 'px-4 py-4 safe-x' : 'p-8'} overflow-x-hidden min-h-full`}
           style={isMobile ? { paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' } : undefined}
@@ -126,21 +135,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Mobile bottom nav */}
       {isMobile && (
-        <MobileGlobalNav onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <SectionErrorBoundary name="Mobile navigation" fallbackHeight="0px">
+          <MobileGlobalNav onMenuClick={() => setIsMobileMenuOpen(true)} />
+        </SectionErrorBoundary>
       )}
-      
+
       {/* Goal Reminders Notification - lazy loaded */}
       <Suspense fallback={null}>
-        <GoalRemindersNotification />
+        <SectionErrorBoundary name="Goal reminders" fallbackHeight="0px">
+          <GoalRemindersNotification />
+        </SectionErrorBoundary>
       </Suspense>
-      
+
       {/* Accountability Coach Widget - Hidden on Challenge routes, lazy loaded */}
       {!isChallengeRoute && (
         <Suspense fallback={null}>
-          <AccountabilityCoachWidget />
+          <SectionErrorBoundary name="Accountability Coach" fallbackHeight="0px">
+            <AccountabilityCoachWidget />
+          </SectionErrorBoundary>
         </Suspense>
       )}
-      
+
     </div>
   );
 };

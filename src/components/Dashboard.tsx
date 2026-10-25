@@ -39,6 +39,7 @@ import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton';
 import { useDashboardWidgets } from '@/hooks/useDashboardWidgets';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useOnboardingTour } from '@/hooks/useOnboardingTour';
+import { SectionErrorBoundary } from '@/components/SectionErrorBoundary';
 
 // Lazy loaded - celebrations & heavy sub-components
 const TransformedWarrior = lazy(() => import('@/components/celebrations/TransformedWarrior').then(m => ({ default: m.TransformedWarrior })));
@@ -818,39 +819,55 @@ export const Dashboard: React.FC = () => {
         </div>}
       
       {/* Early Bird Banner for non-subscribers - FIRST */}
-      <EarlyBirdBanner />
+      <SectionErrorBoundary name="Membership banner">
+        <EarlyBirdBanner />
+      </SectionErrorBoundary>
       
       {/* Accelerator Upsell Banner */}
-      <AcceleratorBanner />
+      <SectionErrorBoundary name="Accelerator banner">
+        <AcceleratorBanner />
+      </SectionErrorBoundary>
       
       {/* Objectives Card - Lunar, 90 Zile, Anual */}
       <div data-tour="dashboard-header">
-        <ObjectivesCard />
+        <SectionErrorBoundary name="Objectives">
+          <ObjectivesCard />
+        </SectionErrorBoundary>
       </div>
       
       {/* Daily Command Center - Main Score Widget */}
       <div className="mb-6" data-tour="core-activities">
-        <DailyCommandCenterWidget />
+        <SectionErrorBoundary name="Daily Command Center" fallbackHeight="160px">
+          <DailyCommandCenterWidget />
+        </SectionErrorBoundary>
       </div>
       
       {/* Vision Declaration Widget - Napoleon Hill */}
       <div className="mb-6" data-tour="vision-board">
-        <VisionDeclarationWidget />
+        <SectionErrorBoundary name="Vision Declaration">
+          <VisionDeclarationWidget />
+        </SectionErrorBoundary>
       </div>
       
       
       
       {/* Empowerment Meditation Card */}
       <div className="mb-6" data-tour="stacks">
-        <EmpowermentMeditationCard />
+        <SectionErrorBoundary name="Empowerment Meditation">
+          <EmpowermentMeditationCard />
+        </SectionErrorBoundary>
       </div>
 
       {/* Self-Care — Grija de Sine (Credința 5) */}
       <div className="mb-6">
-        <SelfCareWidget />
+        <SectionErrorBoundary name="Self-care">
+          <SelfCareWidget />
+        </SectionErrorBoundary>
       </div>
 
-      <DailyCompactCard />
+      <SectionErrorBoundary name="Daily routine">
+        <DailyCompactCard />
+      </SectionErrorBoundary>
       
       {/* ChampionRoutineWidget removed - integrated into DailyCommandCenterWidget */}
       

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
+import { isNativeMobileApp } from '@/lib/platform';
 
 interface Props {
   children: ReactNode;
@@ -24,9 +25,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   async componentDidCatch(error: Error, errorInfo: any) {
-    if (import.meta.env.DEV) {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
-    }
+    // WebKit serializes Error objects as `{}` in the Xcode console. Log a
+    // concrete string so native pilot builds always reveal the useful cause.
+    const detail = `${error.name}: ${error.message}`;
+    const stack = error.stack || '';
+    console.error(`[CEO Mind OS] Unhandled render error — ${detail}\n${stack}\n${errorInfo.componentStack || ''}`);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -67,10 +70,10 @@ export class ErrorBoundary extends Component<Props, State> {
                 Echipa noastră a fost notificată automat.
               </p>
               
-              {import.meta.env.DEV && this.state.error && (
+              {(import.meta.env.DEV || isNativeMobileApp()) && this.state.error && (
                 <div className="bg-red-950/40 p-3 rounded border border-red-500/30">
-                  <p className="text-xs text-red-300 font-mono">
-                    {this.state.error.message}
+                  <p className="text-xs text-red-300 font-mono break-words">
+                    {`${this.state.error.name}: ${this.state.error.message}`}
                   </p>
                 </div>
               )}
