@@ -9,6 +9,7 @@ import { lovable } from '@/integrations/lovable';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSecurity } from './SecurityProvider';
 import { SecureInput } from './SecureInput';
+import { isNativeMobileApp } from '@/lib/platform';
 import { usePasswordCheck, getPasswordCheckMessages } from '@/hooks/usePasswordCheck';
 import { PasswordBreachIndicator } from '@/components/auth/PasswordBreachIndicator';
 
@@ -32,6 +33,7 @@ enum AuthMode {
 }
 
 export const AuthForm: React.FC = () => {
+  const isNativeApp = isNativeMobileApp();
   const [mode, setMode] = useState<AuthMode>(AuthMode.LOGIN);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -711,8 +713,8 @@ export const AuthForm: React.FC = () => {
           )}
         </Button>
 
-        {/* Google Sign-In Divider */}
-        {(mode === AuthMode.LOGIN || mode === AuthMode.REGISTER) && (
+        {/* Google and Apple OAuth use Lovable's browser-only endpoint. */}
+        {!isNativeApp && (mode === AuthMode.LOGIN || mode === AuthMode.REGISTER) && (
           <>
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">

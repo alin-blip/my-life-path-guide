@@ -15,6 +15,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { TourProvider } from "@/context/TourContext";
+import { isNativeMobileApp } from "@/lib/platform";
 // Eager load critical pages
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -202,7 +203,7 @@ const App = () => (
                         <ProgressProvider>
                         <Suspense fallback={<LoadingFallback />}>
                         <Routes>
-                    <Route path="/" element={<Index />} />
+                    <Route path="/" element={isNativeMobileApp() ? <Navigate to="/auth" replace /> : <Index />} />
                     <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/dashboard" element={
